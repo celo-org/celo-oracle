@@ -1,0 +1,14 @@
+{
+  "extends": ["@celo/typescript/tslint.json"],
+  "rulesDirectory": [
+    "tslint-no-focused-test"
+  ],
+  "rules": {
+    "indent": [true, "spaces", 2],
+    "no-global-arrow-functions": false,
+    "no-console": true,
+    "member-ordering": false,
+    "max-classes-per-file": false,
+    "no-focused-test": true
+  }
+}

@@ -1,0 +1,458 @@
+import { BigNumber } from 'bignumber.js'
+import Logger from 'bunyan'
+import express, { Response } from 'express'
+import { max, mean, median, min, std } from 'mathjs'
+import { collectDefaultMetrics, Counter, Gauge, Histogram, register } from 'prom-client'
+import { Transaction, TransactionReceipt } from 'web3-core'
+import { Ticker, Trade } from './exchange_adapters/base'
+import { Exchange, msToSeconds, RequiredKeysOfType } from './utils'
+
+/**
+ * Represents a particular context in the oracle client
+ */
+export enum Context {
+  APP = 'app',
+  BLOCK_HEADER_SUBSCRIPTION = 'block_header_subscription',
+  EXPIRY = 'expiry',
+  REPORT = 'report',
+  REPORT_PRICE = 'report_price',
+  WALLET_INIT = 'wallet_init',
+  TRANSACTION_MANAGER = 'tranaction_manager',
+}
+
+export enum ExchangeApiRequestError {
+  FETCH = 'fetch',
+  JSON_PARSE = 'json_parse',
+  ORDERBOOK_STATUS = 'orderbook_status',
+}
+
+type ExchangeApiRequestErrorType = number | ExchangeApiRequestError
+
+/**
+ * A valid context for an error metric
+ */
+export type ErrorContext = Context | Exchange
+
+/**
+ * The reason for a report
+ */
+export enum ReportTrigger {
+  TIMER = 'timer',
+  HEARTBEAT = 'heartbeat',
+  PRICE_CHANGE = 'price_change',
+}
+
+export enum BlockType {
+  ANY = 'any',
+  ASSIGNED = 'assigned',
+}
+
+export class MetricCollector {
+  private actionDurationHist: Histogram<string>
+
+  private errorsTotalCounter: Counter<string>
+
+  private exchangeApiRequestDurationHist: Histogram<string>
+  private exchangeApiRequestErrorCounter: Counter<string>
+
+  private lastBlockHeaderNumberGauge: Gauge<string>
+
+  private potentialReportValueGauge: Gauge<string>
+
+  private reportCountCounter: Counter<string>
+  private reportTimeSinceLastReportGauge: Gauge<string>
+  private reportValueGauge: Gauge<string>
+
+  private tickerPropertyGauge: Gauge<string>
+
+  private tradesCountGauge: Gauge<string>
+  private tradesPriceStatsGauge: Gauge<string>
+  private tradesTimestampStatsGauge: Gauge<string>
+  private tradesVolumeTotalGauge: Gauge<string>
+  private transactionBlockNumberGauge: Gauge<string>
+  private transactionGasGauge: Gauge<string>
+  private transactionGasPriceGauge: Gauge<string>
+  private transactionGasUsedGauge: Gauge<string>
+  private transactionSuccessCountCounter: Counter<string>
+
+  private websocketProviderSetupCounter: Counter<string>
+
+  private readonly logger: Logger
+
+  constructor(logger: Logger) {
+    this.logger = logger
+
+    this.actionDurationHist = new Histogram({
+      name: 'oracle_action_duration',
+      help: 'Histogram of various async actions',
+      labelNames: ['type', 'action', 'token'],
+      buckets: [0.02, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.75, 1, 2, 5, 10, 20, 60],
+    })
+
+    this.errorsTotalCounter = new Counter({
+      name: 'oracle_errors_total',
+      help: 'The total number of errors in various contexts',
+      labelNames: ['context'],
+    })
+    this.initializeErrorsTotalCounter()
+
+    this.exchangeApiRequestDurationHist = new Histogram({
+      name: 'oracle_exchange_api_request_duration_seconds',
+      help: 'Histogram of exchange API request durations in seconds',
+      labelNames: ['exchange', 'endpoint', 'pair'],
+      buckets: [0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.75, 1, 2, 5, 10],
+    })
+
+    this.exchangeApiRequestErrorCounter = new Counter({
+      name: 'oracle_exchange_api_request_error_count',
+      help:
+        'Counts the number of exchange API request errors and their http status code or other type of error',
+      labelNames: ['exchange', 'endpoint', 'pair', 'type'],
+    })
+
+    this.lastBlockHeaderNumberGauge = new Gauge({
+      name: 'oracle_last_block_header_number',
+      help: 'Gauge to indicate the last block number seen when using block based reporting',
+      labelNames: ['type'],
+    })
+
+    this.potentialReportValueGauge = new Gauge({
+      name: 'oracle_potential_report_value',
+      help:
+        'Gauge to show the most recently evaluated price to report when using block-based reporting',
+      labelNames: ['token'],
+    })
+
+    this.reportCountCounter = new Counter({
+      name: 'oracle_report_count',
+      help: 'Counts the number of reports by trigger',
+      labelNames: ['token', 'trigger'],
+    })
+
+    this.reportTimeSinceLastReportGauge = new Gauge({
+      name: 'oracle_report_time_since_last_report_seconds',
+      help: 'Gauge of the time in seconds between reports',
+      labelNames: ['token'],
+    })
+
+    this.reportValueGauge = new Gauge({
+      name: 'oracle_report_value',
+      help: 'Gauge of the most recently reported value for a token',
+      labelNames: ['token'],
+    })
+
+    this.tickerPropertyGauge = new Gauge({
+      name: 'oracle_ticker_property',
+      help: 'Gauge indicating values of various properties from ticker data',
+      labelNames: ['exchange', 'pair', 'property'],
+    })
+
+    this.tradesCountGauge = new Gauge({
+      name: 'oracle_trades_count',
+      help: 'Gauge indicating the number of in-memory trades for a pair from an exchange',
+      labelNames: ['exchange', 'pair'],
+    })
+
+    this.tradesPriceStatsGauge = new Gauge({
+      name: 'oracle_trades_price_stats',
+      help: 'Gauge of various stats across all in-memory trades for a pair from an exchange',
+      labelNames: ['exchange', 'pair', 'stat'],
+    })
+
+    this.tradesTimestampStatsGauge = new Gauge({
+      name: 'oracle_trades_timestamp',
+      help:
+        'Gauge of various stats on the timestamps across all in-memory trades for a pair from an exchange',
+      labelNames: ['exchange', 'pair', 'stat'],
+    })
+
+    this.tradesVolumeTotalGauge = new Gauge({
+      name: 'oracle_trades_volume_total',
+      help: 'Gauge of the sum of volumes across all in-memory trades for a pair from an exchange',
+      labelNames: ['exchange', 'pair'],
+    })
+
+    this.transactionBlockNumberGauge = new Gauge({
+      name: 'oracle_transaction_block_number',
+      help: 'Gauge showing the block number of the most recent transaction defined by type',
+      labelNames: ['type', 'token'],
+    })
+
+    this.transactionGasGauge = new Gauge({
+      name: 'oracle_transaction_gas',
+      help: 'Gauge of the gas provided for the most recent transaction defined by type',
+      labelNames: ['type', 'token'],
+    })
+
+    this.transactionGasPriceGauge = new Gauge({
+      name: 'oracle_transaction_gas_price',
+      help: 'Gauge of the gas price for the most recent transaction defined by type',
+      labelNames: ['type', 'token'],
+    })
+
+    this.transactionGasUsedGauge = new Gauge({
+      name: 'oracle_transaction_gas_used',
+      help: 'Gauge of amount of gas used for the most recent transaction defined by type',
+      labelNames: ['type', 'token'],
+    })
+
+    this.transactionSuccessCountCounter = new Counter({
+      name: 'oracle_transaction_success_count',
+      help:
+        'Counts the number of successful transactions defined by type that have been mined on chain',
+      labelNames: ['type', 'token'],
+    })
+
+    this.websocketProviderSetupCounter = new Counter({
+      name: 'oracle_websocket_provider_setup_counter',
+      help: 'Counts the number of times the websocket provider has been setup',
+    })
+  }
+
+  /**
+   * Increments the error count for a particular context in the oracle client
+   */
+  error(context: ErrorContext) {
+    this.errorsTotalCounter.inc({ context })
+  }
+
+  /**
+   * Initializes some counters relevant for the exchange API request.
+   * This allows us to create tools based off these metrics even if none
+   * of the metric situations have occurred at the time of the tool creation.
+   */
+  exchangeApiRequest(exchange: string, endpoint: string, pair: string) {
+    const defaultTypes: ExchangeApiRequestErrorType[] = [
+      ...Object.values(ExchangeApiRequestError),
+      // an example numeric type (which is an http status code)
+      500,
+    ]
+    for (const type of defaultTypes) {
+      this.exchangeApiRequestErrorCounter.inc(
+        {
+          exchange,
+          endpoint,
+          pair,
+          type,
+        },
+        0
+      )
+    }
+  }
+
+  /**
+   * Observes the duration for a particular API request to an exchange
+   */
+  exchangeApiRequestDuration(exchange: string, endpoint: string, pair: string, durationMs: number) {
+    this.exchangeApiRequestDurationHist.observe(
+      { exchange, endpoint, pair },
+      msToSeconds(durationMs)
+    )
+  }
+
+  /*
+   * Indicates that an not-ok http status code was returned, or some other error
+   * occurred when fetching from an exchange for a given endpoint and pair.
+   */
+  exchangeApiRequestError(
+    exchange: string,
+    endpoint: string,
+    pair: string,
+    type: ExchangeApiRequestErrorType
+  ) {
+    this.exchangeApiRequestErrorCounter.inc({ exchange, endpoint, pair, type })
+  }
+
+  /**
+   * Observes the duration of a particular action when expiring reports
+   */
+  expiryDuration(action: string, token: string, durationMs: number) {
+    this.actionDuration('expiry', action, token, durationMs)
+  }
+
+  /**
+   * Sets relevant gauges following a successful report transaction
+   */
+  expiryTransaction(
+    token: string,
+    transaction: Transaction,
+    transactionReceipt: TransactionReceipt
+  ) {
+    this.transaction('expiry', token, transaction, transactionReceipt)
+  }
+
+  /**
+   * Observes the duration of a particular action when reporting
+   */
+  reportDuration(action: string, token: string, durationMs: number) {
+    this.actionDuration('report', action, token, durationMs)
+  }
+
+  /**
+   * Sets relevant gauges following a successful report transaction
+   */
+  reportTransaction(
+    token: string,
+    transaction: Transaction,
+    transactionReceipt: TransactionReceipt,
+    reportedValue: BigNumber,
+    trigger: ReportTrigger
+  ) {
+    this.transaction('report', token, transaction, transactionReceipt)
+    this.reportValueGauge.set({ token }, reportedValue.toNumber())
+    this.reportCountCounter.inc({ token, trigger })
+  }
+
+  potentialReport(token: string, value: BigNumber) {
+    this.potentialReportValueGauge.set({ token }, value.toNumber())
+  }
+
+  timeBetweenReports(token: string, value: number) {
+    this.reportTimeSinceLastReportGauge.set({ token }, value)
+  }
+  /*
+   * Gives some information on the prices and timestamps of in-memory trades from
+   * an exchange for a pair.
+   */
+  trades(exchange: string, pair: string, trades: Trade[]) {
+    this.tradesCountGauge.set({ exchange, pair }, trades.length)
+
+    const prices: number[] = trades.map((trade: Trade) => trade.price.toNumber())
+    this.tradesPriceStats(exchange, pair, prices)
+
+    const volumeTotal = trades.reduce(
+      (sum: BigNumber, current: Trade) => sum.plus(current.amount),
+      new BigNumber(0)
+    )
+    this.tradesVolumeTotalGauge.set({ exchange, pair }, volumeTotal.toNumber())
+
+    const timestamps: number[] = trades.map((trade: Trade) => trade.timestamp)
+    this.tradeTimestampStats(exchange, pair, timestamps)
+  }
+
+  /**
+   * Records some metrics on some properties given a ticker
+   */
+  ticker(ticker: Ticker) {
+    const { source: exchange, symbol: pair } = ticker
+    const properties: RequiredKeysOfType<Ticker, BigNumber | number>[] = [
+      'ask',
+      'baseVolume',
+      'bid',
+      'lastPrice',
+      'timestamp',
+    ]
+    for (const property of properties) {
+      const rawValue = ticker[property]
+      const value = BigNumber.isBigNumber(rawValue) ? rawValue.toNumber() : (rawValue as number)
+      this.tickerPropertyGauge.set(
+        {
+          exchange,
+          pair,
+          property,
+        },
+        value
+      )
+    }
+  }
+
+  /**
+   * Indicates the most recent block number of a specific type
+   */
+  blockHeaderNumber(type: BlockType, blockNumber: number) {
+    this.lastBlockHeaderNumberGauge.set({ type }, blockNumber)
+  }
+
+  websocketProviderSetup() {
+    this.websocketProviderSetupCounter.inc()
+  }
+
+  /*
+   * Sets basic statistics on the prices of in-memory trades for an exchange and pair
+   */
+  private tradesPriceStats(exchange: string, pair: string, prices: number[]) {
+    const stats: { [key: string]: number } = {
+      max: max(prices),
+      mean: mean(prices),
+      median: median(prices),
+      min: min(prices),
+      std: std(prices),
+    }
+    for (const stat of Object.keys(stats)) {
+      this.tradesPriceStatsGauge.set({ exchange, pair, stat }, stats[stat])
+    }
+  }
+
+  /*
+   * Sets basic information on the trade timestamps for an exchange and pair
+   */
+  private tradeTimestampStats(exchange: string, pair: string, timestamps: number[]) {
+    const stats: { [key: string]: number } = {
+      max: max(timestamps),
+      min: min(timestamps),
+    }
+    for (const stat of Object.keys(stats)) {
+      this.tradesTimestampStatsGauge.set({ exchange, pair, stat }, stats[stat])
+    }
+  }
+
+  /**
+   * Sets relevant gauges and counters following a successful transaction
+   */
+  private transaction(
+    type: string,
+    token: string,
+    transaction: Transaction,
+    transactionReceipt: TransactionReceipt
+  ) {
+    this.transactionBlockNumberGauge.set({ type, token }, transactionReceipt.blockNumber)
+    this.transactionGasGauge.set({ type, token }, transaction.gas)
+    this.transactionGasPriceGauge.set({ type, token }, parseInt(transaction.gasPrice, 10))
+    this.transactionGasUsedGauge.set({ type, token }, transactionReceipt.gasUsed)
+    this.transactionSuccessCountCounter.inc({ type, token })
+  }
+
+  /*
+   * Observes the duration of a particular action for a general type
+   */
+  private actionDuration(type: string, action: string, token: string, durationMs: number) {
+    this.actionDurationHist.observe({ type, action, token }, msToSeconds(durationMs))
+  }
+
+  /**
+   * Initialize counters for all possible types of errors.
+   * This allows us to create tools based off these metrics even if none
+   * of the errors have occurred at the time of the tool creation, because
+   * a value is needed in order for StackDriver to create the metric
+   */
+  private initializeErrorsTotalCounter() {
+    const contexts = [...Object.values(Context), ...Object.values(Exchange)]
+    for (const context of contexts) {
+      this.errorsTotalCounter.inc({ context }, 0)
+    }
+  }
+
+  /**
+   * Starts a server that exposes metrics in the prometheus format
+   */
+  startServer(port: number) {
+    if (!Number.isInteger(port) || port <= 0 || port > 65535) {
+      throw Error(`Invalid PrometheusPort value: ${port}`)
+    }
+    const server = express()
+    server.get('/metrics', (_, res: Response) => {
+      res.set('Content-Type', register.contentType)
+      res.end(register.metrics())
+    })
+    // Enable collection of default metrics
+    collectDefaultMetrics()
+
+    this.logger.info(
+      {
+        endpoint: `http://0.0.0.0:${port}/metrics`,
+      },
+      'Prometheus metrics exposed'
+    )
+    server.listen(port)
+  }
+}
