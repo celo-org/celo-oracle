@@ -85,7 +85,7 @@ export class MetricCollector {
     this.actionDurationHist = new Histogram({
       name: 'oracle_action_duration',
       help: 'Histogram of various async actions',
-      labelNames: ['type', 'action', 'token'],
+      labelNames: ['type', 'action', 'currencyPair'],
       buckets: [0.02, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.75, 1, 2, 5, 10, 20, 60],
     })
 
@@ -120,25 +120,25 @@ export class MetricCollector {
       name: 'oracle_potential_report_value',
       help:
         'Gauge to show the most recently evaluated price to report when using block-based reporting',
-      labelNames: ['token'],
+      labelNames: ['currencyPair'],
     })
 
     this.reportCountCounter = new Counter({
       name: 'oracle_report_count',
       help: 'Counts the number of reports by trigger',
-      labelNames: ['token', 'trigger'],
+      labelNames: ['currencyPair', 'trigger'],
     })
 
     this.reportTimeSinceLastReportGauge = new Gauge({
       name: 'oracle_report_time_since_last_report_seconds',
       help: 'Gauge of the time in seconds between reports',
-      labelNames: ['token'],
+      labelNames: ['currencyPair'],
     })
 
     this.reportValueGauge = new Gauge({
       name: 'oracle_report_value',
-      help: 'Gauge of the most recently reported value for a token',
-      labelNames: ['token'],
+      help: 'Gauge of the most recently reported value for a currencyPair',
+      labelNames: ['currencyPair'],
     })
 
     this.tickerPropertyGauge = new Gauge({
@@ -175,32 +175,32 @@ export class MetricCollector {
     this.transactionBlockNumberGauge = new Gauge({
       name: 'oracle_transaction_block_number',
       help: 'Gauge showing the block number of the most recent transaction defined by type',
-      labelNames: ['type', 'token'],
+      labelNames: ['type', 'currencyPair'],
     })
 
     this.transactionGasGauge = new Gauge({
       name: 'oracle_transaction_gas',
       help: 'Gauge of the gas provided for the most recent transaction defined by type',
-      labelNames: ['type', 'token'],
+      labelNames: ['type', 'currencyPair'],
     })
 
     this.transactionGasPriceGauge = new Gauge({
       name: 'oracle_transaction_gas_price',
       help: 'Gauge of the gas price for the most recent transaction defined by type',
-      labelNames: ['type', 'token'],
+      labelNames: ['type', 'currencyPair'],
     })
 
     this.transactionGasUsedGauge = new Gauge({
       name: 'oracle_transaction_gas_used',
       help: 'Gauge of amount of gas used for the most recent transaction defined by type',
-      labelNames: ['type', 'token'],
+      labelNames: ['type', 'currencyPair'],
     })
 
     this.transactionSuccessCountCounter = new Counter({
       name: 'oracle_transaction_success_count',
       help:
         'Counts the number of successful transactions defined by type that have been mined on chain',
-      labelNames: ['type', 'token'],
+      labelNames: ['type', 'currencyPair'],
     })
 
     this.websocketProviderSetupCounter = new Counter({
@@ -266,49 +266,49 @@ export class MetricCollector {
   /**
    * Observes the duration of a particular action when expiring reports
    */
-  expiryDuration(action: string, token: string, durationMs: number) {
-    this.actionDuration('expiry', action, token, durationMs)
+  expiryDuration(action: string, currencyPair: string, durationMs: number) {
+    this.actionDuration('expiry', action, currencyPair, durationMs)
   }
 
   /**
    * Sets relevant gauges following a successful report transaction
    */
   expiryTransaction(
-    token: string,
+    currencyPair: string,
     transaction: Transaction,
     transactionReceipt: TransactionReceipt
   ) {
-    this.transaction('expiry', token, transaction, transactionReceipt)
+    this.transaction('expiry', currencyPair, transaction, transactionReceipt)
   }
 
   /**
    * Observes the duration of a particular action when reporting
    */
-  reportDuration(action: string, token: string, durationMs: number) {
-    this.actionDuration('report', action, token, durationMs)
+  reportDuration(action: string, currencyPair: string, durationMs: number) {
+    this.actionDuration('report', action, currencyPair, durationMs)
   }
 
   /**
    * Sets relevant gauges following a successful report transaction
    */
   reportTransaction(
-    token: string,
+    currencyPair: string,
     transaction: Transaction,
     transactionReceipt: TransactionReceipt,
     reportedValue: BigNumber,
     trigger: ReportTrigger
   ) {
-    this.transaction('report', token, transaction, transactionReceipt)
-    this.reportValueGauge.set({ token }, reportedValue.toNumber())
-    this.reportCountCounter.inc({ token, trigger })
+    this.transaction('report', currencyPair, transaction, transactionReceipt)
+    this.reportValueGauge.set({ currencyPair }, reportedValue.toNumber())
+    this.reportCountCounter.inc({ currencyPair, trigger })
   }
 
-  potentialReport(token: string, value: BigNumber) {
-    this.potentialReportValueGauge.set({ token }, value.toNumber())
+  potentialReport(currencyPair: string, value: BigNumber) {
+    this.potentialReportValueGauge.set({ currencyPair }, value.toNumber())
   }
 
-  timeBetweenReports(token: string, value: number) {
-    this.reportTimeSinceLastReportGauge.set({ token }, value)
+  timeBetweenReports(currencyPair: string, value: number) {
+    this.reportTimeSinceLastReportGauge.set({ currencyPair }, value)
   }
   /*
    * Gives some information on the prices and timestamps of in-memory trades from
@@ -401,22 +401,22 @@ export class MetricCollector {
    */
   private transaction(
     type: string,
-    token: string,
+    currencyPair: string,
     transaction: Transaction,
     transactionReceipt: TransactionReceipt
   ) {
-    this.transactionBlockNumberGauge.set({ type, token }, transactionReceipt.blockNumber)
-    this.transactionGasGauge.set({ type, token }, transaction.gas)
-    this.transactionGasPriceGauge.set({ type, token }, parseInt(transaction.gasPrice, 10))
-    this.transactionGasUsedGauge.set({ type, token }, transactionReceipt.gasUsed)
-    this.transactionSuccessCountCounter.inc({ type, token })
+    this.transactionBlockNumberGauge.set({ type, currencyPair }, transactionReceipt.blockNumber)
+    this.transactionGasGauge.set({ type, currencyPair }, transaction.gas)
+    this.transactionGasPriceGauge.set({ type, currencyPair }, parseInt(transaction.gasPrice, 10))
+    this.transactionGasUsedGauge.set({ type, currencyPair }, transactionReceipt.gasUsed)
+    this.transactionSuccessCountCounter.inc({ type, currencyPair })
   }
 
   /*
    * Observes the duration of a particular action for a general type
    */
-  private actionDuration(type: string, action: string, token: string, durationMs: number) {
-    this.actionDurationHist.observe({ type, action, token }, msToSeconds(durationMs))
+  private actionDuration(type: string, action: string, currencyPair: string, durationMs: number) {
+    this.actionDurationHist.observe({ type, action, currencyPair }, msToSeconds(durationMs))
   }
 
   /**

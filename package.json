@@ -17,11 +17,11 @@
     "prettify:diff": "yarn run prettier --config .prettierrc.js --list-different '**/*.+(ts|tsx|js|jsx|sol|java)'"
   },
   "dependencies": {
-    "@celo/connect": "^1.0.0-beta3",
-    "@celo/contractkit": "1.0.0-beta3",
-    "@celo/utils": "^0.1.22",
-    "@celo/wallet-hsm-aws": "^1.0.0-beta3",
-    "@celo/wallet-hsm-azure": "^1.0.0-beta3",
+    "@celo/connect": "^1.0.2",
+    "@celo/contractkit": "^1.0.2",
+    "@celo/utils": "^1.0.2",
+    "@celo/wallet-hsm-aws": "^1.0.2",
+    "@celo/wallet-hsm-azure": "^1.0.2",
     "bignumber.js": "^8.1.1",
     "bunyan": "^1.8.12",
     "express": "^4.17.1",

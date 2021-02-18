@@ -2,6 +2,7 @@ import { strict as assert } from 'assert'
 import BigNumber from 'bignumber.js'
 import Logger from 'bunyan'
 import * as aggregators from './aggregator_functions'
+import { OracleApplicationConfig } from './app'
 import { ExchangeAdapter, ExchangeAdapterConfig, Ticker, Trade } from './exchange_adapters/base'
 import { BittrexAdapter } from './exchange_adapters/bittrex'
 import { CoinbaseAdapter } from './exchange_adapters/coinbase'
@@ -10,7 +11,7 @@ import { MetricCollector } from './metric_collector'
 import {
   AggregationMethod,
   allSettled,
-  Currency,
+  CurrencyPairBaseQuote,
   Exchange,
   PromiseStatus,
   SettledPromise,
@@ -30,10 +31,6 @@ export interface DataAggregatorConfig {
   /**
    * Method used for aggregation
    */
-  allowNotCGLD: boolean
-  /**
-   * Method used for aggregation
-   */
   aggregationMethod: AggregationMethod
   /**
    * Milliseconds before now to use in current price calculation
@@ -49,10 +46,6 @@ export interface DataAggregatorConfig {
    */
   askMaxPercentageDeviation: BigNumber
   /**
-   * Currency to get the price of
-   */
-  baseCurrency: Currency
-  /**
    * A base instance of the logger that can be extended for a particular context
    */
   baseLogger: Logger
@@ -60,6 +53,10 @@ export interface DataAggregatorConfig {
    * Max cross-sectional percentage deviation of bid prices
    */
   bidMaxPercentageDeviation: BigNumber
+  /**
+   * Currency pair to get the price of in centralized exchanges
+   */
+  currencyPair: OracleApplicationConfig['currencyPair']
   /**
    * Exchange APIs from which to collect data
    * DEFAULT: all exchanges that have adapters
@@ -93,10 +90,6 @@ export interface DataAggregatorConfig {
    * Minimum number of total trades required to calculate price
    */
   minTradeCount: number
-  /**
-   * Currency in which to get the price of the baseCurrency
-   */
-  quoteCurrency: Currency
   /**
    * Rate used to apply exponential scaling to the amount of past trades
    */
@@ -132,11 +125,11 @@ export class DataAggregator {
   private setupExchangeAdapters(): ExchangeAdapter[] {
     const adapterConfig = {
       apiRequestTimeout: this.config.apiRequestTimeout,
-      baseCurrency: this.config.baseCurrency,
+      baseCurrency: CurrencyPairBaseQuote[this.config.currencyPair].base,
       baseLogger: this.config.baseLogger,
       dataRetentionWindow: this.config.aggregationWindowDuration * 2,
       fetchFrequency: this.config.fetchFrequency,
-      quoteCurrency: this.config.quoteCurrency,
+      quoteCurrency: CurrencyPairBaseQuote[this.config.currencyPair].quote,
       metricCollector: this.config.metricCollector,
     }
 

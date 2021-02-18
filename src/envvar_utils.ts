@@ -1,12 +1,11 @@
-import { CeloContract, CeloToken } from '@celo/contractkit'
 import { ensureLeading0x, isValidAddress } from '@celo/utils/lib/address'
 import BigNumber from 'bignumber.js'
+import Web3 from 'web3'
 import { baseLogger } from './default_config'
 import {
   AggregationMethod,
-  Currency,
   Exchange,
-  ExternalCurrency,
+  OracleCurrencyPair,
   ReportStrategy,
   WalletType,
 } from './utils'
@@ -22,15 +21,14 @@ export enum EnvVar {
   AGGREGATION_METHOD = 'AGGREGATION_METHOD',
   AGGREGATION_PERIOD = 'AGGREGATION_PERIOD',
   AGGREGATION_SCALING_RATE = 'AGGREGATION_SCALING_RATE',
-  ALLOW_NOT_CGLD = 'ALLOW_NOT_CGLD',
   API_REQUEST_TIMEOUT = 'API_REQUEST_TIMEOUT',
   AZURE_HSM_INIT_MAX_RETRY_BACKOFF_MS = 'AZURE_HSM_INIT_MAX_RETRY_BACKOFF_MS',
   AZURE_HSM_INIT_TRY_COUNT = 'AZURE_HSM_INIT_TRY_COUNT',
   AZURE_KEY_VAULT_NAME = 'AZURE_KEY_VAULT_NAME',
-  BASE_CURRENCY = 'BASE_CURRENCY',
   CIRCUIT_BREAKER_PRICE_CHANGE_THRESHOLD_MAX = 'CIRCUIT_BREAKER_PRICE_CHANGE_THRESHOLD_MAX',
   CIRCUIT_BREAKER_PRICE_CHANGE_THRESHOLD_MIN = 'CIRCUIT_BREAKER_PRICE_CHANGE_THRESHOLD_MIN',
   CIRCUIT_BREAKER_PRICE_CHANGE_THRESHOLD_TIME_MULTIPLIER = 'CIRCUIT_BREAKER_PRICE_CHANGE_THRESHOLD_TIME_MULTIPLIER',
+  CURRENCY_PAIR = 'CURRENCY_PAIR',
   DATA_FETCH_FREQUENCY = 'DATA_FETCH_FREQUENCY',
   EXCHANGES = 'EXCHANGES',
   GAS_PRICE_MULTIPLIER = 'GAS_PRICE_MULTIPLIER',
@@ -48,16 +46,15 @@ export enum EnvVar {
   OVERRIDE_ORACLE_COUNT = 'OVERRIDE_ORACLE_COUNT',
   PRIVATE_KEY_PATH = 'PRIVATE_KEY_PATH',
   PROMETHEUS_PORT = 'PROMETHEUS_PORT',
-  QUOTE_CURRENCY = 'QUOTE_CURRENCY',
   REMOVE_EXPIRED_FREQUENCY = 'REMOVE_EXPIRED_FREQUENCY',
   REMOVE_EXPIRED_OFFSET_OVERRIDE = 'REMOVE_EXPIRED_OFFSET_OVERRIDE',
   REPORT_FREQUENCY_OVERRIDE = 'REPORT_FREQUENCY_OVERRIDE',
   REPORT_OFFSET_OVERRIDE = 'REPORT_OFFSET_OVERRIDE',
   REPORT_STRATEGY = 'REPORT_STRATEGY',
+  REPORT_TARGET_OVERRIDE = 'REPORT_TARGET_OVERRIDE',
   TARGET_MAX_HEARTBEAT_PERIOD_MS = 'TARGET_MAX_HEARTBEAT_PERIOD_MS',
   TRANSACTION_RETRY_GAS_PRICE_MULTIPLIER = 'TRANSACTION_RETRY_GAS_PRICE_MULTIPLIER',
   TRANSACTION_RETRY_LIMIT = 'TRANSACTION_RETRY_LIMIT',
-  TOKEN = 'TOKEN',
   UNUSED_ORACLE_ADDRESSES = 'UNUSED_ORACLE_ADDRESSES',
   WALLET_TYPE = 'WALLET_TYPE',
   WS_RPC_PROVIDER_URL = 'WS_RPC_PROVIDER_URL',
@@ -118,13 +115,6 @@ const envVarValidations = {
       throw Error(`includes values not in set: ${validValues.join(', ')}`)
     }
   },
-  isRecognizedCurrency(value: Currency): void {
-    envVarValidations.isInSet(value, [
-      ...Object.values(ExternalCurrency),
-      CeloContract.GoldToken,
-      CeloContract.StableToken,
-    ])
-  },
   isValidUrl(value: string, protocol: WebProtocol): void {
     value = value.toLowerCase()
     if (protocol === 'http' && value.startsWith('http://')) {
@@ -182,7 +172,6 @@ const envVarHandlingMap = new Map<EnvVar, EnvVarHandling>([
       validationFns: [envVarValidations.isInteger, envVarValidations.isGreaterThanZero],
     },
   ],
-  [EnvVar.ALLOW_NOT_CGLD, { validationFns: [] }],
   [
     EnvVar.API_REQUEST_TIMEOUT,
     {
@@ -231,13 +220,6 @@ const envVarHandlingMap = new Map<EnvVar, EnvVarHandling>([
     },
   ],
   [
-    EnvVar.BASE_CURRENCY,
-    {
-      parseFn: (unparsed: string) => unparsed as Currency,
-      validationFns: [envVarValidations.isRecognizedCurrency],
-    },
-  ],
-  [
     EnvVar.CIRCUIT_BREAKER_PRICE_CHANGE_THRESHOLD_MAX,
     {
       ...numberEnvVarHandling,
@@ -256,6 +238,34 @@ const envVarHandlingMap = new Map<EnvVar, EnvVarHandling>([
     {
       ...numberEnvVarHandling,
       validationFns: [envVarValidations.isFinite, envVarValidations.isGreaterThanZero],
+    },
+  ],
+  [
+    EnvVar.CURRENCY_PAIR,
+    {
+      parseFn: (unparsed: string) => unparsed,
+      validationFns: [
+        (value: OracleCurrencyPair) => {
+          if (!Object.keys(OracleCurrencyPair).includes(value)) {
+            throw Error('the currency pair is either invalid or unsupported')
+          }
+        },
+      ],
+    },
+  ],
+  [
+    EnvVar.REPORT_TARGET_OVERRIDE,
+    {
+      parseFn: (unparsed: string) => unparsed,
+      validationFns: [
+        (value: string | undefined) => {
+          if (value !== undefined) {
+            if (!Web3.utils.isAddress(value)) {
+              throw Error('the report target is not a valid address')
+            }
+          }
+        },
+      ],
     },
   ],
   [
@@ -395,13 +405,6 @@ const envVarHandlingMap = new Map<EnvVar, EnvVarHandling>([
     },
   ],
   [
-    EnvVar.QUOTE_CURRENCY,
-    {
-      parseFn: (unparsed: string) => unparsed as Currency,
-      validationFns: [envVarValidations.isRecognizedCurrency],
-    },
-  ],
-  [
     EnvVar.REMOVE_EXPIRED_FREQUENCY,
     {
       ...integerEnvVarHandling,
@@ -453,15 +456,6 @@ const envVarHandlingMap = new Map<EnvVar, EnvVarHandling>([
       validationFns: [
         envVarValidations.isInteger,
         (value: BigNumber) => envVarValidations.isGreaterThan(value, 0, true),
-      ],
-    },
-  ],
-  [
-    EnvVar.TOKEN,
-    {
-      parseFn: (unparsed: string) => unparsed as CeloToken,
-      validationFns: [
-        (value: CeloToken) => envVarValidations.isInSet(value, [CeloContract.StableToken]),
       ],
     },
   ],

@@ -1,7 +1,9 @@
-import { CeloToken } from '@celo/contractkit'
+import { CeloContract, CeloToken, ContractKit } from '@celo/contractkit'
+import { ReportTarget } from '@celo/contractkit/lib/wrappers/SortedOracles'
 import BigNumber from 'bignumber.js'
 import Logger from 'bunyan'
 import { min } from 'mathjs'
+import Web3 from 'web3'
 import { ErrorContext, MetricCollector } from './metric_collector'
 
 export const MS_PER_SECOND = 1000
@@ -32,9 +34,31 @@ export enum Exchange {
 
 export enum ExternalCurrency {
   USD = 'USD',
+  BTC = 'BTC',
+  EUR = 'EUR',
 }
 
 export type Currency = ExternalCurrency | CeloToken
+
+export enum OracleCurrencyPair {
+  CELOUSD = 'CELOUSD',
+  CELOEUR = 'CELOEUR',
+  CELOBTC = 'CELOBTC',
+}
+
+export const CoreCurrencyPair: OracleCurrencyPair[] = [
+  OracleCurrencyPair.CELOEUR,
+  OracleCurrencyPair.CELOUSD,
+]
+
+export const CurrencyPairBaseQuote: Record<
+  OracleCurrencyPair,
+  { base: Currency; quote: Currency }
+> = {
+  [OracleCurrencyPair.CELOUSD]: { base: CeloContract.GoldToken, quote: ExternalCurrency.USD },
+  [OracleCurrencyPair.CELOBTC]: { base: CeloContract.GoldToken, quote: ExternalCurrency.BTC },
+  [OracleCurrencyPair.CELOEUR]: { base: CeloContract.GoldToken, quote: ExternalCurrency.EUR },
+}
 
 export enum AggregationMethod {
   TRADES = 'TRADES',
@@ -45,6 +69,35 @@ export enum WalletType {
   AWS_HSM = 'AWS_HSM',
   AZURE_HSM = 'AZURE_HSM',
   PRIVATE_KEY = 'PRIVATE_KEY',
+}
+
+export function isCorePair(pair: OracleCurrencyPair) {
+  return CoreCurrencyPair.includes(pair)
+}
+
+export function nonCorePairIdentifier(pair: OracleCurrencyPair) {
+  return Web3.utils.toChecksumAddress(Web3.utils.keccak256(pair).slice(26))
+}
+
+/**
+ * Determines what address to report to for a given CurrencyPair
+ * @param pair the OracleCurrencyPair
+ * @param kit an instance of contractkit
+ */
+export async function reportTargetForCurrencyPair(
+  pair: OracleCurrencyPair,
+  kit: ContractKit
+): Promise<ReportTarget> {
+  if (!isCorePair(pair)) {
+    return nonCorePairIdentifier(pair)
+  } else if (pair === OracleCurrencyPair.CELOUSD) {
+    return CeloContract.StableToken
+  } else if (pair === OracleCurrencyPair.CELOEUR) {
+    // XXX: Workaround until StableTokenEUR makes it fully to ContractKit
+    return kit.registry.addressFor('StableTokenEUR' as CeloContract)
+  } else {
+    throw new Error(`${pair} can not be converted to a ReportTarget`)
+  }
 }
 
 /**

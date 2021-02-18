@@ -1,8 +1,10 @@
-import { CeloToken, ContractKit } from '@celo/contractkit'
+import { ContractKit } from '@celo/contractkit'
+import { ReportTarget } from '@celo/contractkit/lib/wrappers/SortedOracles'
 import { normalizeAddressWith0x } from '@celo/utils/lib/address'
 import BigNumber from 'bignumber.js'
 import Logger from 'bunyan'
 import { TransactionReceipt } from 'web3-core'
+import { OracleApplicationConfig } from '../app'
 import { DataAggregator } from '../data_aggregator'
 import { Context, MetricCollector, ReportTrigger } from '../metric_collector'
 import {
@@ -40,6 +42,10 @@ export interface BaseReporterConfig {
    */
   circuitBreakerPriceChangeThresholdTimeMultiplier: BigNumber
   /**
+   * The currency pair to report upon
+   */
+  readonly currencyPair: OracleApplicationConfig['currencyPair']
+  /**
    * An instance of DataAggregator from which to get the current price
    */
   readonly dataAggregator: DataAggregator
@@ -65,7 +71,7 @@ export interface BaseReporterConfig {
   readonly metricCollector?: MetricCollector
   /**
    * The oracle account that this client is running as. It should be whitelisted
-   * as an oracle for the token it's reporting upon.
+   * as an oracle for the currency pair it's reporting upon.
    */
   readonly oracleAccount: string
   /**
@@ -78,10 +84,9 @@ export interface BaseReporterConfig {
    */
   readonly overrideTotalOracleCount?: number
   /**
-   * The token to report upon
-   * @default CeloContract.StableToken
+   * Identifier used for the currency pair when reporting to chain
    */
-  readonly token: CeloToken
+  readonly reportTarget: ReportTarget
   /**
    * A list of unused addresses to ignore on the whitelist.
    */
@@ -183,7 +188,7 @@ export abstract class BaseReporter {
         'getTransaction'
       )
       this.config.metricCollector.reportTransaction(
-        this.config.token,
+        this.config.currencyPair,
         txInfo,
         receipt,
         price,
@@ -202,7 +207,8 @@ export abstract class BaseReporter {
       'getSortedOracles'
     )
     const tx = await this.doAsyncReportAction(
-      () => sortedOracles.report(this.config.token, price.toFixed(), this.config.oracleAccount),
+      () =>
+        sortedOracles.report(this.config.reportTarget, price.toFixed(), this.config.oracleAccount),
       'report'
     )
     const gasPrice = await this.doAsyncReportAction(
@@ -225,7 +231,7 @@ export abstract class BaseReporter {
         this.lastReportedTimeMs !== undefined
           ? msToSeconds(Date.now() - this.lastReportedTimeMs)
           : 0
-      this.config.metricCollector.timeBetweenReports(this.config.token, time)
+      this.config.metricCollector.timeBetweenReports(this.config.currencyPair, time)
     }
     // Once the transaction is sent to chain, set the last reported price
     this._lastReportedPrice = price
@@ -256,7 +262,7 @@ export abstract class BaseReporter {
           () => this.config.kit.web3.eth.getTransaction(receipt.transactionHash),
           'getTransaction'
         )
-        this.config.metricCollector.expiryTransaction(this.config.token, txInfo, receipt)
+        this.config.metricCollector.expiryTransaction(this.config.currencyPair, txInfo, receipt)
       }
     } else {
       this.logger.info('No expired reports')
@@ -283,20 +289,20 @@ export abstract class BaseReporter {
     // This should be const [expired] = ..., however contractkit returns
     // isOldestReportExpired in the form: { '0': isExpired, '1': oldestReportAddress }
     const { '0': expired } = await this.doAsyncExpiryAction(
-      () => sortedOracles.isOldestReportExpired(this.config.token),
+      () => sortedOracles.isOldestReportExpired(this.config.reportTarget),
       'isOldestReportExpired'
     )
 
     const expiredAndMoreThanOneReport = expired
       ? (await this.doAsyncExpiryAction(
-          () => sortedOracles.numRates(this.config.token),
+          () => sortedOracles.numRates(this.config.reportTarget),
           'numRates'
         )) > 1
       : false
 
     if (expiredAndMoreThanOneReport) {
       const tx = await this.doAsyncExpiryAction(
-        () => sortedOracles.removeExpiredReports(this.config.token),
+        () => sortedOracles.removeExpiredReports(this.config.reportTarget),
         'removeExpiredReports'
       )
       const gasPrice = await this.doAsyncReportAction(
@@ -362,14 +368,14 @@ export abstract class BaseReporter {
   }
 
   /**
-   * Checks if the account is whitelisted as an oracle for the token that this
+   * Checks if the account is whitelisted as an oracle for the ccurency pair that this
    * reporter instance is set to report upon.
    */
   private async requireAccountIsWhitelisted(): Promise<void> {
     const sortedOracles = await this.config.kit.contracts.getSortedOracles()
-    if (!(await sortedOracles.isOracle(this.config.token, this.config.oracleAccount))) {
+    if (!(await sortedOracles.isOracle(this.config.reportTarget, this.config.oracleAccount))) {
       throw Error(
-        `Account ${this.config.oracleAccount} is not whitelisted as an oracle for ${this.config.token}`
+        `Account ${this.config.oracleAccount} is not whitelisted as an oracle for ${this.config.currencyPair}`
       )
     }
   }
@@ -380,7 +386,7 @@ export abstract class BaseReporter {
    */
   private async setOracleInfo() {
     const sortedOracles = await this.config.kit.contracts.getSortedOracles()
-    const oracleWhitelist = (await sortedOracles.getOracles(this.config.token))
+    const oracleWhitelist = (await sortedOracles.getOracles(this.config.reportTarget))
       .map(normalizeAddressWith0x)
       .filter((addr) => !this.config.unusedOracleAddresses.includes(addr))
 
@@ -392,7 +398,7 @@ export abstract class BaseReporter {
     // This should not happen, but handle the edge-case anyway
     if (oracleIndex === -1) {
       throw Error(
-        `Account ${this.config.oracleAccount} is not whitelisted as an oracle for ${this.config.token}`
+        `Account ${this.config.oracleAccount} is not whitelisted as an oracle for ${this.config.currencyPair}`
       )
     }
 
@@ -468,7 +474,7 @@ export abstract class BaseReporter {
    */
   private doAsyncReportAction<T>(fn: () => Promise<T>, action: string): Promise<T> {
     return doWithDurationMetric(fn, (duration: number) => {
-      this.config.metricCollector?.reportDuration(action, this.config.token, duration)
+      this.config.metricCollector?.reportDuration(action, this.config.currencyPair, duration)
     })
   }
 
@@ -478,7 +484,7 @@ export abstract class BaseReporter {
    */
   private doAsyncExpiryAction<T>(fn: () => Promise<T>, action: string): Promise<T> {
     return doWithDurationMetric(fn, (duration: number) => {
-      this.config.metricCollector?.expiryDuration(action, this.config.token, duration)
+      this.config.metricCollector?.expiryDuration(action, this.config.currencyPair, duration)
     })
   }
 

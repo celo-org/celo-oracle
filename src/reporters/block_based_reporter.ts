@@ -216,7 +216,7 @@ export class BlockBasedReporter extends BaseReporter {
 
   async maybeReport(blockNumber: number) {
     const price = await this.priceToReport()
-    this.config.metricCollector?.potentialReport(this.config.token, price)
+    this.config.metricCollector?.potentialReport(this.config.currencyPair, price)
     const heartbeat = this.isHeartbeatCycle(blockNumber) || this.lastReportHasExpired()
 
     const shouldReport =

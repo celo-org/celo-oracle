@@ -1,7 +1,8 @@
-import { CeloToken, ContractKit, newKit } from '@celo/contractkit'
+import { ContractKit, newKit } from '@celo/contractkit'
+import { ReportTarget } from '@celo/contractkit/lib/wrappers/SortedOracles'
+import { ensureLeading0x, isValidPrivateKey, privateKeyToAddress } from '@celo/utils/lib/address'
 import { AwsHsmWallet } from '@celo/wallet-hsm-aws'
 import { AzureHSMWallet } from '@celo/wallet-hsm-azure'
-import { ensureLeading0x, isValidPrivateKey, privateKeyToAddress } from '@celo/utils/lib/address'
 import Logger from 'bunyan'
 import fs from 'fs'
 import { DataAggregator, DataAggregatorConfig } from './data_aggregator'
@@ -10,7 +11,9 @@ import { BaseReporter, BaseReporterConfig } from './reporters/base'
 import { BlockBasedReporter, BlockBasedReporterConfig } from './reporters/block_based_reporter'
 import { TimerReporter, TimerReporterConfig } from './reporters/timer_reporter'
 import {
+  OracleCurrencyPair,
   ReportStrategy,
+  reportTargetForCurrencyPair,
   requireVariables,
   secondsToMs,
   tryExponentialBackoff,
@@ -20,8 +23,15 @@ import {
 /**
  * Omit the fields that are passed in by the Application
  */
-export type DataAggregatorConfigSubset = Omit<DataAggregatorConfig, 'metricCollector'>
-type ReporterConfigToOmit = 'dataAggregator' | 'kit' | 'metricCollector' | 'oracleAccount' | 'token'
+type DataAggregatorConfigToOmit = 'metricCollector' | 'currencyPair'
+export type DataAggregatorConfigSubset = Omit<DataAggregatorConfig, DataAggregatorConfigToOmit>
+type ReporterConfigToOmit =
+  | 'dataAggregator'
+  | 'kit'
+  | 'metricCollector'
+  | 'oracleAccount'
+  | 'currencyPair'
+  | 'reportTarget'
 export type BaseReporterConfigSubset = Omit<BaseReporterConfig, ReporterConfigToOmit>
 export type BlockBasedReporterConfigSubset = Omit<
   BlockBasedReporterConfig,
@@ -67,6 +77,8 @@ export interface OracleApplicationConfig {
    * A base instance of the logger that can be extended for a particular context
    */
   baseLogger: Logger
+  /** The currency pair that this oracle is reporting upon */
+  currencyPair: OracleCurrencyPair
   /** Configuration for the Data Aggregator */
   dataAggregatorConfig: DataAggregatorConfigSubset
   /** The http URL of a web3 provider to send RPCs to */
@@ -94,8 +106,8 @@ export interface OracleApplicationConfig {
    * The report strategy
    */
   reportStrategy: ReportStrategy
-  /** The token that this oracle is reporting upon */
-  token: CeloToken
+  /* To override the default identifier when reporting to chain */
+  reportTargetOverride: ReportTarget | undefined
   /** The type of wallet to use for signing transaction */
   walletType: WalletType
   /** The websocket URL of a web3 provider to listen to events through with block-based reporting */
@@ -117,6 +129,7 @@ export class OracleApplication {
    */
   constructor(config: OracleApplicationConfig) {
     this.config = config
+
     if (this.config.metrics) {
       const { prometheusPort } = this.config
       requireVariables({ prometheusPort })
@@ -125,6 +138,7 @@ export class OracleApplication {
     }
     this._dataAggregator = new DataAggregator({
       ...config.dataAggregatorConfig,
+      currencyPair: this.config.currencyPair,
       metricCollector: this.metricCollector,
     })
     this.logger = this.config.baseLogger.child({ context: 'app' })
@@ -147,7 +161,7 @@ export class OracleApplication {
       azureHsmInitMaxRetryBackoffMs,
       httpRpcProviderUrl,
       privateKeyPath,
-      token,
+      currencyPair,
       walletType,
       wsRpcProviderUrl,
     } = this.config
@@ -216,8 +230,12 @@ export class OracleApplication {
       kit,
       metricCollector: this.metricCollector,
       oracleAccount: this.config.address!,
-      token,
+      reportTarget: this.config.reportTargetOverride
+        ? this.config.reportTargetOverride
+        : await reportTargetForCurrencyPair(this.config.currencyPair, kit),
+      currencyPair,
     }
+
     switch (this.config.reportStrategy) {
       case ReportStrategy.BLOCK_BASED:
         this._reporter = new BlockBasedReporter({

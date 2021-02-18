@@ -1,6 +1,6 @@
-import { CeloContract, CeloToken, newKit } from '@celo/contractkit'
+import { CeloContract, newKit } from '@celo/contractkit'
 import { GasPriceMinimumWrapper } from '@celo/contractkit/lib/wrappers/GasPriceMinimum'
-import { SortedOraclesWrapper } from '@celo/contractkit/lib/wrappers/SortedOracles'
+import { ReportTarget, SortedOraclesWrapper } from '@celo/contractkit/lib/wrappers/SortedOracles'
 import { BigNumber as CKBigNumber } from '@celo/contractkit/node_modules/bignumber.js'
 import BigNumber from 'bignumber.js'
 import { DataAggregator } from '../../src/data_aggregator'
@@ -51,7 +51,11 @@ describe('BaseReporter', () => {
   }
 
   beforeEach(async () => {
-    dataAggregator = new DataAggregator(defaultDataAggregatorConfig)
+    const dataAggregatorCfg = {
+      ...defaultDataAggregatorConfig,
+      currencyPair: utils.OracleCurrencyPair.CELOUSD,
+    }
+    dataAggregator = new DataAggregator(dataAggregatorCfg)
     jest.spyOn(dataAggregator, 'currentPrice').mockImplementation(currentPriceFn)
 
     defaultConfig = {
@@ -65,7 +69,8 @@ describe('BaseReporter', () => {
       transactionRetryLimit: 0,
       transactionRetryGasPriceMultiplier: new BigNumber(0),
       oracleAccount: mockOracleAccount,
-      token: CeloContract.StableToken,
+      currencyPair: utils.OracleCurrencyPair.CELOUSD,
+      reportTarget: CeloContract.StableToken,
       metricCollector,
       unusedOracleAddresses: [],
     }
@@ -120,7 +125,7 @@ describe('BaseReporter', () => {
 
       it('throws an error', async () => {
         await expect(async () => createAndInitializeReporter(defaultConfig)).rejects.toThrow(
-          `Account ${mockOracleAccount} is not whitelisted as an oracle for StableToken`
+          `Account ${mockOracleAccount} is not whitelisted as an oracle for CELOUSD`
         )
       })
     })
@@ -141,7 +146,8 @@ describe('BaseReporter', () => {
         transactionRetryLimit: 0,
         transactionRetryGasPriceMultiplier: new BigNumber(0),
         oracleAccount: mockOracleAccount,
-        token: CeloContract.StableToken,
+        currencyPair: utils.OracleCurrencyPair.CELOUSD,
+        reportTarget: CeloContract.StableToken,
         metricCollector,
         unusedOracleAddresses: unusedAddress,
         overrideIndex: indexOverride,
@@ -392,16 +398,19 @@ describe('BaseReporter', () => {
             .mockImplementation(() => lastReportedTime)
 
           await reporter.report(currentPriceValue, defaultReportTrigger)
-          expect(metricCollector.timeBetweenReports).toBeCalledWith(defaultConfig.token, 0)
+          expect(metricCollector.timeBetweenReports).toBeCalledWith(defaultConfig.currencyPair, 0)
 
           lastReportedTime = currentTime - 1000
           await reporter.report(currentPriceValue, defaultReportTrigger)
-          expect(metricCollector.timeBetweenReports).toBeCalledWith(defaultConfig.token, 1)
+          expect(metricCollector.timeBetweenReports).toBeCalledWith(defaultConfig.currencyPair, 1)
 
           lastReportedTime = currentTime
           currentTime = currentTime + 1000000
           await reporter.report(currentPriceValue, defaultReportTrigger)
-          expect(metricCollector.timeBetweenReports).toBeCalledWith(defaultConfig.token, 1000)
+          expect(metricCollector.timeBetweenReports).toBeCalledWith(
+            defaultConfig.currencyPair,
+            1000
+          )
         })
 
         it('collects metrics on successful reports', async () => {
@@ -420,7 +429,7 @@ describe('BaseReporter', () => {
           for (const durationAction of durationActions) {
             expect(metricCollector!.reportDuration).toBeCalledWith(
               durationAction,
-              CeloContract.StableToken,
+              'CELOUSD',
               expect.anything()
             )
           }
@@ -432,7 +441,7 @@ describe('BaseReporter', () => {
       it('collects metrics', async () => {
         jest
           .spyOn(sortedOraclesMock, 'isOldestReportExpired')
-          .mockImplementation(async (_token: CeloToken) => [
+          .mockImplementation(async (_target: ReportTarget) => [
             true,
             '0x0000000000000000000000000000000000000111',
           ])
@@ -452,7 +461,7 @@ describe('BaseReporter', () => {
         for (const durationAction of durationActions) {
           expect(metricCollector!.expiryDuration).toBeCalledWith(
             durationAction,
-            CeloContract.StableToken,
+            'CELOUSD',
             expect.anything()
           )
         }
@@ -477,7 +486,7 @@ describe('BaseReporter', () => {
         beforeEach(() => {
           jest
             .spyOn(sortedOraclesMock, 'isOldestReportExpired')
-            .mockImplementation(async (_token: CeloToken) => isOldestReportExpiredReturnValue)
+            .mockImplementation(async (_target: ReportTarget) => isOldestReportExpiredReturnValue)
         })
 
         it('sends a `removeExpiredReports` tx if there are any to remove', async () => {
@@ -501,10 +510,10 @@ describe('BaseReporter', () => {
         let numberOfReportsValue: number
         jest
           .spyOn(sortedOraclesMock, 'numRates')
-          .mockImplementation(async (_token: CeloToken) => numberOfReportsValue)
+          .mockImplementation(async (_target: ReportTarget) => numberOfReportsValue)
         jest
           .spyOn(sortedOraclesMock, 'isOldestReportExpired')
-          .mockImplementation(async (_token: CeloToken) => [true, '0x1234'])
+          .mockImplementation(async (_target: ReportTarget) => [true, '0x1234'])
         numberOfReportsValue = 1
 
         await reporter.removeExpiredReports()
@@ -537,7 +546,8 @@ describe('BaseReporter', () => {
           transactionRetryLimit: 0,
           transactionRetryGasPriceMultiplier: new BigNumber(0),
           oracleAccount: mockOracleAccount,
-          token: CeloContract.StableToken,
+          currencyPair: utils.OracleCurrencyPair.CELOUSD,
+          reportTarget: CeloContract.StableToken,
           metricCollector,
           unusedOracleAddresses: [],
         }

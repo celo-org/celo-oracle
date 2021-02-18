@@ -1,5 +1,7 @@
+import { CeloContract, ContractKit } from '@celo/contractkit'
 import BigNumber from 'bignumber.js'
 import Logger from 'bunyan'
+import Web3 from 'web3'
 import { baseLogger } from '../src/default_config'
 import { Context, MetricCollector } from '../src/metric_collector'
 import {
@@ -13,16 +15,60 @@ import {
   minutesToMs,
   msToNextAction,
   onError,
+  OracleCurrencyPair,
+  reportTargetForCurrencyPair,
   requireVariables,
   tryExponentialBackoff,
 } from '../src/utils'
 
 jest.mock('bunyan')
 jest.mock('../src/metric_collector')
+jest.mock('@celo/contractkit')
+jest.mock('@celo/contractkit/lib/address-registry')
 
 jest.setTimeout(10 * 1000)
 
 describe('utils', () => {
+  describe('#reportTargetForCurrencyPair', () => {
+    // @ts-ignore because it's mocked
+    let kit: ContractKit
+    let registryLookup: jest.SpyInstance
+
+    beforeEach(() => {
+      jest.clearAllMocks()
+      kit = ({ registry: { addressFor: jest.fn() } } as unknown) as ContractKit
+      registryLookup = jest.spyOn(kit.registry, 'addressFor')
+    })
+
+    describe('with CELOUSD', () => {
+      const pair = OracleCurrencyPair.CELOUSD
+      it('is CeloContract.StableToken', async () => {
+        expect(await reportTargetForCurrencyPair(pair, kit)).toEqual(CeloContract.StableToken)
+        expect(registryLookup).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('with CELOEUR', () => {
+      const pair = OracleCurrencyPair.CELOEUR
+      it('looks up the registry', async () => {
+        const addr = Web3.utils.randomHex(20)
+        registryLookup.mockReturnValue(addr)
+        expect(await reportTargetForCurrencyPair(pair, kit)).toEqual(addr)
+        expect(registryLookup).toHaveBeenCalledWith('StableTokenEUR')
+      })
+    })
+
+    describe('with CELOBTC', () => {
+      const pair = OracleCurrencyPair.CELOBTC
+      it('derives the identifier', async () => {
+        expect(await reportTargetForCurrencyPair(pair, kit)).toEqual(
+          '0x018CAad1ED69eeDD40ed8309A81Eb78c937563a6'
+        )
+        expect(registryLookup).not.toHaveBeenCalled()
+      })
+    })
+  })
+
   describe('tryExponentialBackoff', () => {
     const defaultMaxRetries = 10
     const defaultBaseBackoffMs = 1

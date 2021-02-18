@@ -11,7 +11,7 @@ import {
   BlockBasedReporter,
   BlockBasedReporterConfig,
 } from '../../src/reporters/block_based_reporter'
-import { minutesToMs, msToSeconds, secondsToMs } from '../../src/utils'
+import { minutesToMs, msToSeconds, OracleCurrencyPair, secondsToMs } from '../../src/utils'
 
 jest.mock('@celo/contractkit')
 jest.mock('../../src/metric_collector')
@@ -80,7 +80,11 @@ describe('Reporter', () => {
   }
 
   beforeEach(() => {
-    dataAggregator = new DataAggregator(defaultDataAggregatorConfig)
+    const dataAggregatorCfg = {
+      ...defaultDataAggregatorConfig,
+      currencyPair: OracleCurrencyPair.CELOUSD,
+    }
+    dataAggregator = new DataAggregator(dataAggregatorCfg)
     jest.spyOn(dataAggregator, 'currentPrice').mockImplementation(currentPriceFn)
 
     defaultConfig = {
@@ -97,7 +101,8 @@ describe('Reporter', () => {
       maxBlockTimestampAgeMs,
       minReportPriceChangeThreshold,
       oracleAccount: mockOracleAccount,
-      token: CeloContract.StableToken,
+      currencyPair: OracleCurrencyPair.CELOUSD,
+      reportTarget: CeloContract.StableToken,
       metricCollector,
       unusedOracleAddresses: [],
       wsRpcProviderUrl: 'ws://bar.foo',

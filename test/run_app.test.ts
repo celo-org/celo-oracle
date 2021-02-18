@@ -1,9 +1,10 @@
 import BigNumber from 'bignumber.js'
+import Web3 from 'web3'
 import { OracleApplicationConfig } from '../src/app'
 import { defaultApplicationConfig } from '../src/default_config'
 import { EnvVar } from '../src/envvar_utils'
 import { getApplicationConfig } from '../src/run_app'
-import { AggregationMethod, Exchange, WalletType } from '../src/utils'
+import { AggregationMethod, Exchange, OracleCurrencyPair, WalletType } from '../src/utils'
 
 const env = { ...process.env }
 
@@ -78,11 +79,16 @@ describe('run_app', () => {
         setAndTestEnvVarValue(EnvVar.REPORT_STRATEGY, corrects, incorrects)
       })
 
-      it('correctly processes BASE/QUOTE', () => {
-        const corrects = ['USD', 'GoldToken', 'StableToken']
-        const incorrects = ['usd', 'GOLD', 'Stable', 'CGLDTK']
-        setAndTestEnvVarValue(EnvVar.BASE_CURRENCY, corrects, incorrects)
-        setAndTestEnvVarValue(EnvVar.QUOTE_CURRENCY, corrects, incorrects)
+      it('correctly processes CURRENCY_PAIR', () => {
+        const corrects = ['CELOUSD', 'CELOBTC', 'CELOEUR']
+        const incorrects = ['celousd', 'celobtc', 'celoeth', 'invalidpair']
+        setAndTestEnvVarValue(EnvVar.CURRENCY_PAIR, corrects, incorrects)
+      })
+
+      it('correctly processes REPORT_TARGET_OVERRIDE', () => {
+        const corrects = [Web3.utils.randomHex(20), undefined]
+        const incorrects = ['string', '0x0123123a']
+        setAndTestEnvVarValue(EnvVar.REPORT_TARGET_OVERRIDE, corrects, incorrects)
       })
 
       it('correctly processes AGGREGATION_SCALING_RATE', () => {
@@ -132,6 +138,7 @@ describe('run_app', () => {
         [EnvVar.MINIMUM_EXCHANGES]: '2',
         [EnvVar.PRIVATE_KEY_PATH]: 'testPkeyPath',
         [EnvVar.REPORT_OFFSET_OVERRIDE]: '5000',
+        [EnvVar.CURRENCY_PAIR]: 'CELOBTC',
         [EnvVar.WALLET_TYPE]: 'AZURE_HSM',
         [EnvVar.WS_RPC_PROVIDER_URL]: 'ws://bar.foo',
       }
@@ -154,6 +161,7 @@ describe('run_app', () => {
         reporterConfig: {
           ...defaultApplicationConfig.reporterConfig,
         },
+        currencyPair: OracleCurrencyPair.CELOBTC,
         walletType: WalletType.AZURE_HSM,
         wsRpcProviderUrl: 'ws://bar.foo',
       }

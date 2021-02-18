@@ -27,12 +27,13 @@ export const applicationConfigEnvVars: EnvVarMap<OracleApplicationConfig> = {
   azureHsmInitMaxRetryBackoffMs: EnvVar.AZURE_HSM_INIT_MAX_RETRY_BACKOFF_MS,
   azureHsmInitTryCount: EnvVar.AZURE_HSM_INIT_TRY_COUNT,
   azureKeyVaultName: EnvVar.AZURE_KEY_VAULT_NAME,
+  currencyPair: EnvVar.CURRENCY_PAIR,
   httpRpcProviderUrl: EnvVar.HTTP_RPC_PROVIDER_URL,
   metrics: EnvVar.METRICS,
   privateKeyPath: EnvVar.PRIVATE_KEY_PATH,
   prometheusPort: EnvVar.PROMETHEUS_PORT,
   reportStrategy: EnvVar.REPORT_STRATEGY,
-  token: EnvVar.TOKEN,
+  reportTargetOverride: EnvVar.REPORT_TARGET_OVERRIDE,
   walletType: EnvVar.WALLET_TYPE,
   wsRpcProviderUrl: EnvVar.WS_RPC_PROVIDER_URL,
 }
@@ -40,10 +41,8 @@ export const applicationConfigEnvVars: EnvVarMap<OracleApplicationConfig> = {
 export const dataAggregatorConfigEnvVars: EnvVarMap<DataAggregatorConfigSubset> = {
   aggregationMethod: EnvVar.AGGREGATION_METHOD,
   aggregationWindowDuration: EnvVar.AGGREGATION_PERIOD,
-  allowNotCGLD: EnvVar.ALLOW_NOT_CGLD,
   apiRequestTimeout: EnvVar.API_REQUEST_TIMEOUT,
   askMaxPercentageDeviation: EnvVar.MID_AGGREGATION_ASK_MAX_PERCENTAGE_DEVIATION,
-  baseCurrency: EnvVar.BASE_CURRENCY,
   bidMaxPercentageDeviation: EnvVar.MID_AGGREGATION_BID_MAX_PERCENTAGE_DEVIATION,
   exchanges: EnvVar.EXCHANGES,
   fetchFrequency: EnvVar.DATA_FETCH_FREQUENCY,
@@ -51,7 +50,6 @@ export const dataAggregatorConfigEnvVars: EnvVarMap<DataAggregatorConfigSubset> 
   maxPercentageBidAskSpread: EnvVar.MID_AGGREGATION_MAX_PERCENTAGE_BID_ASK_SPREAD,
   minExchangeCount: EnvVar.MINIMUM_EXCHANGES,
   minTradeCount: EnvVar.MINIMUM_DATA,
-  quoteCurrency: EnvVar.QUOTE_CURRENCY,
   scalingRate: EnvVar.AGGREGATION_SCALING_RATE,
 }
 

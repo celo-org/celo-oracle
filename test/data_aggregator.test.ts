@@ -13,6 +13,7 @@ import {
   Exchange,
   ExternalCurrency,
   minutesToMs,
+  OracleCurrencyPair,
   secondsToMs,
 } from '../src/utils'
 import {
@@ -40,12 +41,11 @@ jest.mock('../src/exchange_adapters/okcoin')
 describe('DataAggregator', () => {
   const aggregationWindowDuration = minutesToMs(6)
   const apiRequestTimeout = secondsToMs(5)
-  const baseCurrency = CeloContract.GoldToken
   const fetchFrequency = secondsToMs(30)
   const maxNoTradeDuration = secondsToMs(10)
-  const quoteCurrency = ExternalCurrency.USD
   const metricCollector = new MetricCollector(baseLogger)
 
+  let currencyPair = OracleCurrencyPair.CELOUSD
   let minExchangeCount = 1
   let minTradeCount = 10
   let scalingRate = new BigNumber(0.1 / 1000) // ~36% scaling factor per 10 seconds
@@ -58,7 +58,6 @@ describe('DataAggregator', () => {
   let aggregationMethod = AggregationMethod.TRADES
   let testTickers: Ticker[]
 
-  const allowNotCGLD = false
   const askMaxPercentageDeviation = new BigNumber(0.2)
   const bidMaxPercentageDeviation = new BigNumber(0.2)
   const maxExchangeVolumeShare = new BigNumber(0.99)
@@ -76,14 +75,13 @@ describe('DataAggregator', () => {
 
   function setupDataAggregatorWithCurrentConfig(): void {
     dataAggregator = new DataAggregator({
-      allowNotCGLD,
       aggregationMethod,
       aggregationWindowDuration,
       apiRequestTimeout,
       askMaxPercentageDeviation,
-      baseCurrency,
       baseLogger,
       bidMaxPercentageDeviation,
+      currencyPair,
       exchanges,
       fetchFrequency,
       maxExchangeVolumeShare,
@@ -92,7 +90,6 @@ describe('DataAggregator', () => {
       metricCollector,
       minExchangeCount,
       minTradeCount,
-      quoteCurrency,
       scalingRate,
       minAggregatedVolume,
     })
@@ -327,21 +324,6 @@ describe('DataAggregator', () => {
       })
 
       describe('checkIndividualTickerData()', () => {
-        it('ticker with a symbol different to CELO/USD throws', () => {
-          const wrongSymbolTestTicker = testTickerArray[13]
-          const symbolPlaceholder = wrongSymbolTestTicker[1].symbol
-          wrongSymbolTestTicker[1].symbol = 'USD/CELO'
-          expect(() =>
-            aggregators.checkIndividualTickerData(
-              wrongSymbolTestTicker,
-              dataAggregator.config,
-              baseLogger
-            )
-          ).toThrow(`USD/CELO does not equal CELO/USD`)
-          // Revert value in case it's used in other tests
-          wrongSymbolTestTicker[1].symbol = symbolPlaceholder
-        })
-
         it('tickers with zero ask are removed', () => {
           expect(
             aggregators.checkIndividualTickerData(
@@ -469,54 +451,68 @@ describe('DataAggregator', () => {
   })
 
   describe('setup', () => {
-    const expectedConfig = {
-      apiRequestTimeout,
-      baseCurrency,
-      baseLogger: expect.anything(),
-      dataRetentionWindow: aggregationWindowDuration * 2,
-      fetchFrequency,
-      metricCollector: expect.anything(),
-      quoteCurrency,
+    const configsToTest: [OracleCurrencyPair, CeloContract, ExternalCurrency][] = [
+      [OracleCurrencyPair.CELOUSD, CeloContract.GoldToken, ExternalCurrency.USD],
+      [OracleCurrencyPair.CELOBTC, CeloContract.GoldToken, ExternalCurrency.BTC],
+      [OracleCurrencyPair.CELOEUR, CeloContract.GoldToken, ExternalCurrency.EUR],
+    ]
+    for (const [currencyPairToTest, expectedBaseCurrency, expectedQuoteCurrency] of configsToTest) {
+      describe(`for ${currencyPairToTest}`, () => {
+        const expectedConfig = {
+          apiRequestTimeout,
+          baseCurrency: expectedBaseCurrency,
+          baseLogger: expect.anything(),
+          dataRetentionWindow: aggregationWindowDuration * 2,
+          fetchFrequency,
+          metricCollector: expect.anything(),
+          quoteCurrency: expectedQuoteCurrency,
+        }
+
+        describe('when no adapters are specified in the config', () => {
+          beforeEach(() => {
+            exchanges = undefined
+            currencyPair = currencyPairToTest
+            setupDataAggregatorWithCurrentConfig()
+          })
+
+          it('initializes all possible exchange adapters', () => {
+            expect(BittrexAdapter).toHaveBeenCalledWith(expectedConfig)
+            expect(CoinbaseAdapter).toHaveBeenCalledWith(expectedConfig)
+            expect(OKCoinAdapter).toHaveBeenCalledWith(expectedConfig)
+          })
+
+          it('adds the adapters to the set belonging to the aggregator', () => {
+            expect(dataAggregator.exchangeAdapters.length).toEqual(3)
+          })
+        })
+
+        describe('when a subset of adapters are specified', () => {
+          beforeEach(() => {
+            exchanges = [Exchange.BITTREX, Exchange.OKCOIN]
+            currencyPair = currencyPairToTest
+            setupDataAggregatorWithCurrentConfig()
+          })
+
+          it('initializes only those adapters', () => {
+            expect(BittrexAdapter).toHaveBeenCalledWith(expectedConfig)
+            expect(OKCoinAdapter).toHaveBeenCalledWith(expectedConfig)
+
+            expect(CoinbaseAdapter).not.toHaveBeenCalled()
+          })
+          it('adds only those adapters to the set', () => {
+            expect(dataAggregator.exchangeAdapters.length).toEqual(2)
+          })
+        })
+
+        it('prevents duplicate adapters from being added', () => {
+          exchanges = [Exchange.BITTREX, Exchange.BITTREX, Exchange.COINBASE, Exchange.BITTREX]
+          currencyPair = currencyPairToTest
+          setupDataAggregatorWithCurrentConfig()
+          expect(BittrexAdapter).toHaveBeenCalledTimes(1)
+          expect(dataAggregator.exchangeAdapters.length).toEqual(2)
+        })
+      })
     }
-
-    describe('when no adapters are specified in the config', () => {
-      beforeEach(() => {
-        exchanges = undefined
-        setupDataAggregatorWithCurrentConfig()
-      })
-
-      it('initializes all possible exchange adapters', () => {
-        expect(BittrexAdapter).toHaveBeenCalledWith(expectedConfig)
-        expect(CoinbaseAdapter).toHaveBeenCalledWith(expectedConfig)
-        expect(OKCoinAdapter).toHaveBeenCalledWith(expectedConfig)
-      })
-
-      it('adds the adapters to the set belonging to the aggregator', () => {
-        expect(dataAggregator.exchangeAdapters.length).toEqual(3)
-      })
-    })
-    describe('when a subset of adapters are specified', () => {
-      beforeEach(() => {
-        exchanges = [Exchange.BITTREX, Exchange.OKCOIN]
-        setupDataAggregatorWithCurrentConfig()
-      })
-
-      it('initializes only those adapters', () => {
-        expect(BittrexAdapter).toHaveBeenCalledWith(expectedConfig)
-        expect(OKCoinAdapter).toHaveBeenCalledWith(expectedConfig)
-
-        expect(CoinbaseAdapter).not.toHaveBeenCalled()
-      })
-      it('adds only those adapters to the set', () => {
-        expect(dataAggregator.exchangeAdapters.length).toEqual(2)
-      })
-    })
-    it('prevents duplicate adapters from being added', () => {
-      exchanges = [Exchange.BITTREX, Exchange.BITTREX, Exchange.COINBASE, Exchange.BITTREX]
-      setupDataAggregatorWithCurrentConfig()
-      expect(BittrexAdapter).toHaveBeenCalledTimes(1)
-      expect(dataAggregator.exchangeAdapters.length).toEqual(2)
-    })
   })
 
   describe('data collection', () => {

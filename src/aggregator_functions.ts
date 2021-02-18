@@ -82,14 +82,6 @@ export function checkIndividualTickerData(
 
   for (const thisTickerData of tickerData) {
     // 1. Non-recoverable errors (should lead to the client not reporting)
-    // CELO-USD
-    if (!config.allowNotCGLD) {
-      assert(
-        thisTickerData.symbol === 'CELO/USD',
-        `${thisTickerData.symbol} does not equal CELO/USD`
-      )
-    }
-
     // Ignore individual ticker if any of these checks fail
     const checkRecoverableErrors = () => {
       // types

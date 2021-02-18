@@ -98,10 +98,7 @@ export interface ExchangeAdapterConfig {
   /** An optional MetricCollector instance to report metrics */
   metricCollector?: MetricCollector
   /**
-   * The currency in which to get the price of the baseCurrency. For the current
-   * use of the Oracle Application, this should be the Fiat currency that the
-   * stable token is pegged to. For example, Celo Dollar (CeloContract.StableToken)
-   * is pegged to USD
+   * The currency in which to get the price of the baseCurrency.
    */
   quoteCurrency: Currency
 }
@@ -166,6 +163,8 @@ export abstract class BaseExchangeAdapter {
     [CeloContract.GoldToken, 'CELO'],
     [CeloContract.StableToken, 'CUSD'],
     [ExternalCurrency.USD, 'USD'],
+    [ExternalCurrency.EUR, 'EUR'],
+    [ExternalCurrency.BTC, 'BTC'],
   ])
 
   protected readonly logger: Logger

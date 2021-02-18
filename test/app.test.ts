@@ -15,8 +15,8 @@ import { BlockBasedReporter } from '../src/reporters/block_based_reporter'
 import { TimerReporter } from '../src/reporters/timer_reporter'
 import {
   AggregationMethod,
-  ExternalCurrency,
   minutesToMs,
+  OracleCurrencyPair,
   ReportStrategy,
   secondsToMs,
   WalletType,
@@ -41,16 +41,15 @@ describe('OracleApplication', () => {
   const address = mockOracleAccount
   const aggregationMethod = AggregationMethod.MIDPRICES
   const aggregationWindowDuration = minutesToMs(6)
-  const allowNotCGLD = false
   const askMaxPercentageDeviation = new BigNumber(0.2)
   const azureKeyVaultName = mockAzureKeyVaultName
   const azureHsmInitMaxRetryBackoffMs = secondsToMs(30)
   const azureHsmInitTryCount = 5
-  const baseCurrency = CeloContract.GoldToken
   const bidMaxPercentageDeviation = new BigNumber(0.2)
   const circuitBreakerPriceChangeThresholdMax = new BigNumber(0.1)
   const circuitBreakerPriceChangeThresholdMin = new BigNumber(0.1)
   const circuitBreakerPriceChangeThresholdTimeMultiplier = new BigNumber(0.0075)
+  const currencyPair = OracleCurrencyPair.CELOUSD
   const expectedBlockTimeMs = secondsToMs(5)
   const fetchFrequency = secondsToMs(30)
   const httpRpcProviderUrl = 'http://test.foo'
@@ -64,12 +63,10 @@ describe('OracleApplication', () => {
   const minTradeCount = 3
   const privateKeyPath = mockPrivateKeyPath
   const prometheusPort = 9090
-  const quoteCurrency = ExternalCurrency.USD
   const removeExpiredFrequency = minutesToMs(1)
   const reportStrategy = ReportStrategy.TIMER_BASED
   const scalingRate = new BigNumber(0.01 / 1000)
   const minAggregatedVolume = new BigNumber(1000)
-  const token = CeloContract.StableToken
   const walletType = WalletType.AZURE_HSM
   const wsRpcProviderUrl = 'ws://test.foo'
 
@@ -99,16 +96,13 @@ describe('OracleApplication', () => {
   }
 
   const dataAggregatorConfig: DataAggregatorConfigSubset = {
-    allowNotCGLD,
     aggregationMethod,
     aggregationWindowDuration,
-    baseCurrency,
     baseLogger,
     fetchFrequency,
     maxNoTradeDuration,
     minExchangeCount,
     minTradeCount,
-    quoteCurrency,
     scalingRate,
     askMaxPercentageDeviation,
     bidMaxPercentageDeviation,
@@ -123,6 +117,7 @@ describe('OracleApplication', () => {
     azureHsmInitMaxRetryBackoffMs,
     azureHsmInitTryCount,
     baseLogger,
+    currencyPair,
     dataAggregatorConfig,
     httpRpcProviderUrl,
     metrics,
@@ -130,9 +125,9 @@ describe('OracleApplication', () => {
     prometheusPort,
     reporterConfig: timerReporterConfig,
     reportStrategy,
-    token,
     walletType,
     wsRpcProviderUrl,
+    reportTargetOverride: undefined,
   }
 
   let oracleApplication: OracleApplication
@@ -144,6 +139,7 @@ describe('OracleApplication', () => {
   it('set up a data aggregator with the appropriate, passed-through config', () => {
     expect(DataAggregator).toHaveBeenCalledWith({
       ...dataAggregatorConfig,
+      currencyPair: 'CELOUSD',
       metricCollector: oracleApplication.metricCollector,
     })
   })
@@ -153,10 +149,12 @@ describe('OracleApplication', () => {
       Object.defineProperty(oracleApplication, 'initialized', { value: true })
       await expect(async () => oracleApplication.init()).rejects.toThrow('App is initialized')
     })
+
     it('sets up a TimerReporter instance with appropriate params if specified', async () => {
       await oracleApplication.init()
       expect(TimerReporter).toHaveBeenCalledWith({
         baseLogger: expect.anything(),
+        currencyPair,
         dataAggregator: expect.any(DataAggregator),
         gasPriceMultiplier: new BigNumber(5),
         transactionRetryLimit: 0,
@@ -168,7 +166,7 @@ describe('OracleApplication', () => {
         metricCollector: expect.any(MetricCollector),
         oracleAccount: mockOracleAccount,
         removeExpiredFrequency,
-        token,
+        reportTarget: CeloContract.StableToken,
         unusedOracleAddresses: timerReporterConfig.unusedOracleAddresses,
       })
     })
@@ -182,6 +180,7 @@ describe('OracleApplication', () => {
       await oracleApplication.init()
       expect(BlockBasedReporter).toHaveBeenCalledWith({
         baseLogger: expect.anything(),
+        currencyPair,
         dataAggregator: expect.any(DataAggregator),
         expectedBlockTimeMs,
         gasPriceMultiplier: new BigNumber(5),
@@ -195,11 +194,12 @@ describe('OracleApplication', () => {
         minReportPriceChangeThreshold,
         metricCollector: expect.any(MetricCollector),
         oracleAccount: mockOracleAccount,
-        token,
+        reportTarget: CeloContract.StableToken,
         unusedOracleAddresses: timerReporterConfig.unusedOracleAddresses,
         wsRpcProviderUrl,
       })
     })
+
     it('validates private key correctly', () => {
       // key is too short to be a valid private key
       let key = '7482878ff61eee0d53caad3246eabe69cb2a17204df0276986b'

@@ -28,8 +28,8 @@ export interface TimerReporterConfig extends BaseReporterConfig {
   /**
    * The purpose of the report offset is to space out oracle reports so they don't
    * all try to report simultaneously. To accomplish this, every oracle reporting
-   * on this token should have a different offset (assuming they're all running at
-   * the same frequency).
+   * on this currency pair should have a different offset (assuming they're all
+   * running at the same frequency).
    *
    * The result of an offset is best described by example:
    *   if reportFrequencyMs = 300000 (5 minutes) and reportOffsetMs = 0,

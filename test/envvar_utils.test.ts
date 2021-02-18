@@ -1,7 +1,6 @@
-import { CeloContract } from '@celo/contractkit'
 import BigNumber from 'bignumber.js'
 import { EnvVar, fetchParseValidateEnvVar } from '../src/envvar_utils'
-import { AggregationMethod, Exchange, ExternalCurrency } from '../src/utils'
+import { AggregationMethod, Exchange } from '../src/utils'
 
 describe('fetchParseValidateEnvVar()', () => {
   const env = { ...process.env }
@@ -43,22 +42,20 @@ describe('fetchParseValidateEnvVar()', () => {
     process.env[EnvVar.METRICS] = 'false'
     expect(fetchParseValidateEnvVar(EnvVar.METRICS)).toEqual(false)
   })
-  it('parses a token correctly', () => {
-    process.env[EnvVar.TOKEN] = 'StableToken'
-    expect(fetchParseValidateEnvVar(EnvVar.TOKEN)).toEqual(CeloContract.StableToken)
-  })
-  it("parses a currency correctly when it's a CeloToken", () => {
-    process.env[EnvVar.BASE_CURRENCY] = 'GoldToken'
-    expect(fetchParseValidateEnvVar(EnvVar.BASE_CURRENCY)).toEqual(CeloContract.GoldToken)
-  })
-  it("parses a currency correctly when it's not a CeloToken", () => {
-    process.env[EnvVar.QUOTE_CURRENCY] = 'USD'
-    expect(fetchParseValidateEnvVar(EnvVar.QUOTE_CURRENCY)).toEqual(ExternalCurrency.USD)
+  it('correctly handles currency pairs', () => {
+    process.env[EnvVar.CURRENCY_PAIR] = 'CELOUSD'
+    expect(fetchParseValidateEnvVar(EnvVar.CURRENCY_PAIR)).toEqual('CELOUSD')
+    process.env[EnvVar.CURRENCY_PAIR] = 'CELOBTC'
+    expect(fetchParseValidateEnvVar(EnvVar.CURRENCY_PAIR)).toEqual('CELOBTC')
   })
   it('parses aggregation method correctly', () => {
     process.env[EnvVar.AGGREGATION_METHOD] = 'trades'
     expect(fetchParseValidateEnvVar(EnvVar.AGGREGATION_METHOD)).toEqual(AggregationMethod.TRADES)
     process.env[EnvVar.AGGREGATION_METHOD] = 'Midprices'
     expect(fetchParseValidateEnvVar(EnvVar.AGGREGATION_METHOD)).toEqual(AggregationMethod.MIDPRICES)
+  })
+
+  it('sets a missing REPORT_TARGET_OVERRIDE to undefined', () => {
+    expect(fetchParseValidateEnvVar(EnvVar.REPORT_TARGET_OVERRIDE)).toEqual(undefined)
   })
 })

@@ -1,4 +1,3 @@
-import { CeloContract } from '@celo/contractkit'
 import BigNumber from 'bignumber.js'
 import Logger from 'bunyan'
 import {
@@ -11,8 +10,8 @@ import {
 import {
   AggregationMethod,
   Exchange,
-  ExternalCurrency,
   minutesToMs,
+  OracleCurrencyPair,
   ReportStrategy,
   secondsToMs,
   WalletType,
@@ -25,12 +24,10 @@ export const baseLogger = Logger.createLogger({
 })
 
 export const defaultDataAggregatorConfig: DataAggregatorConfigSubset = {
-  allowNotCGLD: false,
   aggregationMethod: AggregationMethod.MIDPRICES,
   aggregationWindowDuration: minutesToMs(5),
   apiRequestTimeout: secondsToMs(5),
   askMaxPercentageDeviation: new BigNumber(0.2),
-  baseCurrency: CeloContract.GoldToken,
   baseLogger,
   bidMaxPercentageDeviation: new BigNumber(0.2),
   exchanges: [Exchange.BITTREX],
@@ -40,7 +37,6 @@ export const defaultDataAggregatorConfig: DataAggregatorConfigSubset = {
   maxNoTradeDuration: secondsToMs(20), // with ETH on Coinbase it's common to see a no trade duration of 10s
   minExchangeCount: 1,
   minTradeCount: 10,
-  quoteCurrency: ExternalCurrency.USD,
   scalingRate: new BigNumber(0.01 / 1000),
   minAggregatedVolume: new BigNumber(0),
 }
@@ -73,6 +69,7 @@ export const defaultApplicationConfig: OracleApplicationConfig = {
   azureHsmInitMaxRetryBackoffMs: secondsToMs(30),
   azureHsmInitTryCount: 5,
   baseLogger,
+  currencyPair: OracleCurrencyPair.CELOUSD,
   dataAggregatorConfig: defaultDataAggregatorConfig,
   httpRpcProviderUrl: 'http://localhost:8545',
   metrics: true,
@@ -80,7 +77,7 @@ export const defaultApplicationConfig: OracleApplicationConfig = {
   prometheusPort: 9090,
   reporterConfig: defaultBlockBasedReporterConfig,
   reportStrategy: ReportStrategy.BLOCK_BASED,
-  token: CeloContract.StableToken,
+  reportTargetOverride: undefined,
   walletType: WalletType.PRIVATE_KEY,
   wsRpcProviderUrl: 'ws://localhost:8546',
 }
