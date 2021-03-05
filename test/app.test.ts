@@ -42,6 +42,7 @@ describe('OracleApplication', () => {
   const aggregationMethod = AggregationMethod.MIDPRICES
   const aggregationWindowDuration = minutesToMs(6)
   const askMaxPercentageDeviation = new BigNumber(0.2)
+  const awsKeyRegion = 'eu-central-1'
   const azureKeyVaultName = mockAzureKeyVaultName
   const azureHsmInitMaxRetryBackoffMs = secondsToMs(30)
   const azureHsmInitTryCount = 5
@@ -113,6 +114,7 @@ describe('OracleApplication', () => {
 
   const appConfig: OracleApplicationConfig = {
     address,
+    awsKeyRegion,
     azureKeyVaultName,
     azureHsmInitMaxRetryBackoffMs,
     azureHsmInitTryCount,

@@ -22,6 +22,7 @@ export enum EnvVar {
   AGGREGATION_PERIOD = 'AGGREGATION_PERIOD',
   AGGREGATION_SCALING_RATE = 'AGGREGATION_SCALING_RATE',
   API_REQUEST_TIMEOUT = 'API_REQUEST_TIMEOUT',
+  AWS_KEY_REGION = 'AWS_KEY_REGION',
   AZURE_HSM_INIT_MAX_RETRY_BACKOFF_MS = 'AZURE_HSM_INIT_MAX_RETRY_BACKOFF_MS',
   AZURE_HSM_INIT_TRY_COUNT = 'AZURE_HSM_INIT_TRY_COUNT',
   AZURE_KEY_VAULT_NAME = 'AZURE_KEY_VAULT_NAME',
@@ -190,6 +191,24 @@ const envVarHandlingMap = new Map<EnvVar, EnvVarHandling>([
         envVarValidations.isFinite,
         (value: BigNumber) => envVarValidations.isGreaterThan(value, 0, true),
         (value: BigNumber) => envVarValidations.isLessThan(value, 1, false),
+      ],
+    },
+  ],
+  [
+    EnvVar.AWS_KEY_REGION,
+    {
+      validationFns: [
+        (value: string) => {
+          if (
+            !(
+              RegExp('^[a-z]+-[a-z]+-[0-9]$').test(value) &&
+              value.length >= 3 &&
+              value.length <= 24
+            )
+          ) {
+            throw Error('is not a valid AWS region')
+          }
+        },
       ],
     },
   ],

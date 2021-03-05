@@ -60,6 +60,12 @@ export interface OracleApplicationConfig {
    */
   address?: string
   /**
+   * The name in code form of the AWS region the key is located in.
+   * Only used if walletType is AWS_HSM.
+   * eg: eu-central-1
+   */
+  awsKeyRegion: string
+  /**
    * The name of an Azure Key Vault where an HSM with the address `address` exists.
    * Has higher precedence over `privateKeyPath`.
    */
@@ -156,6 +162,7 @@ export class OracleApplication {
 
     const {
       address,
+      awsKeyRegion,
       azureKeyVaultName,
       azureHsmInitTryCount,
       azureHsmInitMaxRetryBackoffMs,
@@ -180,8 +187,12 @@ export class OracleApplication {
       case WalletType.AWS_HSM:
         requireVariables({
           address,
+          awsKeyRegion,
         })
-        const awsHsmWallet = new AwsHsmWallet()
+        const awsHsmWallet = new AwsHsmWallet({
+          region: awsKeyRegion,
+          apiVersion: '2014-11-01',
+        })
         await awsHsmWallet.init()
         kit = newKit(httpRpcProviderUrl, awsHsmWallet)
         break
