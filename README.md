@@ -57,7 +57,7 @@ yarn start | npx bunyan
 
 Each ExchangeAdapter is responsible for querying information from a specific exchange's API, and transforming the response into the standard format expected by the DataAggregator.
 
-Currently supported exchanges are: [Bittrex](src/exchange_adapters/bittrex.ts), [Coinbase](src/exchange_adapters/coinbase.ts), and [OKCoin](src/exchange_adapters/okcoin.ts).
+Currently supported exchanges are: [Binance](src/exchange_adapters/binance.ts), [Bittrex](src/exchange_adapters/bittrex.ts), [Coinbase](src/exchange_adapters/coinbase.ts), and [OKCoin](src/exchange_adapters/okcoin.ts).
 
 ### **DataAggregator**
 

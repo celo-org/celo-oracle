@@ -4,6 +4,7 @@ import * as aggregators from '../src/aggregator_functions'
 import { DataAggregator } from '../src/data_aggregator'
 import { baseLogger } from '../src/default_config'
 import { Ticker, Trade } from '../src/exchange_adapters/base'
+import { BinanceAdapter } from '../src/exchange_adapters/binance'
 import { BittrexAdapter } from '../src/exchange_adapters/bittrex'
 import { CoinbaseAdapter } from '../src/exchange_adapters/coinbase'
 import { OKCoinAdapter } from '../src/exchange_adapters/okcoin'
@@ -34,6 +35,7 @@ import {
 
 jest.mock('../src/metric_collector')
 
+jest.mock('../src/exchange_adapters/binance')
 jest.mock('../src/exchange_adapters/bittrex')
 jest.mock('../src/exchange_adapters/coinbase')
 jest.mock('../src/exchange_adapters/okcoin')
@@ -476,13 +478,14 @@ describe('DataAggregator', () => {
           })
 
           it('initializes all possible exchange adapters', () => {
+            expect(BinanceAdapter).toHaveBeenCalledWith(expectedConfig)
             expect(BittrexAdapter).toHaveBeenCalledWith(expectedConfig)
             expect(CoinbaseAdapter).toHaveBeenCalledWith(expectedConfig)
             expect(OKCoinAdapter).toHaveBeenCalledWith(expectedConfig)
           })
 
           it('adds the adapters to the set belonging to the aggregator', () => {
-            expect(dataAggregator.exchangeAdapters.length).toEqual(3)
+            expect(dataAggregator.exchangeAdapters.length).toEqual(4)
           })
         })
 
@@ -559,7 +562,7 @@ describe('DataAggregator', () => {
   describe('fetchAllTickers()', () => {
     beforeAll(() => {
       aggregationMethod = AggregationMethod.MIDPRICES
-      exchanges = [Exchange.COINBASE, Exchange.OKCOIN, Exchange.BITTREX]
+      exchanges = [Exchange.COINBASE, Exchange.OKCOIN, Exchange.BITTREX, Exchange.BINANCE]
       setupDataAggregatorWithCurrentConfig()
       // 'exchangeName' is undefined because the exchange adapters are mocks,
       // so we set them here when they are needed

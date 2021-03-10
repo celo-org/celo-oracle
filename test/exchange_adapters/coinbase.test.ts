@@ -32,8 +32,22 @@ describe('CoinbaseAdapter', () => {
   }
   const mockTradeJson = [
     {
-      time: '2019-04-12T02:07:30.523Z',
-      trade_id: '1296412902',
+      time: '2021-03-02T13:34:31.407Z',
+      trade_id: '1461835',
+      price: '4913.4',
+      size: '0.0099',
+      side: 'buy',
+    },
+    {
+      time: '2021-03-02T13:11:48.005Z',
+      trade_id: '1461771',
+      price: '4913.4',
+      size: '0.0099',
+      side: 'buy',
+    },
+    {
+      time: '2021-03-02T13:09:47.272Z',
+      trade_id: '1461736',
       price: '4913.4',
       size: '0.0099',
       side: 'buy',
@@ -80,6 +94,21 @@ describe('CoinbaseAdapter', () => {
         ExchangeDataType.TRADE,
         'products/CGLD-USD/trades'
       )
+    })
+  })
+  describe('fetchTrades', () => {
+    it('returns the trades in the right order', async () => {
+      let fetchFromApiSpy: jest.SpyInstance
+      fetchFromApiSpy = jest.spyOn(coinbaseAdapter, 'fetchFromApi')
+      fetchFromApiSpy.mockReturnValue(Promise.resolve(mockTradeJson))
+
+      const sortedTradesResponse = [
+        mockTradeJson[2].trade_id,
+        mockTradeJson[1].trade_id,
+        mockTradeJson[0].trade_id,
+      ]
+      const tradesFetched = await coinbaseAdapter.fetchTrades()
+      expect(tradesFetched.map((t) => t.id)).toEqual(sortedTradesResponse)
     })
   })
   describe('parseTicker', () => {

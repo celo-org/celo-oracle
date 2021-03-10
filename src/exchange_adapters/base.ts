@@ -365,7 +365,8 @@ export abstract class BaseExchangeAdapter {
       res = await fetch(`${this.baseApiUrl}/${path}`, {
         agent: this.httpsAgent,
         follow: 20, // redirect limit
-        size: megabytesToBytes(1), // max body size in bytes - should be usually be < 10 Kb
+        // max body size in bytes - usually < 10 KB, except for Binance exchangeInfo endpoint which is ~1.4MB
+        size: megabytesToBytes(4),
         timeout: this.config.apiRequestTimeout, // resets on redirect
       })
     } catch (err) {

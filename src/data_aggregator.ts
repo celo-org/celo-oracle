@@ -4,6 +4,7 @@ import Logger from 'bunyan'
 import * as aggregators from './aggregator_functions'
 import { OracleApplicationConfig } from './app'
 import { ExchangeAdapter, ExchangeAdapterConfig, Ticker, Trade } from './exchange_adapters/base'
+import { BinanceAdapter } from './exchange_adapters/binance'
 import { BittrexAdapter } from './exchange_adapters/bittrex'
 import { CoinbaseAdapter } from './exchange_adapters/coinbase'
 import { OKCoinAdapter } from './exchange_adapters/okcoin'
@@ -19,6 +20,8 @@ import {
 
 function adapterFromExchangeName(name: Exchange, config: ExchangeAdapterConfig): ExchangeAdapter {
   switch (name) {
+    case Exchange.BINANCE:
+      return new BinanceAdapter(config)
     case Exchange.BITTREX:
       return new BittrexAdapter(config)
     case Exchange.COINBASE:

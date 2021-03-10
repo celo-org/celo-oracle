@@ -8,3 +8,6 @@ tsconfig.tsbuildinfo
 
 # OSX
 .DS_Store
+
+# IDEs
+.idea/
