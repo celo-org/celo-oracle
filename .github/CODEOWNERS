@@ -3,4 +3,4 @@
 # For details on acceptable file patterns, please refer to the [Github Documentation](https://help.github.com/articles/about-codeowners/)
 
 # default owners, overridden by directory specific owners below
-@celo-org/platform-economics
+* @celo-org/platform-economics
