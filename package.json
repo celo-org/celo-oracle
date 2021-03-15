@@ -24,9 +24,11 @@
     "@celo/wallet-hsm-azure": "^1.0.2",
     "bignumber.js": "^8.1.1",
     "bunyan": "^1.8.12",
+    "elliptic": "^6.5.4",
     "express": "^4.17.1",
     "mathjs": "^6.6.4",
     "node-fetch": "^2.6.1",
+    "node-notifier": "^8.0.1",
     "prom-client": "^12.0.0",
     "tslint-no-focused-test": "^0.5.0",
     "web3": "1.2.4"
