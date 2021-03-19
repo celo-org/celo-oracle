@@ -1,4 +1,5 @@
 import { CeloTransactionObject } from '@celo/connect'
+import Logger from 'bunyan'
 import { TransactionReceipt } from 'web3-core'
 
 /**
@@ -14,6 +15,7 @@ import { TransactionReceipt } from 'web3-core'
  * @param fallbackGas the fallback gas to use in the event gas estimation incorrectly fails
  */
 export default async function send(
+  logger: Logger,
   tx: CeloTransactionObject<void>,
   gasPrice: number,
   from: string,
@@ -36,6 +38,13 @@ export default async function send(
         // a revert reason. In this situation, the following string will be
         // included in the error string: 'Gas estimation failed: Could not decode transaction failure reason'
         if (err.message.includes('Gas estimation failed: Could not decode transaction failure reason') && fallbackGas !== undefined) {
+          logger.info({
+            tx,
+            gasPrice,
+            from,
+            fallbackGas,
+            err
+          }, 'Gas estimation failed but eth_call did not, using fallback gas')
           // Retry with the fallbackGas to avoid gas estimation
           return tx.send({
             from,

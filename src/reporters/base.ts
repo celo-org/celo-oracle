@@ -229,6 +229,7 @@ export abstract class BaseReporter {
     )
 
     const receipt = await sendTransactionWithRetries(
+      this.logger,
       tx,
       gasPrice,
       {
@@ -324,6 +325,7 @@ export abstract class BaseReporter {
       )
 
       return sendTransaction(
+        this.logger,
         tx,
         gasPrice,
         this.config.oracleAccount,

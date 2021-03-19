@@ -4,6 +4,7 @@ import BigNumber from 'bignumber.js'
 import Web3 from 'web3'
 import { TransactionReceipt } from 'web3-core'
 import { TransactionManagerConfig } from '../../src/app'
+import { baseLogger } from '../../src/default_config'
 import { BaseReporter } from '../../src/reporters/base'
 import * as send from '../../src/reporters/transaction_manager/send'
 import sendWithRetries from '../../src/reporters/transaction_manager/send_with_retries'
@@ -58,7 +59,7 @@ describe('transaction manager', () => {
 
   it("doesn't retry when 0 retry limit configured", async () => {
     expect(() =>
-      sendWithRetries(defaultTx, initialGasPrice, defaultConfig, metricAction)
+      sendWithRetries(baseLogger, defaultTx, initialGasPrice, defaultConfig, metricAction)
     ).rejects.toEqual('error')
     expect(sendSpy).toHaveBeenCalled()
     expect(sendSpy).toBeCalledTimes(1)
@@ -67,7 +68,7 @@ describe('transaction manager', () => {
 
   it('passes transaction receipt back on successful send', async () => {
     sendSpy.mockImplementation(() => Promise.resolve(defaultReceipt))
-    const receipt = await sendWithRetries(defaultTx, initialGasPrice, defaultConfig, metricAction)
+    const receipt = await sendWithRetries(baseLogger, defaultTx, initialGasPrice, defaultConfig, metricAction)
 
     expect(sendSpy).toBeCalledTimes(1)
     expect(sendSpy).toBeCalledWith(defaultTx, initialGasPrice, mockOracleAccount, metricAction)
@@ -79,6 +80,7 @@ describe('transaction manager', () => {
     sendSpy.mockImplementationOnce(() => Promise.reject('error'))
     sendSpy.mockImplementationOnce(() => Promise.resolve(defaultReceipt))
     const result = await sendWithRetries(
+      baseLogger,
       defaultTx,
       initialGasPrice,
       {
@@ -101,6 +103,7 @@ describe('transaction manager', () => {
     sendSpy.mockImplementationOnce(() => Promise.resolve(defaultReceipt))
 
     const result = await sendWithRetries(
+      baseLogger,
       defaultTx,
       initialGasPrice,
       {
@@ -125,6 +128,7 @@ describe('transaction manager', () => {
 
     await expect(() =>
       sendWithRetries(
+        baseLogger,
         defaultTx,
         initialGasPrice,
         {
@@ -201,6 +205,7 @@ describe('transaction manager', () => {
         mockTxObject,
       )
       await send.default(
+        baseLogger,
         txo,
         123,
         '0xf000000000000000000000000000000000000000',
@@ -226,6 +231,7 @@ describe('transaction manager', () => {
         mockTxObject,
       )
       await send.default(
+        baseLogger,
         txo,
         123,
         '0xf000000000000000000000000000000000000000',
@@ -253,6 +259,7 @@ describe('transaction manager', () => {
         mockTxObject,
       )
       await expect(() => send.default(
+        baseLogger,
         txo,
         123,
         '0xf000000000000000000000000000000000000000',

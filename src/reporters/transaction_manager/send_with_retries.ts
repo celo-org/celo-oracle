@@ -1,4 +1,5 @@
 import { CeloTransactionObject } from '@celo/connect'
+import Logger from 'bunyan'
 import { TransactionReceipt } from 'web3-core'
 import { TransactionManagerConfig } from '../../app'
 import { Context } from '../../metric_collector'
@@ -6,6 +7,7 @@ import { onError } from '../../utils'
 import send from './send'
 
 export default async function sendWithRetries(
+  logger: Logger,
   tx: CeloTransactionObject<void>,
   initialGasPrice: number,
   config: TransactionManagerConfig,
@@ -22,7 +24,7 @@ export default async function sendWithRetries(
       .plus(initialGasPrice)
       .toNumber()
     try {
-      return await send(tx, calculatedGasPrice, config.oracleAccount, metricAction, fallbackGas)
+      return await send(logger, tx, calculatedGasPrice, config.oracleAccount, metricAction, fallbackGas)
     } catch (e) {
       lastCaughtError = e
       onError(e, {
