@@ -17,6 +17,18 @@ import {
 } from '../utils'
 import { sendTransaction, sendTransactionWithRetries } from './transaction_manager'
 
+// Fallback gas amounts -- in the event gas estimation fails due to this race
+// condition: https://github.com/celo-org/celo-blockchain/issues/1419
+// We fall back to a hardcoded gas amount intended to be a little higher than
+// normal to be extra safe:
+
+// 400k -- gas estimations (including contractkit's inflation factor of 1.3)
+// are typically ~330k and gas used is typically ~190k
+const FALLBACK_REPORT_GAS = 400000
+// 450k -- gas estimations (including contractkit's inflation factor of 1.3)
+// are typically ~350k and gas used is typically ~200k
+const FALLBACK_EXPIRY_GAS = 450000
+
 export interface BaseReporterConfig {
   /**
    * A base instance of the logger that can be extended for a particular context
@@ -223,7 +235,8 @@ export abstract class BaseReporter {
         ...this.config,
         logger: this.logger,
       },
-      this.doAsyncReportAction.bind(this)
+      this.doAsyncReportAction.bind(this),
+      FALLBACK_REPORT_GAS
     )
 
     if (this.config.metricCollector) {
@@ -314,7 +327,8 @@ export abstract class BaseReporter {
         tx,
         gasPrice,
         this.config.oracleAccount,
-        this.doAsyncExpiryAction.bind(this)
+        this.doAsyncExpiryAction.bind(this),
+        FALLBACK_EXPIRY_GAS
       )
     }
   }

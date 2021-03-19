@@ -9,7 +9,8 @@ export default async function sendWithRetries(
   tx: CeloTransactionObject<void>,
   initialGasPrice: number,
   config: TransactionManagerConfig,
-  metricAction: <T>(fn: () => Promise<T>, action: string) => Promise<T>
+  metricAction: <T>(fn: () => Promise<T>, action: string) => Promise<T>,
+  fallbackGas?: number
 ): Promise<TransactionReceipt> {
   let attempt = 0
   let lastCaughtError = null
@@ -21,7 +22,7 @@ export default async function sendWithRetries(
       .plus(initialGasPrice)
       .toNumber()
     try {
-      return await send(tx, calculatedGasPrice, config.oracleAccount, metricAction)
+      return await send(tx, calculatedGasPrice, config.oracleAccount, metricAction, fallbackGas)
     } catch (e) {
       lastCaughtError = e
       onError(e, {
