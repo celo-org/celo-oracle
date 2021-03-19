@@ -63,7 +63,7 @@ describe('transaction manager', () => {
     ).rejects.toEqual('error')
     expect(sendSpy).toHaveBeenCalled()
     expect(sendSpy).toBeCalledTimes(1)
-    expect(sendSpy).toBeCalledWith(defaultTx, initialGasPrice, mockOracleAccount, metricAction)
+    expect(sendSpy).toBeCalledWith(baseLogger, defaultTx, initialGasPrice, mockOracleAccount, metricAction, undefined)
   })
 
   it('passes transaction receipt back on successful send', async () => {
@@ -71,7 +71,7 @@ describe('transaction manager', () => {
     const receipt = await sendWithRetries(baseLogger, defaultTx, initialGasPrice, defaultConfig, metricAction)
 
     expect(sendSpy).toBeCalledTimes(1)
-    expect(sendSpy).toBeCalledWith(defaultTx, initialGasPrice, mockOracleAccount, metricAction)
+    expect(sendSpy).toBeCalledWith(baseLogger, defaultTx, initialGasPrice, mockOracleAccount, metricAction, undefined)
     expect(receipt).toEqual(defaultReceipt)
   })
 
@@ -91,9 +91,9 @@ describe('transaction manager', () => {
     )
 
     expect(sendSpy).toBeCalledTimes(3)
-    expect(sendSpy).nthCalledWith(1, defaultTx, initialGasPrice, mockOracleAccount, metricAction)
-    expect(sendSpy).nthCalledWith(2, defaultTx, initialGasPrice, mockOracleAccount, metricAction)
-    expect(sendSpy).nthCalledWith(3, defaultTx, initialGasPrice, mockOracleAccount, metricAction)
+    expect(sendSpy).nthCalledWith(1, baseLogger, defaultTx, initialGasPrice, mockOracleAccount, metricAction, undefined)
+    expect(sendSpy).nthCalledWith(2, baseLogger, defaultTx, initialGasPrice, mockOracleAccount, metricAction, undefined)
+    expect(sendSpy).nthCalledWith(3, baseLogger, defaultTx, initialGasPrice, mockOracleAccount, metricAction, undefined)
     expect(result).toEqual(defaultReceipt)
   })
 
@@ -115,9 +115,9 @@ describe('transaction manager', () => {
     )
 
     expect(sendSpy).toBeCalledTimes(3)
-    expect(sendSpy).nthCalledWith(1, defaultTx, initialGasPrice, mockOracleAccount, metricAction)
-    expect(sendSpy).nthCalledWith(2, defaultTx, 11, mockOracleAccount, metricAction)
-    expect(sendSpy).nthCalledWith(3, defaultTx, 12, mockOracleAccount, metricAction)
+    expect(sendSpy).nthCalledWith(1, baseLogger, defaultTx, initialGasPrice, mockOracleAccount, metricAction, undefined)
+    expect(sendSpy).nthCalledWith(2, baseLogger, defaultTx, 11, mockOracleAccount, metricAction, undefined)
+    expect(sendSpy).nthCalledWith(3, baseLogger, defaultTx, 12, mockOracleAccount, metricAction, undefined)
     expect(result).toEqual(defaultReceipt)
   })
 
@@ -140,12 +140,12 @@ describe('transaction manager', () => {
       )
     ).rejects.toEqual('error')
     expect(sendSpy).toBeCalledTimes(3)
-    expect(sendSpy).nthCalledWith(1, defaultTx, initialGasPrice, mockOracleAccount, metricAction)
-    expect(sendSpy).nthCalledWith(2, defaultTx, 11, mockOracleAccount, metricAction)
-    expect(sendSpy).nthCalledWith(3, defaultTx, 12, mockOracleAccount, metricAction)
+    expect(sendSpy).nthCalledWith(1, baseLogger, defaultTx, initialGasPrice, mockOracleAccount, metricAction, undefined)
+    expect(sendSpy).nthCalledWith(2, baseLogger, defaultTx, 11, mockOracleAccount, metricAction, undefined)
+    expect(sendSpy).nthCalledWith(3, baseLogger, defaultTx, 12, mockOracleAccount, metricAction, undefined)
   })
 
-  describe.only('fallback gas', () => {
+  describe('fallback gas', () => {
     let mockTxObject: CeloTxObject<void>
     let connection: Connection
     // Just wraps the fn passed in, required by the send fn
@@ -195,8 +195,7 @@ describe('transaction manager', () => {
       }
 
       // Create a new Connection
-      const web3 = new Web3('http://')
-      connection = new Connection(web3)
+      connection = new Connection(new Web3('http://'))
     })
 
     it('uses estimated gas when gas estimation is successful', async () => {
