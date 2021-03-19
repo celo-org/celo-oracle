@@ -195,7 +195,7 @@ describe('transaction manager', () => {
       connection = new Connection(web3)
     })
 
-    it('estimates gas when gas estimation is successful', async () => {
+    it('uses estimated gas when gas estimation is successful', async () => {
       const txo = toTransactionObject(
         connection,
         mockTxObject,
@@ -215,9 +215,11 @@ describe('transaction manager', () => {
     it('uses fallback gas when gas estimation fails but eth_call does not', async () => {
       mockTxObject.estimateGas = (_tx?: CeloTx) => Promise.reject('intentional error!')
 
-      // Mock connection.web3.eth.call to return 0x0, indicating there is no error
+      // Mock eth_call to return 0x, indicating there was not a revert
+      // We mock connection.web3.eth.call as that is what is used as the caller:
+      // https://github.com/celo-org/celo-monorepo/blob/fc31eb0c327a33d426154ad13faade361540dd72/packages/sdk/connect/src/connection.ts#L238
       const connectionSendSpy = jest.spyOn(connection.web3.eth, 'call')
-      connectionSendSpy.mockImplementation(() => Promise.resolve('0x0'))
+      connectionSendSpy.mockImplementation(() => Promise.resolve('0x'))
       // Craft a transaction object
       const txo = toTransactionObject(
         connection,
@@ -231,6 +233,32 @@ describe('transaction manager', () => {
         fallbackGas
       )
       expect(gas).toEqual(fallbackGas)
+    })
+
+    it('fails when gas estimation fails and eth_call indicates a revert occurred', async () => {
+      mockTxObject.estimateGas = (_tx?: CeloTx) => Promise.reject('intentional error!')
+      // This is grabbed from an intentionally crafted report transaction whose
+      // lesser/greater values were incorrect.
+      // 0x08c379a indicates a revert occurred, and the rest of the string can
+      // be decoded to get the revert message:
+      // web3.eth.abi.decodeParameter('string', '0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000001e676574206c657373657220616e642067726561746572206661696c7572650000')
+      // > 'get lesser and greater failure'
+      // We mock connection.web3.eth.call as that is what is used as the caller:
+      // https://github.com/celo-org/celo-monorepo/blob/fc31eb0c327a33d426154ad13faade361540dd72/packages/sdk/connect/src/connection.ts#L238
+      const connectionSendSpy = jest.spyOn(connection.web3.eth, 'call')
+      connectionSendSpy.mockImplementation(() => Promise.resolve('0x08c379a00000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000001e676574206c657373657220616e642067726561746572206661696c7572650000'))
+      // Craft a transaction object
+      const txo = toTransactionObject(
+        connection,
+        mockTxObject,
+      )
+      await expect(() => send.default(
+        txo,
+        123,
+        '0xf000000000000000000000000000000000000000',
+        mockMetricAction,
+        fallbackGas
+      )).rejects.toThrow('Gas estimation failed: get lesser and greater failure or intentional error!')
     })
   })
 })
