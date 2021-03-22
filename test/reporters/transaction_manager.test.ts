@@ -68,7 +68,14 @@ describe('transaction manager', () => {
 
   it("doesn't retry when 0 retry limit configured", async () => {
     expect(() =>
-      sendWithRetries(baseLogger, defaultTx, initialGasPrice, defaultConfig, metricAction, fallbackGas)
+      sendWithRetries(
+        baseLogger,
+        defaultTx,
+        initialGasPrice,
+        defaultConfig,
+        metricAction,
+        fallbackGas
+      )
     ).rejects.toEqual('error')
     expect(sendSpy).toHaveBeenCalled()
     expect(sendSpy).toBeCalledTimes(1)
