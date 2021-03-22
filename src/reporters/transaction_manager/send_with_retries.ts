@@ -24,7 +24,14 @@ export default async function sendWithRetries(
       .plus(initialGasPrice)
       .toNumber()
     try {
-      return await send(logger, tx, calculatedGasPrice, config.oracleAccount, metricAction, fallbackGas)
+      return await send(
+        logger,
+        tx,
+        calculatedGasPrice,
+        config.oracleAccount,
+        metricAction,
+        fallbackGas
+      )
     } catch (e) {
       lastCaughtError = e
       onError(e, {

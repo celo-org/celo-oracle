@@ -1,4 +1,12 @@
-import { CeloTransactionObject, toTransactionObject, Connection, Contract, CeloTx, CeloTxReceipt, CeloTxObject } from '@celo/connect'
+import {
+  CeloTransactionObject,
+  toTransactionObject,
+  Connection,
+  Contract,
+  CeloTx,
+  CeloTxReceipt,
+  CeloTxObject,
+} from '@celo/connect'
 import { PromiEvent } from 'web3-core'
 import BigNumber from 'bignumber.js'
 import Web3 from 'web3'
@@ -63,15 +71,35 @@ describe('transaction manager', () => {
     ).rejects.toEqual('error')
     expect(sendSpy).toHaveBeenCalled()
     expect(sendSpy).toBeCalledTimes(1)
-    expect(sendSpy).toBeCalledWith(baseLogger, defaultTx, initialGasPrice, mockOracleAccount, metricAction, undefined)
+    expect(sendSpy).toBeCalledWith(
+      baseLogger,
+      defaultTx,
+      initialGasPrice,
+      mockOracleAccount,
+      metricAction,
+      undefined
+    )
   })
 
   it('passes transaction receipt back on successful send', async () => {
     sendSpy.mockImplementation(() => Promise.resolve(defaultReceipt))
-    const receipt = await sendWithRetries(baseLogger, defaultTx, initialGasPrice, defaultConfig, metricAction)
+    const receipt = await sendWithRetries(
+      baseLogger,
+      defaultTx,
+      initialGasPrice,
+      defaultConfig,
+      metricAction
+    )
 
     expect(sendSpy).toBeCalledTimes(1)
-    expect(sendSpy).toBeCalledWith(baseLogger, defaultTx, initialGasPrice, mockOracleAccount, metricAction, undefined)
+    expect(sendSpy).toBeCalledWith(
+      baseLogger,
+      defaultTx,
+      initialGasPrice,
+      mockOracleAccount,
+      metricAction,
+      undefined
+    )
     expect(receipt).toEqual(defaultReceipt)
   })
 
@@ -91,9 +119,33 @@ describe('transaction manager', () => {
     )
 
     expect(sendSpy).toBeCalledTimes(3)
-    expect(sendSpy).nthCalledWith(1, baseLogger, defaultTx, initialGasPrice, mockOracleAccount, metricAction, undefined)
-    expect(sendSpy).nthCalledWith(2, baseLogger, defaultTx, initialGasPrice, mockOracleAccount, metricAction, undefined)
-    expect(sendSpy).nthCalledWith(3, baseLogger, defaultTx, initialGasPrice, mockOracleAccount, metricAction, undefined)
+    expect(sendSpy).nthCalledWith(
+      1,
+      baseLogger,
+      defaultTx,
+      initialGasPrice,
+      mockOracleAccount,
+      metricAction,
+      undefined
+    )
+    expect(sendSpy).nthCalledWith(
+      2,
+      baseLogger,
+      defaultTx,
+      initialGasPrice,
+      mockOracleAccount,
+      metricAction,
+      undefined
+    )
+    expect(sendSpy).nthCalledWith(
+      3,
+      baseLogger,
+      defaultTx,
+      initialGasPrice,
+      mockOracleAccount,
+      metricAction,
+      undefined
+    )
     expect(result).toEqual(defaultReceipt)
   })
 
@@ -115,9 +167,33 @@ describe('transaction manager', () => {
     )
 
     expect(sendSpy).toBeCalledTimes(3)
-    expect(sendSpy).nthCalledWith(1, baseLogger, defaultTx, initialGasPrice, mockOracleAccount, metricAction, undefined)
-    expect(sendSpy).nthCalledWith(2, baseLogger, defaultTx, 11, mockOracleAccount, metricAction, undefined)
-    expect(sendSpy).nthCalledWith(3, baseLogger, defaultTx, 12, mockOracleAccount, metricAction, undefined)
+    expect(sendSpy).nthCalledWith(
+      1,
+      baseLogger,
+      defaultTx,
+      initialGasPrice,
+      mockOracleAccount,
+      metricAction,
+      undefined
+    )
+    expect(sendSpy).nthCalledWith(
+      2,
+      baseLogger,
+      defaultTx,
+      11,
+      mockOracleAccount,
+      metricAction,
+      undefined
+    )
+    expect(sendSpy).nthCalledWith(
+      3,
+      baseLogger,
+      defaultTx,
+      12,
+      mockOracleAccount,
+      metricAction,
+      undefined
+    )
     expect(result).toEqual(defaultReceipt)
   })
 
@@ -140,17 +216,43 @@ describe('transaction manager', () => {
       )
     ).rejects.toEqual('error')
     expect(sendSpy).toBeCalledTimes(3)
-    expect(sendSpy).nthCalledWith(1, baseLogger, defaultTx, initialGasPrice, mockOracleAccount, metricAction, undefined)
-    expect(sendSpy).nthCalledWith(2, baseLogger, defaultTx, 11, mockOracleAccount, metricAction, undefined)
-    expect(sendSpy).nthCalledWith(3, baseLogger, defaultTx, 12, mockOracleAccount, metricAction, undefined)
+    expect(sendSpy).nthCalledWith(
+      1,
+      baseLogger,
+      defaultTx,
+      initialGasPrice,
+      mockOracleAccount,
+      metricAction,
+      undefined
+    )
+    expect(sendSpy).nthCalledWith(
+      2,
+      baseLogger,
+      defaultTx,
+      11,
+      mockOracleAccount,
+      metricAction,
+      undefined
+    )
+    expect(sendSpy).nthCalledWith(
+      3,
+      baseLogger,
+      defaultTx,
+      12,
+      mockOracleAccount,
+      metricAction,
+      undefined
+    )
   })
 
   describe('fallback gas', () => {
     let mockTxObject: CeloTxObject<void>
     let connection: Connection
     // Just wraps the fn passed in, required by the send fn
-    const mockMetricAction: <T>(fn: () => Promise<T>, action: string) => Promise<T> =
-      async <T>(fn: () => Promise<T>, _action: string) => fn()
+    const mockMetricAction: <T>(fn: () => Promise<T>, action: string) => Promise<T> = async <T>(
+      fn: () => Promise<T>,
+      _action: string
+    ) => fn()
     const mockEstimateGas = 1234
     const fallbackGas = 4321
     // This is where we will record the amount of gas actually used in the send call
@@ -191,7 +293,7 @@ describe('transaction manager', () => {
         },
         estimateGas: (_tx?: CeloTx) => Promise.resolve(mockEstimateGas),
         encodeABI: () => '',
-        _parent: ({} as Contract)
+        _parent: {} as Contract,
       }
 
       // Create a new Connection
@@ -199,10 +301,7 @@ describe('transaction manager', () => {
     })
 
     it('uses estimated gas when gas estimation is successful', async () => {
-      const txo = toTransactionObject(
-        connection,
-        mockTxObject,
-      )
+      const txo = toTransactionObject(connection, mockTxObject)
       await send.default(
         baseLogger,
         txo,
@@ -225,10 +324,7 @@ describe('transaction manager', () => {
       const connectionSendSpy = jest.spyOn(connection.web3.eth, 'call')
       connectionSendSpy.mockImplementation(() => Promise.resolve('0x'))
       // Craft a transaction object
-      const txo = toTransactionObject(
-        connection,
-        mockTxObject,
-      )
+      const txo = toTransactionObject(connection, mockTxObject)
       await send.default(
         baseLogger,
         txo,
@@ -251,20 +347,25 @@ describe('transaction manager', () => {
       // We mock connection.web3.eth.call as that is what is used as the caller:
       // https://github.com/celo-org/celo-monorepo/blob/fc31eb0c327a33d426154ad13faade361540dd72/packages/sdk/connect/src/connection.ts#L238
       const connectionSendSpy = jest.spyOn(connection.web3.eth, 'call')
-      connectionSendSpy.mockImplementation(() => Promise.resolve('0x08c379a00000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000001e676574206c657373657220616e642067726561746572206661696c7572650000'))
-      // Craft a transaction object
-      const txo = toTransactionObject(
-        connection,
-        mockTxObject,
+      connectionSendSpy.mockImplementation(() =>
+        Promise.resolve(
+          '0x08c379a00000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000001e676574206c657373657220616e642067726561746572206661696c7572650000'
+        )
       )
-      await expect(() => send.default(
-        baseLogger,
-        txo,
-        123,
-        '0xf000000000000000000000000000000000000000',
-        mockMetricAction,
-        fallbackGas
-      )).rejects.toThrow('Gas estimation failed: get lesser and greater failure or intentional error!')
+      // Craft a transaction object
+      const txo = toTransactionObject(connection, mockTxObject)
+      await expect(() =>
+        send.default(
+          baseLogger,
+          txo,
+          123,
+          '0xf000000000000000000000000000000000000000',
+          mockMetricAction,
+          fallbackGas
+        )
+      ).rejects.toThrow(
+        'Gas estimation failed: get lesser and greater failure or intentional error!'
+      )
     })
   })
 })

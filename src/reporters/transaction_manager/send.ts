@@ -22,41 +22,46 @@ export default async function send(
   metricAction: <T>(fn: () => Promise<T>, action: string) => Promise<T>,
   fallbackGas?: number
 ) {
-  const txResult = await metricAction(
-    async () => {
-      try {
-        // First, attempt to send transaction without a gas amount to have
-        // contractkit estimate gas
-        return await tx.send({
-          from,
-          gasPrice,
-        })
-      } catch (err) {
-        // If anything fails, the error is caught here.
-        // We seek the case where gas estimation has failed but the subsequent
-        // eth_call made by contractkit to get the revert reason has not given
-        // a revert reason. In this situation, the following string will be
-        // included in the error string: 'Gas estimation failed: Could not decode transaction failure reason'
-        if (err.message.includes('Gas estimation failed: Could not decode transaction failure reason') && fallbackGas !== undefined) {
-          logger.info({
+  const txResult = await metricAction(async () => {
+    try {
+      // First, attempt to send transaction without a gas amount to have
+      // contractkit estimate gas
+      return await tx.send({
+        from,
+        gasPrice,
+      })
+    } catch (err) {
+      // If anything fails, the error is caught here.
+      // We seek the case where gas estimation has failed but the subsequent
+      // eth_call made by contractkit to get the revert reason has not given
+      // a revert reason. In this situation, the following string will be
+      // included in the error string: 'Gas estimation failed: Could not decode transaction failure reason'
+      if (
+        err.message.includes(
+          'Gas estimation failed: Could not decode transaction failure reason'
+        ) &&
+        fallbackGas !== undefined
+      ) {
+        logger.info(
+          {
             tx,
             gasPrice,
             from,
             fallbackGas,
-            err
-          }, 'Gas estimation failed but eth_call did not, using fallback gas')
-          // Retry with the fallbackGas to avoid gas estimation
-          return tx.send({
-            from,
-            gasPrice,
-            gas: fallbackGas
-          })
-        }
-        // If there was a legitimate error, we still throw
-        throw err
+            err,
+          },
+          'Gas estimation failed but eth_call did not, using fallback gas'
+        )
+        // Retry with the fallbackGas to avoid gas estimation
+        return tx.send({
+          from,
+          gasPrice,
+          gas: fallbackGas,
+        })
       }
-    },
-    'send'
-  )
+      // If there was a legitimate error, we still throw
+      throw err
+    }
+  }, 'send')
   return metricAction<TransactionReceipt>(() => txResult.waitReceipt(), 'waitReceipt')
 }
