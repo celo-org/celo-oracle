@@ -7,10 +7,9 @@ import {
   CeloTxReceipt,
   CeloTxObject,
 } from '@celo/connect'
-import { PromiEvent } from 'web3-core'
 import BigNumber from 'bignumber.js'
 import Web3 from 'web3'
-import { TransactionReceipt } from 'web3-core'
+import { PromiEvent, TransactionReceipt } from 'web3-core'
 import { TransactionManagerConfig } from '../../src/app'
 import { baseLogger } from '../../src/default_config'
 import { BaseReporter } from '../../src/reporters/base'
@@ -266,6 +265,9 @@ describe('transaction manager', () => {
       // The mocked result from a call to the tx object's `send` function.
       // PromiEvent involves an `on` function that calls a callback upon
       // a specified event occurring.
+      // Disable type assertion lint error-- PromiEvent<CeloTxReceipt>
+      // is a complex type and we only need certain features.
+      // tslint:disable-next-line:no-object-literal-type-assertion
       const mockSendResult = {} as PromiEvent<CeloTxReceipt>
       mockSendResult.on = (event: string, fn: any) => {
         // Only immediately handle these events
@@ -293,6 +295,9 @@ describe('transaction manager', () => {
         },
         estimateGas: (_tx?: CeloTx) => Promise.resolve(mockEstimateGas),
         encodeABI: () => '',
+        // Disable type assertion lint error-- Contract
+        // is a complex type and it's not used in our test.
+        // tslint:disable-next-line:no-object-literal-type-assertion
         _parent: {} as Contract,
       }
 
