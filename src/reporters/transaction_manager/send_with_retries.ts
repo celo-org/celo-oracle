@@ -12,7 +12,7 @@ export default async function sendWithRetries(
   initialGasPrice: number,
   config: TransactionManagerConfig,
   metricAction: <T>(fn: () => Promise<T>, action: string) => Promise<T>,
-  fallbackGas?: number
+  fallbackGas: number
 ): Promise<TransactionReceipt> {
   let attempt = 0
   let lastCaughtError = null

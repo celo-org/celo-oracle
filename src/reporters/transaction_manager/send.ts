@@ -20,7 +20,7 @@ export default async function send(
   gasPrice: number,
   from: string,
   metricAction: <T>(fn: () => Promise<T>, action: string) => Promise<T>,
-  fallbackGas?: number
+  fallbackGas: number
 ) {
   const txResult = await metricAction(async () => {
     try {

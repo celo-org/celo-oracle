@@ -36,6 +36,8 @@ const defaultReceipt: TransactionReceipt = {
 // @ts-ignore
 const defaultTx = ({} as unknown) as CeloTransactionObject<void>
 
+const fallbackGas = 4321
+
 export class MockReporter extends BaseReporter {
   _reportStrategy = ReportStrategy.BLOCK_BASED
 }
@@ -66,7 +68,7 @@ describe('transaction manager', () => {
 
   it("doesn't retry when 0 retry limit configured", async () => {
     expect(() =>
-      sendWithRetries(baseLogger, defaultTx, initialGasPrice, defaultConfig, metricAction)
+      sendWithRetries(baseLogger, defaultTx, initialGasPrice, defaultConfig, metricAction, fallbackGas)
     ).rejects.toEqual('error')
     expect(sendSpy).toHaveBeenCalled()
     expect(sendSpy).toBeCalledTimes(1)
@@ -76,7 +78,7 @@ describe('transaction manager', () => {
       initialGasPrice,
       mockOracleAccount,
       metricAction,
-      undefined
+      fallbackGas
     )
   })
 
@@ -87,7 +89,8 @@ describe('transaction manager', () => {
       defaultTx,
       initialGasPrice,
       defaultConfig,
-      metricAction
+      metricAction,
+      fallbackGas
     )
 
     expect(sendSpy).toBeCalledTimes(1)
@@ -97,7 +100,7 @@ describe('transaction manager', () => {
       initialGasPrice,
       mockOracleAccount,
       metricAction,
-      undefined
+      fallbackGas
     )
     expect(receipt).toEqual(defaultReceipt)
   })
@@ -114,7 +117,8 @@ describe('transaction manager', () => {
         ...defaultConfig,
         transactionRetryLimit: 2,
       },
-      metricAction
+      metricAction,
+      fallbackGas
     )
 
     expect(sendSpy).toBeCalledTimes(3)
@@ -125,7 +129,7 @@ describe('transaction manager', () => {
       initialGasPrice,
       mockOracleAccount,
       metricAction,
-      undefined
+      fallbackGas
     )
     expect(sendSpy).nthCalledWith(
       2,
@@ -134,7 +138,7 @@ describe('transaction manager', () => {
       initialGasPrice,
       mockOracleAccount,
       metricAction,
-      undefined
+      fallbackGas
     )
     expect(sendSpy).nthCalledWith(
       3,
@@ -143,7 +147,7 @@ describe('transaction manager', () => {
       initialGasPrice,
       mockOracleAccount,
       metricAction,
-      undefined
+      fallbackGas
     )
     expect(result).toEqual(defaultReceipt)
   })
@@ -162,7 +166,8 @@ describe('transaction manager', () => {
         transactionRetryLimit: 2,
         transactionRetryGasPriceMultiplier: new BigNumber(0.1),
       },
-      metricAction
+      metricAction,
+      fallbackGas
     )
 
     expect(sendSpy).toBeCalledTimes(3)
@@ -173,7 +178,7 @@ describe('transaction manager', () => {
       initialGasPrice,
       mockOracleAccount,
       metricAction,
-      undefined
+      fallbackGas
     )
     expect(sendSpy).nthCalledWith(
       2,
@@ -182,7 +187,7 @@ describe('transaction manager', () => {
       11,
       mockOracleAccount,
       metricAction,
-      undefined
+      fallbackGas
     )
     expect(sendSpy).nthCalledWith(
       3,
@@ -191,7 +196,7 @@ describe('transaction manager', () => {
       12,
       mockOracleAccount,
       metricAction,
-      undefined
+      fallbackGas
     )
     expect(result).toEqual(defaultReceipt)
   })
@@ -211,7 +216,8 @@ describe('transaction manager', () => {
           transactionRetryLimit: 2,
           transactionRetryGasPriceMultiplier: new BigNumber(0.1),
         },
-        metricAction
+        metricAction,
+        fallbackGas
       )
     ).rejects.toEqual('error')
     expect(sendSpy).toBeCalledTimes(3)
@@ -222,7 +228,7 @@ describe('transaction manager', () => {
       initialGasPrice,
       mockOracleAccount,
       metricAction,
-      undefined
+      fallbackGas
     )
     expect(sendSpy).nthCalledWith(
       2,
@@ -231,7 +237,7 @@ describe('transaction manager', () => {
       11,
       mockOracleAccount,
       metricAction,
-      undefined
+      fallbackGas
     )
     expect(sendSpy).nthCalledWith(
       3,
@@ -240,7 +246,7 @@ describe('transaction manager', () => {
       12,
       mockOracleAccount,
       metricAction,
-      undefined
+      fallbackGas
     )
   })
 
@@ -253,7 +259,7 @@ describe('transaction manager', () => {
       _action: string
     ) => fn()
     const mockEstimateGas = 1234
-    const fallbackGas = 4321
+
     // This is where we will record the amount of gas actually used in the send call
     let gas: string | number | undefined
 
