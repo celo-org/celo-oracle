@@ -44,16 +44,10 @@ export function exponentialWeights(weight: BigNumber, time: number, rate: BigNum
   return weight.multipliedBy(Math.exp(rate.negated().times(time).toNumber()))
 }
 
-export function weightedMeanMidPrice(
-  tickerData: Ticker[],
-  config: DataAggregatorConfig,
-  logger: Logger
-): BigNumber {
-  let validTickerData = checkIndividualTickerData(tickerData, config, logger)
-  validTickerData = crossCheckTickerData(validTickerData, config)
-  const asks = validTickerData.map((ticker: Ticker) => ticker.ask)
-  const bids = validTickerData.map((ticker: Ticker) => ticker.bid)
-  const baseVolumes = validTickerData.map((ticker: Ticker) => ticker.baseVolume)
+export function weightedMeanMidPrice(tickerData: Ticker[]): BigNumber {
+  const asks = tickerData.map((ticker: Ticker) => ticker.ask)
+  const bids = tickerData.map((ticker: Ticker) => ticker.bid)
+  const baseVolumes = tickerData.map((ticker: Ticker) => ticker.baseVolume)
   const mids = asks.map((ask, i) => ask.plus(bids[i]).div(new BigNumber(2)))
   const weightedMids = mids.map((mid, i) => mid.multipliedBy(baseVolumes[i]))
 
