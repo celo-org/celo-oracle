@@ -141,6 +141,7 @@ export abstract class BaseExchangeAdapter {
     [ExternalCurrency.USD, 'USD'],
     [ExternalCurrency.EUR, 'EUR'],
     [ExternalCurrency.BTC, 'BTC'],
+    [ExternalCurrency.USDT, 'USDT'],
   ])
 
   protected readonly logger: Logger
