@@ -9,7 +9,6 @@ import { DataAggregator, DataAggregatorConfig } from './data_aggregator'
 import { Context, MetricCollector } from './metric_collector'
 import { BaseReporter, BaseReporterConfig } from './reporters/base'
 import { BlockBasedReporter, BlockBasedReporterConfig } from './reporters/block_based_reporter'
-import { TimerReporter, TimerReporterConfig } from './reporters/timer_reporter'
 import {
   OracleCurrencyPair,
   ReportStrategy,
@@ -37,7 +36,6 @@ export type BlockBasedReporterConfigSubset = Omit<
   BlockBasedReporterConfig,
   ReporterConfigToOmit | 'wsRpcProviderUrl'
 >
-export type TimerReporterConfigSubset = Omit<TimerReporterConfig, ReporterConfigToOmit>
 export type TransactionManagerConfig = Pick<
   BaseReporterConfig,
   | 'gasPriceMultiplier'
@@ -107,7 +105,7 @@ export interface OracleApplicationConfig {
    * Configuration specific to the Reporter. Includes things like overrides to
    * the default reporting schedule,
    */
-  reporterConfig: BlockBasedReporterConfigSubset | TimerReporterConfigSubset
+  reporterConfig: BlockBasedReporterConfigSubset
   /**
    * The report strategy
    */
@@ -253,12 +251,6 @@ export class OracleApplication {
           ...(this.config.reporterConfig as BlockBasedReporterConfigSubset),
           ...commonReporterConfig,
           wsRpcProviderUrl,
-        })
-        break
-      case ReportStrategy.TIMER_BASED:
-        this._reporter = new TimerReporter({
-          ...(this.config.reporterConfig as TimerReporterConfigSubset),
-          ...commonReporterConfig,
         })
         break
       default:

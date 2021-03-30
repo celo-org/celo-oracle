@@ -6,13 +6,11 @@ import {
   DataAggregatorConfigSubset,
   OracleApplication,
   OracleApplicationConfig,
-  TimerReporterConfigSubset,
 } from '../src/app'
 import { DataAggregator } from '../src/data_aggregator'
 import { baseLogger } from '../src/default_config'
 import { MetricCollector } from '../src/metric_collector'
 import { BlockBasedReporter } from '../src/reporters/block_based_reporter'
-import { TimerReporter } from '../src/reporters/timer_reporter'
 import {
   AggregationMethod,
   minutesToMs,
@@ -35,7 +33,6 @@ const mockAzureKeyVaultName = 'mockAzureKeyVault'
 jest.mock('../src/data_aggregator')
 jest.mock('../src/reporters/base')
 jest.mock('../src/reporters/block_based_reporter')
-jest.mock('../src/reporters/timer_reporter')
 
 describe('OracleApplication', () => {
   const address = mockOracleAccount
@@ -64,8 +61,7 @@ describe('OracleApplication', () => {
   const minTradeCount = 3
   const privateKeyPath = mockPrivateKeyPath
   const prometheusPort = 9090
-  const removeExpiredFrequency = minutesToMs(1)
-  const reportStrategy = ReportStrategy.TIMER_BASED
+  const reportStrategy = ReportStrategy.BLOCK_BASED
   const scalingRate = new BigNumber(0.01 / 1000)
   const minAggregatedVolume = new BigNumber(1000)
   const walletType = WalletType.AZURE_HSM
@@ -87,12 +83,6 @@ describe('OracleApplication', () => {
     expectedBlockTimeMs,
     maxBlockTimestampAgeMs,
     minReportPriceChangeThreshold,
-    unusedOracleAddresses: [],
-  }
-
-  const timerReporterConfig: TimerReporterConfigSubset = {
-    ...defaultBaseReporterConfig,
-    removeExpiredFrequency,
     unusedOracleAddresses: [],
   }
 
@@ -125,7 +115,7 @@ describe('OracleApplication', () => {
     metrics,
     privateKeyPath,
     prometheusPort,
-    reporterConfig: timerReporterConfig,
+    reporterConfig: blockBasedReporterConfig,
     reportStrategy,
     walletType,
     wsRpcProviderUrl,
@@ -152,27 +142,6 @@ describe('OracleApplication', () => {
       await expect(async () => oracleApplication.init()).rejects.toThrow('App is initialized')
     })
 
-    it('sets up a TimerReporter instance with appropriate params if specified', async () => {
-      await oracleApplication.init()
-      expect(TimerReporter).toHaveBeenCalledWith({
-        baseLogger: expect.anything(),
-        currencyPair,
-        dataAggregator: expect.any(DataAggregator),
-        gasPriceMultiplier: new BigNumber(5),
-        transactionRetryLimit: 0,
-        transactionRetryGasPriceMultiplier: new BigNumber(0),
-        kit: expect.anything(),
-        circuitBreakerPriceChangeThresholdMax,
-        circuitBreakerPriceChangeThresholdMin,
-        circuitBreakerPriceChangeThresholdTimeMultiplier,
-        metricCollector: expect.any(MetricCollector),
-        oracleAccount: mockOracleAccount,
-        removeExpiredFrequency,
-        reportTarget: CeloContract.StableToken,
-        unusedOracleAddresses: timerReporterConfig.unusedOracleAddresses,
-      })
-    })
-
     it('sets up a BlockBasedReporter instance with appropriate params if specified', async () => {
       oracleApplication = new OracleApplication({
         ...appConfig,
@@ -197,7 +166,7 @@ describe('OracleApplication', () => {
         metricCollector: expect.any(MetricCollector),
         oracleAccount: mockOracleAccount,
         reportTarget: CeloContract.StableToken,
-        unusedOracleAddresses: timerReporterConfig.unusedOracleAddresses,
+        unusedOracleAddresses: blockBasedReporterConfig.unusedOracleAddresses,
         wsRpcProviderUrl,
       })
     })
