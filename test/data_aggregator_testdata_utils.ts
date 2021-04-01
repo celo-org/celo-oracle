@@ -95,15 +95,3 @@ export const testTickerArray: Ticker[][] = testTickerAsks.map((row, rowIndex) =>
   })
   return thisTickerRow
 })
-
-export function generateGoodTicker(exchange: Exchange): Ticker {
-  return {
-    source: exchange,
-    symbol: 'CELO/USD',
-    timestamp: 1590599679,
-    ask: new BigNumber(1.1),
-    bid: new BigNumber(1.05),
-    lastPrice: new BigNumber(1.07),
-    baseVolume: new BigNumber(1000),
-  }
-}

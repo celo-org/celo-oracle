@@ -3,8 +3,6 @@ import BigNumber from 'bignumber.js'
 import * as aggregators from '../src/aggregator_functions'
 import { DataAggregator } from '../src/data_aggregator'
 import { baseLogger } from '../src/default_config'
-import { Ticker } from '../src/exchange_adapters/base'
-import { BinanceAdapter } from '../src/exchange_adapters/binance'
 import { BittrexAdapter } from '../src/exchange_adapters/bittrex'
 import { CoinbaseAdapter } from '../src/exchange_adapters/coinbase'
 import { OKCoinAdapter } from '../src/exchange_adapters/okcoin'
@@ -17,7 +15,7 @@ import {
   OracleCurrencyPair,
   secondsToMs,
 } from '../src/utils'
-import { generateGoodTicker, testTickerArray } from './data_aggregator_testdata_utils'
+import { WeightedPrice } from '../src/price_source'
 
 jest.mock('../src/metric_collector')
 
@@ -39,12 +37,11 @@ describe('DataAggregator', () => {
   let dataAggregator: DataAggregator
 
   let aggregationMethod = AggregationMethod.MIDPRICES
-  let testTickers: Ticker[]
+  let testWeightedPrices: WeightedPrice[]
 
-  const askMaxPercentageDeviation = new BigNumber(0.2)
-  const bidMaxPercentageDeviation = new BigNumber(0.2)
   const maxExchangeVolumeShare = new BigNumber(0.99)
   const maxPercentageBidAskSpread = new BigNumber(0.1)
+  const maxPercentageDeviation = new BigNumber(0.2)
 
   let exchanges: Exchange[] | undefined
 
@@ -58,14 +55,13 @@ describe('DataAggregator', () => {
       aggregationMethod,
       aggregationWindowDuration,
       apiRequestTimeout,
-      askMaxPercentageDeviation,
       baseLogger,
-      bidMaxPercentageDeviation,
       currencyPair,
       exchanges,
       maxExchangeVolumeShare,
       maxNoTradeDuration,
       maxPercentageBidAskSpread,
+      maxPercentageDeviation,
       metricCollector,
       minExchangeCount,
       minAggregatedVolume,
@@ -92,54 +88,62 @@ describe('DataAggregator', () => {
       })
 
       describe('exception handling', () => {
-        it('should throw if fetchAllTickers throws due to no successful tickers', async () => {
-          for (const exchangeAdapter of Array.from(dataAggregator.exchangeAdapters)) {
-            jest.spyOn(exchangeAdapter, 'fetchTicker').mockImplementation(async () => {
+        it('should throw if fetchAllPrices throws due to no successful tickers', async () => {
+          for (const priceSource of Array.from(dataAggregator.priceSources)) {
+            jest.spyOn(priceSource, 'fetchWeightedPrice').mockImplementation(async () => {
               throw Error('foo')
             })
           }
           await expect(async () => dataAggregator.currentPrice()).rejects.toThrow(
-            'All ticker requests failed'
+            'All price requests failed'
           )
         })
 
-        it('should throw if fetchAllTickers throws for any reason', async () => {
-          jest.spyOn(dataAggregator, 'fetchAllTickers').mockImplementation(async () => {
+        it('should throw if fetchAllPrices throws for any reason', async () => {
+          jest.spyOn(dataAggregator, 'fetchAllPrices').mockImplementation(async () => {
             throw Error('foo')
           })
           await expect(async () => dataAggregator.currentPrice()).rejects.toThrow('foo')
         })
       })
 
-      describe('cross-checks for tickers', () => {
+      describe('cross-checks for weighted prices', () => {
         beforeEach(() => {
           jest
-            .spyOn(dataAggregator, 'fetchAllTickers')
-            .mockImplementation(async () => Promise.resolve(testTickers))
+            .spyOn(dataAggregator, 'fetchAllPrices')
+            .mockImplementation(async () => Promise.resolve(testWeightedPrices))
         })
 
-        it('asks should not deviate more than askMaxPercentageDeviation', () => {
-          expect(() =>
-            aggregators.crossCheckTickerData(testTickerArray[8], dataAggregator.config)
-          ).toThrow('Max ask price cross-sectional deviation too large')
+        it('prices should not deviate more than maxPercentageDeviation', () => {
+          const prices: WeightedPrice[] = [
+            { price: new BigNumber(0.7), weight: new BigNumber(1000) },
+            { price: new BigNumber(1.0), weight: new BigNumber(1000) },
+            { price: new BigNumber(1.3), weight: new BigNumber(1000) },
+          ]
+          expect(() => aggregators.crossCheckPriceData(prices, dataAggregator.config)).toThrow(
+            'Max price cross-sectional deviation too large'
+          )
         })
 
-        it('bids should not deviate more than bidMaxPercentageDeviation', () => {
-          expect(() =>
-            aggregators.crossCheckTickerData(testTickerArray[9], dataAggregator.config)
-          ).toThrow('Max bid price cross-sectional deviation too large')
+        // TODO(pedro-clabs): rename to maxSourceWeightShare?
+        it('no price source should have a total weight share bigger than maxExchangeVolumeShare', () => {
+          const prices: WeightedPrice[] = [
+            { price: new BigNumber(10.0), weight: new BigNumber(1) },
+            { price: new BigNumber(11.0), weight: new BigNumber(1000) },
+          ]
+          expect(() => aggregators.crossCheckPriceData(prices, dataAggregator.config)).toThrow(
+            'The weight share of one source is too large'
+          )
         })
 
-        it('no exchange should have a volume share bigger than maxExchangeVolumeShare', () => {
-          expect(() =>
-            aggregators.crossCheckTickerData(testTickerArray[10], dataAggregator.config)
-          ).toThrow('The volume share of one exchange is too large')
-        })
-
-        it('no exchange should be represented by more than one ticker', async () => {
-          testTickers = testTickerArray[12]
-          await expect(async () => dataAggregator.currentPrice()).rejects.toThrow(
-            'Received multiple tickers for the same exchange'
+        it('ticker with too low of volume throws', () => {
+          dataAggregator.config.minAggregatedVolume = new BigNumber(5000)
+          const prices: WeightedPrice[] = [
+            { price: new BigNumber(10.0), weight: new BigNumber(2000) },
+            { price: new BigNumber(11.0), weight: new BigNumber(2000) },
+          ]
+          expect(() => aggregators.crossCheckPriceData(prices, dataAggregator.config)).toThrow(
+            `Aggregate volume 4000 is less than minimum threshold 5000`
           )
         })
       })
@@ -147,17 +151,27 @@ describe('DataAggregator', () => {
       describe('price calculation', () => {
         beforeEach(() => {
           jest
-            .spyOn(dataAggregator, 'fetchAllTickers')
-            .mockImplementation(async () => Promise.resolve(testTickers))
+            .spyOn(dataAggregator, 'fetchAllPrices')
+            .mockImplementation(async () => Promise.resolve(testWeightedPrices))
         })
 
-        it('weighted avg mid price should be 10.5 if all mid prices are 10.5', async () => {
-          testTickers = testTickerArray[0]
+        it('weighted avg mid price should be 10.5 if all prices are 10.5', async () => {
+          const prices: WeightedPrice[] = [
+            { price: new BigNumber(10.5), weight: new BigNumber(1000) },
+            { price: new BigNumber(10.5), weight: new BigNumber(1000) },
+            { price: new BigNumber(10.5), weight: new BigNumber(1000) },
+          ]
+          testWeightedPrices = prices
           await expect(dataAggregator.currentPrice()).resolves.toStrictEqual(new BigNumber(10.5))
         })
 
-        it('weighted avg mid price should be correctly calcuated if weights and prices differ', async () => {
-          testTickers = testTickerArray[11]
+        it('weighted avg price should be correctly calcuated if weights and prices differ', async () => {
+          const prices: WeightedPrice[] = [
+            { price: new BigNumber(2.0), weight: new BigNumber(100000) },
+            { price: new BigNumber(2.1), weight: new BigNumber(60000) },
+            { price: new BigNumber(2.15), weight: new BigNumber(40000) },
+          ]
+          testWeightedPrices = prices
           await expect(dataAggregator.currentPrice()).resolves.toStrictEqual(new BigNumber(2.06))
         })
       })
@@ -180,25 +194,6 @@ describe('DataAggregator', () => {
           quoteCurrency: expectedQuoteCurrency,
         }
 
-        describe('when no adapters are specified in the config', () => {
-          beforeEach(() => {
-            exchanges = undefined
-            currencyPair = currencyPairToTest
-            setupDataAggregatorWithCurrentConfig()
-          })
-
-          it('initializes all possible exchange adapters', () => {
-            expect(BinanceAdapter).toHaveBeenCalledWith(expectedConfig)
-            expect(BittrexAdapter).toHaveBeenCalledWith(expectedConfig)
-            expect(CoinbaseAdapter).toHaveBeenCalledWith(expectedConfig)
-            expect(OKCoinAdapter).toHaveBeenCalledWith(expectedConfig)
-          })
-
-          it('adds the adapters to the set belonging to the aggregator', () => {
-            expect(dataAggregator.exchangeAdapters.length).toEqual(4)
-          })
-        })
-
         describe('when a subset of adapters are specified', () => {
           beforeEach(() => {
             exchanges = [Exchange.BITTREX, Exchange.OKCOIN]
@@ -213,7 +208,7 @@ describe('DataAggregator', () => {
             expect(CoinbaseAdapter).not.toHaveBeenCalled()
           })
           it('adds only those adapters to the set', () => {
-            expect(dataAggregator.exchangeAdapters.length).toEqual(2)
+            expect(dataAggregator.priceSources.length).toEqual(2)
           })
         })
 
@@ -222,101 +217,111 @@ describe('DataAggregator', () => {
           currencyPair = currencyPairToTest
           setupDataAggregatorWithCurrentConfig()
           expect(BittrexAdapter).toHaveBeenCalledTimes(1)
-          expect(dataAggregator.exchangeAdapters.length).toEqual(2)
+          expect(dataAggregator.priceSources.length).toEqual(2)
         })
       })
     }
   })
 
-  describe('fetchAllTickers()', () => {
+  describe('fetchAllPrices()', () => {
+    const goodWeightedPrice: WeightedPrice = {
+      price: new BigNumber(1.07),
+      weight: new BigNumber(1000),
+    }
+
     beforeAll(() => {
       aggregationMethod = AggregationMethod.MIDPRICES
       exchanges = [Exchange.COINBASE, Exchange.OKCOIN, Exchange.BITTREX, Exchange.BINANCE]
       setupDataAggregatorWithCurrentConfig()
-      // 'exchangeName' is undefined because the exchange adapters are mocks,
-      // so we set them here when they are needed
-      for (let i = 0; i < exchanges.length; i++) {
-        const exchangeAdapter = dataAggregator.exchangeAdapters[i]
-        const exchange = exchanges[i]
-        Object.defineProperty(exchangeAdapter, 'exchangeName', {
-          get: () => exchange,
-        })
-      }
     })
 
-    it('gives ticker data from all exchanges when all succeed', async () => {
-      const exchangeAdapterSpies: { [key: string]: jest.SpyInstance } = {}
-      for (const exchangeAdapter of dataAggregator.exchangeAdapters) {
-        exchangeAdapterSpies[exchangeAdapter.exchangeName] = jest
-          .spyOn(exchangeAdapter, 'fetchTicker')
-          .mockImplementation(async () => generateGoodTicker(exchangeAdapter.exchangeName))
+    it('gives price data from all sources when all succeed', async () => {
+      const priceSourceSpies: jest.SpyInstance[] = []
+      for (const priceSource of dataAggregator.priceSources) {
+        priceSourceSpies.push(
+          jest
+            .spyOn(priceSource, 'fetchWeightedPrice')
+            .mockImplementation(async () => goodWeightedPrice)
+        )
       }
-      const allTickers = await dataAggregator.fetchAllTickers()
-      expect(allTickers.length).toBe(dataAggregator.exchangeAdapters.length)
-      // Ensure each fetchTicker was called
-      for (const exchangeAdapter of dataAggregator.exchangeAdapters) {
-        expect(exchangeAdapterSpies[exchangeAdapter.exchangeName]).toHaveBeenCalledTimes(1)
+      const allPrices = await dataAggregator.fetchAllPrices()
+      expect(allPrices.length).toBe(dataAggregator.priceSources.length)
+      // Ensure each fetchWeightedPrice was called once.
+      for (const spy of priceSourceSpies) {
+        expect(spy).toHaveBeenCalledTimes(1)
       }
-      // Ensure ticker metrics are collected
-      for (const ticker of allTickers) {
-        expect(metricCollector.ticker).toBeCalledWith(ticker)
+      // Ensure price source metrics are collected.
+      for (const price of allPrices) {
+        expect(metricCollector.priceSource).toBeCalledWith(
+          expect.any(String),
+          expect.any(String),
+          price
+        )
       }
       expect(metricCollector.error).not.toBeCalled()
     })
 
-    it('gives ticker data only from exchanges whose API call succeeded', async () => {
-      // Test when only Coinbase is successful
-      const successfulExchange = Exchange.COINBASE
-      const exchangeAdapterSpies: { [key: string]: jest.SpyInstance } = {}
-      for (const exchangeAdapter of dataAggregator.exchangeAdapters) {
-        let fetchTickerImplementation: () => Promise<Ticker>
-        if (exchangeAdapter.exchangeName === successfulExchange) {
-          fetchTickerImplementation = async () => generateGoodTicker(exchangeAdapter.exchangeName)
+    it('gives price data only from sources whose calls succeeded', async () => {
+      // Test when only a source is successful.
+      const successfulPriceSource: string = '0'
+      const priceSourceSpies: jest.SpyInstance[] = []
+      for (const i in dataAggregator.priceSources) {
+        const priceSource = dataAggregator.priceSources[i]
+        let fetchWeightedPriceImplementation: () => Promise<WeightedPrice>
+        if (i === successfulPriceSource) {
+          fetchWeightedPriceImplementation = async () => goodWeightedPrice
         } else {
-          fetchTickerImplementation = async () => {
+          fetchWeightedPriceImplementation = async () => {
             throw Error('foo')
           }
         }
-        exchangeAdapterSpies[exchangeAdapter.exchangeName] = jest
-          .spyOn(exchangeAdapter, 'fetchTicker')
-          .mockImplementation(fetchTickerImplementation)
+        priceSourceSpies.push(
+          jest
+            .spyOn(priceSource, 'fetchWeightedPrice')
+            .mockImplementation(fetchWeightedPriceImplementation)
+        )
       }
-      const allTickers = await dataAggregator.fetchAllTickers()
-      expect(allTickers.length).toBe(1)
-      expect(allTickers[0].source).toBe(successfulExchange)
-      // Ensure each fetchTicker was called
-      for (const ticker of allTickers) {
-        expect(exchangeAdapterSpies[ticker.source]).toHaveBeenCalledTimes(1)
+      const allPrices = await dataAggregator.fetchAllPrices()
+      expect(allPrices.length).toBe(1)
+      // Ensure each fetchWeightedPrice was called.
+      for (const spy of priceSourceSpies) {
+        expect(spy).toHaveBeenCalledTimes(1)
       }
-      // Ensure ticker metrics are collected
-      for (const ticker of allTickers) {
-        expect(metricCollector.ticker).toBeCalledWith(ticker)
+      // Ensure price source metrics are collected.
+      for (const price of allPrices) {
+        expect(metricCollector.priceSource).toBeCalledWith(
+          expect.any(String),
+          expect.any(String),
+          price
+        )
       }
-      for (const exchangeAdapter of dataAggregator.exchangeAdapters) {
-        if (exchangeAdapter.exchangeName !== successfulExchange) {
-          expect(metricCollector.error).toBeCalledWith(exchangeAdapter.exchangeName)
+      for (const i in dataAggregator.priceSources) {
+        const priceSource = dataAggregator.priceSources[i]
+        if (i !== successfulPriceSource) {
+          expect(metricCollector.error).toBeCalledWith(priceSource.name())
         }
       }
     })
 
-    it('rejects when all exchanges reject', async () => {
-      const exchangeAdapterSpies: { [key: string]: jest.SpyInstance } = {}
-      for (const exchangeAdapter of dataAggregator.exchangeAdapters) {
-        exchangeAdapterSpies[exchangeAdapter.exchangeName] = jest
-          .spyOn(exchangeAdapter, 'fetchTicker')
-          .mockImplementation(async () => {
+    it('rejects when all sources reject', async () => {
+      const priceSourceSpies: jest.SpyInstance[] = []
+      for (const priceSource of dataAggregator.priceSources) {
+        priceSourceSpies.push(
+          jest.spyOn(priceSource, 'fetchWeightedPrice').mockImplementation(async () => {
             throw Error('foo')
           })
+        )
       }
-      await expect(dataAggregator.fetchAllTickers()).rejects.toThrow('All ticker requests failed')
-      // Ensure each fetchTicker was called
-      for (const exchangeAdapter of Array.from(dataAggregator.exchangeAdapters)) {
-        expect(exchangeAdapterSpies[exchangeAdapter.exchangeName]).toHaveBeenCalledTimes(1)
+      await expect(dataAggregator.fetchAllPrices()).rejects.toThrow('All price requests failed')
+      // Ensure each fetchWeightedPrice was called.
+      for (const spy of priceSourceSpies) {
+        expect(spy).toHaveBeenCalledTimes(1)
       }
-      // Ensure ticker metrics was not called
-      expect(metricCollector.ticker).not.toBeCalled()
-      for (const exchangeAdapter of Array.from(dataAggregator.exchangeAdapters)) {
-        expect(metricCollector.error).toBeCalledWith(exchangeAdapter.exchangeName)
+      // Ensure price source metrics was not called.
+      expect(metricCollector.priceSource).not.toBeCalled()
+      // Ensure that errors were emitted for the failed price sources.
+      for (const priceSource of Array.from(dataAggregator.priceSources)) {
+        expect(metricCollector.error).toBeCalledWith(priceSource.name())
       }
     })
   })

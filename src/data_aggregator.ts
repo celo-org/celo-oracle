@@ -3,17 +3,25 @@ import BigNumber from 'bignumber.js'
 import Logger from 'bunyan'
 import * as aggregators from './aggregator_functions'
 import { OracleApplicationConfig } from './app'
-import { ExchangeAdapter, ExchangeAdapterConfig, Ticker } from './exchange_adapters/base'
+import { ExchangeAdapter, ExchangeAdapterConfig } from './exchange_adapters/base'
 import { BinanceAdapter } from './exchange_adapters/binance'
 import { BittrexAdapter } from './exchange_adapters/bittrex'
 import { CoinbaseAdapter } from './exchange_adapters/coinbase'
 import { OKCoinAdapter } from './exchange_adapters/okcoin'
 import { MetricCollector } from './metric_collector'
+import { PriceSource, WeightedPrice } from './price_source'
+import {
+  ExchangePriceSourceConfig,
+  MultiPairExchangePriceSource,
+  OrientedAdapter,
+  OrientedExchangePair,
+} from './exchange_price_source'
 import {
   AggregationMethod,
   allSettled,
   CurrencyPairBaseQuote,
   Exchange,
+  OracleCurrencyPair,
   PromiseStatus,
   SettledPromise,
 } from './utils'
@@ -30,6 +38,24 @@ function adapterFromExchangeName(name: Exchange, config: ExchangeAdapterConfig):
       return new OKCoinAdapter(config)
   }
 }
+
+type AdapterFactory = (exchange: Exchange, pair: OracleCurrencyPair) => ExchangeAdapter
+
+function priceSourceFromConfig(
+  adapterFactory: AdapterFactory,
+  config: ExchangePriceSourceConfig,
+  maxPercentageBidAskSpread: BigNumber,
+  metricCollector?: MetricCollector
+): MultiPairExchangePriceSource {
+  const adapters = config.pairs.map(
+    (pair: OrientedExchangePair): OrientedAdapter => ({
+      adapter: adapterFactory(pair.exchange, pair.symbol),
+      toInvert: pair.toInvert,
+    })
+  )
+  return new MultiPairExchangePriceSource(adapters, maxPercentageBidAskSpread, metricCollector)
+}
+
 export interface DataAggregatorConfig {
   /**
    * Method used for aggregation
@@ -45,17 +71,9 @@ export interface DataAggregatorConfig {
    */
   apiRequestTimeout?: number
   /**
-   * Max cross-sectional percentage deviation of ask prices
-   */
-  askMaxPercentageDeviation: BigNumber
-  /**
    * A base instance of the logger that can be extended for a particular context
    */
   baseLogger: Logger
-  /**
-   * Max cross-sectional percentage deviation of bid prices
-   */
-  bidMaxPercentageDeviation: BigNumber
   /**
    * Currency pair to get the price of in centralized exchanges
    */
@@ -65,6 +83,10 @@ export interface DataAggregatorConfig {
    * DEFAULT: all exchanges that have adapters
    */
   exchanges?: Exchange[]
+  /**
+   * Price sources from which to collect data
+   */
+  priceSourceConfigs?: ExchangePriceSourceConfig[]
   /**
    * Max volume share of a single exchange
    */
@@ -77,6 +99,10 @@ export interface DataAggregatorConfig {
    * Max percentage bid ask spread
    */
   maxPercentageBidAskSpread: BigNumber
+  /**
+   * Max cross-sectional percentage deviation of prices
+   */
+  maxPercentageDeviation: BigNumber
   /**
    * An optional instance of a MetricCollector for reporting metrics
    */
@@ -97,7 +123,7 @@ export interface DataAggregatorConfig {
  */
 export class DataAggregator {
   public readonly config: DataAggregatorConfig
-  exchangeAdapters: ExchangeAdapter[]
+  priceSources: PriceSource[]
 
   private readonly logger: Logger
 
@@ -107,100 +133,120 @@ export class DataAggregator {
   constructor(config: DataAggregatorConfig) {
     this.config = config
     this.logger = this.config.baseLogger.child({ context: 'data_aggregator' })
-    this.exchangeAdapters = this.setupExchangeAdapters()
+    this.priceSources = this.setupPriceSources()
   }
 
-  private setupExchangeAdapters(): ExchangeAdapter[] {
-    const adapterConfig = {
+  private setupPriceSources(): PriceSource[] {
+    const baseAdapterConfig = {
       apiRequestTimeout: this.config.apiRequestTimeout,
-      baseCurrency: CurrencyPairBaseQuote[this.config.currencyPair].base,
       baseLogger: this.config.baseLogger,
-      quoteCurrency: CurrencyPairBaseQuote[this.config.currencyPair].quote,
       metricCollector: this.config.metricCollector,
     }
-
-    if (!this.config.exchanges) {
-      this.config.exchanges = Object.keys(Exchange).map((e) => e as Exchange)
+    const adapterFactory: AdapterFactory = (
+      exchange: Exchange,
+      pair: OracleCurrencyPair
+    ): ExchangeAdapter => {
+      const config = {
+        ...baseAdapterConfig,
+        baseCurrency: CurrencyPairBaseQuote[pair].base,
+        quoteCurrency: CurrencyPairBaseQuote[pair].quote,
+      }
+      return adapterFromExchangeName(exchange, config)
     }
 
-    // Protect against duplicates
-    this.config.exchanges = [...new Set(this.config.exchanges)]
-    this.logger.info({ exchanges: this.config.exchanges }, 'Setting up exchange adapter set')
+    let priceSourceConfigs = this.config.priceSourceConfigs ?? ([] as ExchangePriceSourceConfig[])
 
-    return this.config.exchanges.map((exchange) => {
-      const adapter = adapterFromExchangeName(exchange, adapterConfig)
-      this.logger.info(
+    // Append any configs passed in via exchange to priceSourceConfigs.
+    const exchangeToConfig = (exchange: Exchange): ExchangePriceSourceConfig => ({
+      pairs: [
         {
           exchange,
-          adapterConfig,
+          symbol: this.config.currencyPair,
+          toInvert: false,
         },
-        'Set up exchange adapter'
+      ],
+    })
+    // Protect against duplicates.
+    const exchanges = [...new Set(this.config.exchanges ?? ([] as Exchange[]))]
+    // Transform any config exchange into a price source.
+    priceSourceConfigs = priceSourceConfigs.concat(exchanges.map(exchangeToConfig))
+
+    this.logger.info({ priceSources: priceSourceConfigs }, 'Setting up price sources')
+
+    return priceSourceConfigs.map((sourceConfig) => {
+      const source = priceSourceFromConfig(
+        adapterFactory,
+        sourceConfig,
+        this.config.maxPercentageBidAskSpread,
+        this.config.metricCollector
       )
-      return adapter
+      this.logger.info(
+        {
+          sourceConfig,
+        },
+        'Set up price source'
+      )
+      return source
     })
   }
 
   /**
-   * fetchAllTickers will gather ticker data from all exchanges.
+   * fetchAllPrices will gather ticker data from all exchanges.
    * If some exchange tickers fail but at least one other succeeds,
    * this will resolve.
    * If all tickers fail, this will reject
    */
-  async fetchAllTickers(): Promise<Ticker[]> {
-    const exchangeAdaptersArr = Array.from(this.exchangeAdapters)
-    const allTickerPromises: Promise<Ticker>[] = exchangeAdaptersArr.map((exchangeAdapter) =>
-      exchangeAdapter.fetchTicker()
+  async fetchAllPrices(): Promise<WeightedPrice[]> {
+    const pricePromises: Promise<WeightedPrice>[] = this.priceSources.map((source) =>
+      source.fetchWeightedPrice()
     )
-    const allTickerData = await allSettled(allTickerPromises)
+    const allPrices = await allSettled(pricePromises)
 
     // Record any failures
-    for (let i = 0; i < exchangeAdaptersArr.length; i++) {
-      if (allTickerData[i].status === PromiseStatus.REJECTED) {
-        const exchange = exchangeAdaptersArr[i].exchangeName
+    for (let i = 0; i < allPrices.length; i++) {
+      if (allPrices[i].status === PromiseStatus.REJECTED) {
+        const source = this.priceSources[i]
         this.logger.warn(
           {
-            exchange,
-            err: allTickerData[i].value,
+            source,
+            err: allPrices[i].value,
           },
-          'Fetching ticker failed'
+          'Fetching price failed'
         )
-        this.config.metricCollector?.error(exchange)
+        this.config.metricCollector?.error(source.name())
+      } else if (allPrices[i].status === PromiseStatus.RESOLVED) {
+        // Record the price using MetricCollector.
+        this.config.metricCollector?.priceSource(
+          this.config.currencyPair,
+          this.priceSources[i].name(),
+          allPrices[i].value
+        )
       }
     }
 
-    // Remove failed requests
-    const successfulTickerData: Ticker[] = allTickerData
-      .filter((settledTicker: SettledPromise) => settledTicker.status === PromiseStatus.RESOLVED)
-      .map((settledTicker: SettledPromise) => {
-        const ticker: Ticker = settledTicker.value
-        // Record the ticker with the metric collector
-        this.config.metricCollector?.ticker(ticker)
-        return ticker
-      })
+    // Remove failed requests.
+    const successfulPriceData: WeightedPrice[] = allPrices
+      .filter((promise: SettledPromise) => promise.status === PromiseStatus.RESOLVED)
+      .map((promise: SettledPromise) => promise.value)
 
-    assert(successfulTickerData.length > 0, `All ticker requests failed`)
+    assert(successfulPriceData.length > 0, `All price requests failed`)
 
-    return successfulTickerData
+    return successfulPriceData
   }
 
   async currentPrice(): Promise<BigNumber> {
     switch (this.config.aggregationMethod) {
       case AggregationMethod.MIDPRICES:
-        return this.currentPriceFromTickerData()
+        return this.weightedMeanMidPrice()
       default:
         throw Error(`Aggregation method ${this.config.aggregationMethod} not recognized`)
     }
   }
 
-  async currentPriceFromTickerData(): Promise<BigNumber> {
-    const allTickerData = await this.fetchAllTickers()
-    let validTickerData = aggregators.checkIndividualTickerData(
-      allTickerData,
-      this.config.maxPercentageBidAskSpread,
-      this.config.metricCollector,
-      this.logger
-    )
-    validTickerData = aggregators.crossCheckTickerData(validTickerData, this.config)
-    return aggregators.weightedMeanMidPrice(validTickerData)
+  async weightedMeanMidPrice(): Promise<BigNumber> {
+    const allPriceData = await this.fetchAllPrices()
+    let validPriceData = allPriceData
+    validPriceData = aggregators.crossCheckPriceData(validPriceData, this.config)
+    return aggregators.weightedMeanPrice(validPriceData)
   }
 }
