@@ -26,12 +26,11 @@ export const defaultDataAggregatorConfig: DataAggregatorConfigSubset = {
   aggregationMethod: AggregationMethod.MIDPRICES,
   aggregationWindowDuration: minutesToMs(5),
   apiRequestTimeout: secondsToMs(5),
-  askMaxPercentageDeviation: new BigNumber(0.2),
   baseLogger,
-  bidMaxPercentageDeviation: new BigNumber(0.2),
   exchanges: [Exchange.BITTREX],
   maxExchangeVolumeShare: new BigNumber(0.99),
   maxPercentageBidAskSpread: new BigNumber(0.1),
+  maxPercentageDeviation: new BigNumber(0.2),
   maxNoTradeDuration: secondsToMs(20), // with ETH on Coinbase it's common to see a no trade duration of 10s
   minExchangeCount: 1,
   minAggregatedVolume: new BigNumber(0),

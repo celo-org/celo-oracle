@@ -38,12 +38,10 @@ describe('OracleApplication', () => {
   const address = mockOracleAccount
   const aggregationMethod = AggregationMethod.MIDPRICES
   const aggregationWindowDuration = minutesToMs(6)
-  const askMaxPercentageDeviation = new BigNumber(0.2)
   const awsKeyRegion = 'eu-central-1'
   const azureKeyVaultName = mockAzureKeyVaultName
   const azureHsmInitMaxRetryBackoffMs = secondsToMs(30)
   const azureHsmInitTryCount = 5
-  const bidMaxPercentageDeviation = new BigNumber(0.2)
   const circuitBreakerPriceChangeThresholdMax = new BigNumber(0.1)
   const circuitBreakerPriceChangeThresholdMin = new BigNumber(0.1)
   const circuitBreakerPriceChangeThresholdTimeMultiplier = new BigNumber(0.0075)
@@ -55,6 +53,7 @@ describe('OracleApplication', () => {
   const maxExchangeVolumeShare = new BigNumber(0.99)
   const maxNoTradeDuration = minutesToMs(1)
   const maxPercentageBidAskSpread = new BigNumber(0.1)
+  const maxPercentageDeviation = new BigNumber(0.2)
   const minExchangeCount = 1
   const minReportPriceChangeThreshold = new BigNumber(0.05)
   const privateKeyPath = mockPrivateKeyPath
@@ -89,10 +88,9 @@ describe('OracleApplication', () => {
     baseLogger,
     maxNoTradeDuration,
     minExchangeCount,
-    askMaxPercentageDeviation,
-    bidMaxPercentageDeviation,
     maxExchangeVolumeShare,
     maxPercentageBidAskSpread,
+    maxPercentageDeviation,
     minAggregatedVolume,
   }
 
