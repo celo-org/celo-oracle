@@ -1,4 +1,3 @@
-import BigNumber from 'bignumber.js'
 import Web3 from 'web3'
 import { OracleApplicationConfig } from '../src/app'
 import { defaultApplicationConfig } from '../src/default_config'
@@ -91,14 +90,8 @@ describe('run_app', () => {
         setAndTestEnvVarValue(EnvVar.REPORT_TARGET_OVERRIDE, corrects, incorrects)
       })
 
-      it('correctly processes AGGREGATION_SCALING_RATE', () => {
-        const corrects = [0, 0.000123, 0.9999999]
-        const incorrects = [1, 1.23, -0.01]
-        setAndTestEnvVarValue(EnvVar.AGGREGATION_SCALING_RATE, corrects, incorrects)
-      })
-
       it('correctly processes AGGREGATION_METHOD', () => {
-        const corrects = ['TRADES', 'MIDPRICES', 'midPRiCes']
+        const corrects = ['MIDPRICES', 'midPRiCes']
         const incorrects = ['NOPE', 123]
         setAndTestEnvVarValue(EnvVar.AGGREGATION_METHOD, corrects, incorrects)
       })
@@ -107,12 +100,6 @@ describe('run_app', () => {
         const corrects = ['0', '13']
         const incorrects = ['-23', 'ac', '1.934']
         setAndTestEnvVarValue(EnvVar.OVERRIDE_INDEX, corrects, incorrects)
-      })
-
-      it('correctly processes AGGREGATION_SCALING_RATE', () => {
-        const corrects = ['0.01', '0', '0.999999999']
-        const incorrects = ['-23', 'asdff', '2', '1']
-        setAndTestEnvVarValue(EnvVar.AGGREGATION_SCALING_RATE, corrects, incorrects)
       })
 
       it('correctly processes PROMETHEUS_PORT', () => {
@@ -132,7 +119,7 @@ describe('run_app', () => {
         [EnvVar.ADDRESS]: '0x0000000000000000000000000000000123456789',
         [EnvVar.AGGREGATION_SCALING_RATE]: '0.000123',
         [EnvVar.AZURE_KEY_VAULT_NAME]: 'testKeyVaultName',
-        [EnvVar.AGGREGATION_METHOD]: 'TRADES',
+        [EnvVar.AGGREGATION_METHOD]: 'MIDPRICES',
         [EnvVar.EXCHANGES]: 'COINBASE,BITTREX',
         [EnvVar.HTTP_RPC_PROVIDER_URL]: 'http://bar.foo',
         [EnvVar.MINIMUM_EXCHANGES]: '2',
@@ -151,10 +138,9 @@ describe('run_app', () => {
         azureKeyVaultName: 'testKeyVaultName',
         dataAggregatorConfig: {
           ...defaultApplicationConfig.dataAggregatorConfig,
-          aggregationMethod: AggregationMethod.TRADES,
+          aggregationMethod: AggregationMethod.MIDPRICES,
           exchanges: [Exchange.COINBASE, Exchange.BITTREX],
           minExchangeCount: 2,
-          scalingRate: new BigNumber(0.000123), // Verifies that it handles non-int numbers correctly
         },
         httpRpcProviderUrl: 'http://bar.foo',
         privateKeyPath: 'testPkeyPath',

@@ -272,12 +272,10 @@ export class OracleApplication {
 
   start(): void {
     this.requireInitialized()
-    this.dataAggregator.startDataCollection()
     this.reporter.start()
   }
 
   stop(): void {
-    this.dataAggregator.stopDataCollection()
     this.reporter.stop()
   }
 

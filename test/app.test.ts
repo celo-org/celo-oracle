@@ -61,12 +61,10 @@ describe('OracleApplication', () => {
   const maxPercentageBidAskSpread = new BigNumber(0.1)
   const minExchangeCount = 1
   const minReportPriceChangeThreshold = new BigNumber(0.05)
-  const minTradeCount = 3
   const privateKeyPath = mockPrivateKeyPath
   const prometheusPort = 9090
   const removeExpiredFrequency = minutesToMs(1)
   const reportStrategy = ReportStrategy.TIMER_BASED
-  const scalingRate = new BigNumber(0.01 / 1000)
   const minAggregatedVolume = new BigNumber(1000)
   const walletType = WalletType.AZURE_HSM
   const wsRpcProviderUrl = 'ws://test.foo'
@@ -103,8 +101,6 @@ describe('OracleApplication', () => {
     fetchFrequency,
     maxNoTradeDuration,
     minExchangeCount,
-    minTradeCount,
-    scalingRate,
     askMaxPercentageDeviation,
     bidMaxPercentageDeviation,
     maxExchangeVolumeShare,
@@ -229,10 +225,6 @@ describe('OracleApplication', () => {
     describe('when the app is initialized', () => {
       beforeEach(async () => {
         await oracleApplication.init()
-      })
-      it('starts data collection for the DataAggregator', () => {
-        oracleApplication.start()
-        expect(oracleApplication.dataAggregator.startDataCollection).toHaveBeenCalledTimes(1)
       })
       it('starts the reporter', () => {
         oracleApplication.start()

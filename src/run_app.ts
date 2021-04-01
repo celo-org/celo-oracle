@@ -50,8 +50,6 @@ export const dataAggregatorConfigEnvVars: EnvVarMap<DataAggregatorConfigSubset> 
   maxExchangeVolumeShare: EnvVar.MID_AGGREGATION_MAX_EXCHANGE_VOLUME_SHARE,
   maxPercentageBidAskSpread: EnvVar.MID_AGGREGATION_MAX_PERCENTAGE_BID_ASK_SPREAD,
   minExchangeCount: EnvVar.MINIMUM_EXCHANGES,
-  minTradeCount: EnvVar.MINIMUM_DATA,
-  scalingRate: EnvVar.AGGREGATION_SCALING_RATE,
 }
 
 const baseReporterConfigEnvVars: EnvVarMap<BaseReporterConfigSubset> = {

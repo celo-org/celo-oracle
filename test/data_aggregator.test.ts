@@ -3,7 +3,7 @@ import BigNumber from 'bignumber.js'
 import * as aggregators from '../src/aggregator_functions'
 import { DataAggregator } from '../src/data_aggregator'
 import { baseLogger } from '../src/default_config'
-import { Ticker, Trade } from '../src/exchange_adapters/base'
+import { Ticker } from '../src/exchange_adapters/base'
 import { BinanceAdapter } from '../src/exchange_adapters/binance'
 import { BittrexAdapter } from '../src/exchange_adapters/bittrex'
 import { CoinbaseAdapter } from '../src/exchange_adapters/coinbase'
@@ -17,21 +17,7 @@ import {
   OracleCurrencyPair,
   secondsToMs,
 } from '../src/utils'
-import {
-  generateGoodTicker,
-  halfWeightExponentialScaling,
-  testArrayBig1,
-  testArrayBig2,
-  testArrayBig3,
-  testArrayLarge1,
-  testArrayLarge2,
-  testArrayLarge3,
-  testArrayLarge4,
-  testArrayLarge5,
-  testArraySmallAmounts1,
-  testArraySmallAmounts2,
-  testTickerArray,
-} from './data_aggregator_testdata_utils'
+import { generateGoodTicker, testTickerArray } from './data_aggregator_testdata_utils'
 
 jest.mock('../src/metric_collector')
 
@@ -49,15 +35,11 @@ describe('DataAggregator', () => {
 
   let currencyPair = OracleCurrencyPair.CELOUSD
   let minExchangeCount = 1
-  let minTradeCount = 10
-  let scalingRate = new BigNumber(0.1 / 1000) // ~36% scaling factor per 10 seconds
   const minAggregatedVolume = new BigNumber(1000)
 
   let dataAggregator: DataAggregator
-  let testTrades: Trade[][]
-  let testFetchingTime = 40000
 
-  let aggregationMethod = AggregationMethod.TRADES
+  let aggregationMethod = AggregationMethod.MIDPRICES
   let testTickers: Ticker[]
 
   const askMaxPercentageDeviation = new BigNumber(0.2)
@@ -70,9 +52,6 @@ describe('DataAggregator', () => {
   function resetDefaults() {
     exchanges = undefined
     minExchangeCount = 1
-    scalingRate = new BigNumber(0.1 / 1000) // ~36% scaling factor per 10 seconds
-    minTradeCount = 10
-    dataAggregator.config.minAggregatedVolume = minAggregatedVolume
   }
 
   function setupDataAggregatorWithCurrentConfig(): void {
@@ -91,13 +70,7 @@ describe('DataAggregator', () => {
       maxPercentageBidAskSpread,
       metricCollector,
       minExchangeCount,
-      minTradeCount,
-      scalingRate,
       minAggregatedVolume,
-    })
-    Object.defineProperty(dataAggregator, 'fetchingTime', { value: testFetchingTime })
-    jest.spyOn(dataAggregator, 'tradesPerExchange', 'get').mockImplementation(() => {
-      return testTrades
     })
   }
 
@@ -111,191 +84,6 @@ describe('DataAggregator', () => {
   })
 
   describe('currentPrice()', () => {
-    describe('trades', () => {
-      beforeAll(() => {
-        aggregationMethod = AggregationMethod.TRADES
-        setupDataAggregatorWithCurrentConfig()
-      })
-
-      it('should throw if the number of exchanges that have trades is below minExchangeCount', async () => {
-        testTrades = [[], []]
-        await expect(dataAggregator.currentPrice()).rejects.toThrow(
-          `An insufficient number of exchanges provided data: 0 < ${minExchangeCount}`
-        )
-      })
-
-      it('should throw if the number of trades is below minTradeCount', async () => {
-        testTrades = [testArrayBig1, []]
-        await expect(dataAggregator.currentPrice()).rejects.toThrow(
-          `An insufficient number of total trades has been provided: ${testArrayBig1.length} < ${minTradeCount}`
-        )
-      })
-
-      describe('when the number of trades is equal to minTradeCount', () => {
-        beforeEach(() => {
-          minTradeCount = testArrayBig1.length
-          setupDataAggregatorWithCurrentConfig()
-        })
-
-        it('should return 255 if the number of trades is equal to minTradeCount', async () => {
-          testTrades = [testArrayBig1, []]
-          await expect(dataAggregator.currentPrice()).resolves.toStrictEqual(new BigNumber(255))
-        })
-      })
-
-      it('should throw if the most recent trade has been executed before lastFetchTime - mostRecentTradeTimestamp', async () => {
-        testTrades = [testArrayBig1, testArrayBig2]
-        const lastFetchTime = 100000
-        Object.defineProperty(dataAggregator, 'lastFetchTime', { value: lastFetchTime })
-        const mostRecentTradeTimestamp = Math.max(
-          ...[...testArrayBig1, ...testArrayBig2].map((trade: Trade) => trade.timestamp)
-        )
-        await expect(dataAggregator.currentPrice()).rejects.toThrow(
-          `The most recent trade was executed too far in the past: ${
-            lastFetchTime - mostRecentTradeTimestamp
-          } > ${maxNoTradeDuration}`
-        )
-      })
-
-      describe('time scaling', () => {
-        describe('when scaling is set to ~36% scaling factor per 10 seconds', () => {
-          beforeEach(() => {
-            scalingRate = new BigNumber(0.1 / 1000)
-            setupDataAggregatorWithCurrentConfig()
-          })
-          it('should return 230', async () => {
-            testTrades = [testArrayBig1, testArrayBig2]
-            await expect(dataAggregator.currentPrice()).resolves.toStrictEqual(new BigNumber(230))
-          })
-
-          it('should return 230, dealing with small amounts without problems', async () => {
-            testTrades = [testArraySmallAmounts1, testArraySmallAmounts2]
-            await expect(dataAggregator.currentPrice()).resolves.toStrictEqual(new BigNumber(230))
-          })
-          it('should return testArrayBig3 as the amount is scaled with an exponential scaling factor', () => {
-            testTrades = [testArrayBig1]
-            expect(dataAggregator.timeScalingVolume(testTrades, 30000)).toStrictEqual([
-              testArrayBig3,
-            ])
-          })
-        })
-        describe('when the time scaling is set very high', () => {
-          beforeEach(() => {
-            scalingRate = new BigNumber(100000)
-            setupDataAggregatorWithCurrentConfig()
-          })
-
-          it('should return the price (255) of the most recent trade as past trades are scaled down', async () => {
-            testTrades = [testArrayBig1, testArrayBig2]
-            await expect(dataAggregator.currentPrice()).resolves.toStrictEqual(new BigNumber(255))
-          })
-        })
-        describe('with a small scaling rate', () => {
-          beforeEach(() => {
-            scalingRate = new BigNumber(0.005 / 1000)
-            setupDataAggregatorWithCurrentConfig()
-          })
-          /* The expected price in the test can be calculated as the price of the trade array is depending
-           * linearly on the index and the trade amounts are all the same. Therefore, the index half of the total amount
-           * falls into can be determined. Using this index the price corresponding to the weighted median can be calculated.
-           */
-          it('should pass as data from five exchanges with 10000 trades each should not cause a problem', async () => {
-            testTrades = [
-              testArrayLarge1,
-              testArrayLarge2,
-              testArrayLarge3,
-              testArrayLarge4,
-              testArrayLarge5,
-            ]
-            await expect(dataAggregator.currentPrice()).resolves.toStrictEqual(
-              new BigNumber(halfWeightExponentialScaling(scalingRate, 300000, 10000) * 0.0001 + 160)
-            )
-          })
-        })
-      })
-
-      describe('weightedMedian', () => {
-        const testMinTradeCount = 1
-        const testScalingRate = new BigNumber(0)
-        beforeEach(() => {
-          minTradeCount = testMinTradeCount
-          scalingRate = testScalingRate
-          setupDataAggregatorWithCurrentConfig()
-        })
-
-        it('should return 220 as weighted median falls between 210 and 230 and should be the average of both', async () => {
-          testTrades = [testArrayBig1]
-          await expect(dataAggregator.currentPrice()).resolves.toStrictEqual(new BigNumber(220))
-        })
-
-        it('should return 210 as there is only one entry in the trade array.', async () => {
-          testTrades = [[testArrayBig1[2]]]
-          // Next line resets lastFetchTime to be adjusted to testTrades; otherwise requireValidTrades would throw
-          testFetchingTime = testTrades[0][0].timestamp
-          Object.defineProperty(dataAggregator, 'lastFetchTime', { value: testFetchingTime })
-          await expect(dataAggregator.currentPrice()).resolves.toStrictEqual(new BigNumber(210))
-        })
-
-        it('should return 225 as dealing with small amounts should not cause problems ', async () => {
-          testTrades = [testArraySmallAmounts1, testArraySmallAmounts2]
-          await expect(dataAggregator.currentPrice()).resolves.toStrictEqual(new BigNumber(225))
-        })
-
-        it('should reject if an amount is negative', async () => {
-          testTrades = [
-            [
-              {
-                source: Exchange.OKCOIN,
-                id: 'blah',
-                symbol: 'CELO-USD',
-                timestamp: 0,
-                price: new BigNumber(0),
-                amount: new BigNumber(0),
-                cost: new BigNumber(0),
-              },
-              {
-                source: Exchange.OKCOIN,
-                id: 'blah',
-                symbol: 'CELO-USD',
-                timestamp: 0,
-                price: new BigNumber(0),
-                amount: new BigNumber(0),
-                cost: new BigNumber(0),
-              },
-              {
-                source: Exchange.OKCOIN,
-                id: 'blah',
-                symbol: 'CELO-USD',
-                timestamp: 0,
-                price: new BigNumber(0),
-                amount: new BigNumber(0),
-                cost: new BigNumber(0),
-              },
-              {
-                source: Exchange.OKCOIN,
-                id: 'blah',
-                symbol: 'CELO-USD',
-                timestamp: 0,
-                price: new BigNumber(0),
-                amount: new BigNumber(-1),
-                cost: new BigNumber(0),
-              },
-              {
-                source: Exchange.OKCOIN,
-                id: 'blah',
-                symbol: 'CELO-USD',
-                timestamp: 0,
-                price: new BigNumber(0),
-                amount: new BigNumber(0),
-                cost: new BigNumber(0),
-              },
-            ],
-          ]
-          await expect(dataAggregator.currentPrice()).rejects.toThrow()
-        })
-      })
-    })
-
     describe('midprices', () => {
       beforeAll(() => {
         aggregationMethod = AggregationMethod.MIDPRICES
@@ -516,47 +304,6 @@ describe('DataAggregator', () => {
         })
       })
     }
-  })
-
-  describe('data collection', () => {
-    describe('trades', () => {
-      beforeEach(() => {
-        aggregationMethod = AggregationMethod.TRADES
-        setupDataAggregatorWithCurrentConfig()
-      })
-      it('startDataCollection() starts collecting trade data from each exchange', () => {
-        dataAggregator.startDataCollection()
-        for (const adapter of dataAggregator.exchangeAdapters) {
-          expect(adapter.startCollectingTrades).toHaveBeenCalled()
-        }
-      })
-      it('stopDataCollection() stops all exchanges from collecting trades', () => {
-        dataAggregator.stopDataCollection()
-        for (const adapter of dataAggregator.exchangeAdapters) {
-          expect(adapter.stopCollectingTrades).toHaveBeenCalled()
-        }
-      })
-    })
-
-    describe('midprices', () => {
-      beforeEach(() => {
-        aggregationMethod = AggregationMethod.MIDPRICES
-        setupDataAggregatorWithCurrentConfig()
-      })
-      // Midprice method gets data on-demand, rather than collecting on an ongoing basis
-      it('startDataCollection() does not start collecting trades', () => {
-        dataAggregator.startDataCollection()
-        for (const adapter of dataAggregator.exchangeAdapters) {
-          expect(adapter.startCollectingTrades).not.toHaveBeenCalled()
-        }
-      })
-      it('stopDataCollection() does not do anything', () => {
-        dataAggregator.stopDataCollection()
-        for (const adapter of dataAggregator.exchangeAdapters) {
-          expect(adapter.stopCollectingTrades).not.toHaveBeenCalled()
-        }
-      })
-    })
   })
 
   describe('fetchAllTickers()', () => {
