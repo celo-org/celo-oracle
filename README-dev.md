@@ -10,7 +10,7 @@ Running the Celo Oracle locally is the easiest way to get started contributing t
 ~/celo/celo-oracle
 ```
 
-For more information on how the Oracles work on Celo take a look at the [Oracles](https://docs.celo.org/celo-codebase/protocol/stability/celo-oracles) section of the [docs](https://docs.celo.org).
+For more information on how the Oracles work on Celo take a look at the [Oracles](https://docs.celo.org/celo-codebase/protocol/stability/oracles) section of the [docs](https://docs.celo.org).
 
 <!-- todo: mention oracle blog post? -->
 
