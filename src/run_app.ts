@@ -46,6 +46,7 @@ export const dataAggregatorConfigEnvVars: EnvVarMap<DataAggregatorConfigSubset> 
   maxPercentageBidAskSpread: EnvVar.MID_AGGREGATION_MAX_PERCENTAGE_BID_ASK_SPREAD,
   maxPercentageDeviation: EnvVar.MID_AGGREGATION_MAX_PERCENTAGE_DEVIATION,
   minExchangeCount: EnvVar.MINIMUM_EXCHANGES,
+  priceSourceConfigs: EnvVar.PRICE_SOURCES,
 }
 
 const baseReporterConfigEnvVars: EnvVarMap<BaseReporterConfigSubset> = {

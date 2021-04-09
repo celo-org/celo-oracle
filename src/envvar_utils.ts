@@ -9,6 +9,8 @@ import {
   ReportStrategy,
   WalletType,
 } from './utils'
+import { OrientedExchangePair, ExchangePriceSourceConfig } from './exchange_price_source'
+const yaml = require('js-yaml')
 
 export class EnvVarValidationError extends Error {
   constructor(envVar: EnvVar, value: string, message: string) {
@@ -44,6 +46,7 @@ export enum EnvVar {
   MINIMUM_EXCHANGES = 'MINIMUM_EXCHANGES',
   OVERRIDE_INDEX = 'OVERRIDE_INDEX',
   OVERRIDE_ORACLE_COUNT = 'OVERRIDE_ORACLE_COUNT',
+  PRICE_SOURCES = 'PRICE_SOURCES',
   PRIVATE_KEY_PATH = 'PRIVATE_KEY_PATH',
   PROMETHEUS_PORT = 'PROMETHEUS_PORT',
   REMOVE_EXPIRED_FREQUENCY = 'REMOVE_EXPIRED_FREQUENCY',
@@ -58,6 +61,33 @@ export enum EnvVar {
   UNUSED_ORACLE_ADDRESSES = 'UNUSED_ORACLE_ADDRESSES',
   WALLET_TYPE = 'WALLET_TYPE',
   WS_RPC_PROVIDER_URL = 'WS_RPC_PROVIDER_URL',
+}
+
+interface OrientedExchangePairConfig {
+  exchange: string
+  symbol: string
+  toInvert: boolean
+}
+
+type PriceSourceConfig = OrientedExchangePairConfig[]
+
+function parseOrientedExchangePair(config: OrientedExchangePairConfig): OrientedExchangePair {
+  return {
+    exchange: Exchange[config.exchange as keyof typeof Exchange],
+    symbol: OracleCurrencyPair[config.symbol as keyof typeof OracleCurrencyPair],
+    toInvert: config.toInvert,
+  }
+}
+
+function transformPriceSourceConfig(config: PriceSourceConfig): ExchangePriceSourceConfig {
+  return {
+    pairs: config.map(parseOrientedExchangePair),
+  }
+}
+
+function parseExchangePriceSourceConfig(yamlString: string): ExchangePriceSourceConfig[] {
+  const yamlConfig: PriceSourceConfig[] = yaml.safeLoad(yamlString)
+  return yamlConfig.map(transformPriceSourceConfig)
 }
 
 type WebProtocol = 'http' | 'ws'
@@ -401,6 +431,13 @@ const envVarHandlingMap = new Map<EnvVar, EnvVarHandling>([
     {
       ...integerEnvVarHandling,
       validationFns: [envVarValidations.isInteger, envVarValidations.isGreaterThanZero],
+    },
+  ],
+  [
+    EnvVar.PRICE_SOURCES,
+    {
+      parseFn: parseExchangePriceSourceConfig,
+      validationFns: [],
     },
   ],
   [EnvVar.PRIVATE_KEY_PATH, { validationFns: [] }],
