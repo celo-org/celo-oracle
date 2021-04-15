@@ -65,8 +65,6 @@ export enum ExchangeDataType {
 
 export interface ExchangeAdapter {
   exchangeName: Exchange
-  lastFetchAttempt: Map<[ExchangeDataType, string], number>
-  lastFetchSuccess: Map<[ExchangeDataType, string], number>
   fetchTrades: () => Promise<Trade[]>
   fetchTicker: () => Promise<Ticker>
 }
@@ -90,9 +88,6 @@ export interface ExchangeAdapterConfig {
 export abstract class BaseExchangeAdapter {
   protected readonly config: ExchangeAdapterConfig
   private readonly httpsAgent?: https.Agent
-
-  lastFetchAttempt: Map<[ExchangeDataType, string], number>
-  lastFetchSuccess: Map<[ExchangeDataType, string], number>
 
   /**
    * The exchange-specific string that identifies the currency pair for which to query information
@@ -158,8 +153,6 @@ export abstract class BaseExchangeAdapter {
     this.config = config
     this.pairSymbol = this.generatePairSymbol()
     this.standardPairSymbol = this.generateStandardPairSymbol()
-    this.lastFetchAttempt = new Map<[ExchangeDataType, string], number>()
-    this.lastFetchSuccess = new Map<[ExchangeDataType, string], number>()
     this.logger = this.config.baseLogger.child({
       context: 'exchange_adapter',
       exchange: this.exchangeName,
@@ -205,11 +198,11 @@ export abstract class BaseExchangeAdapter {
    */
   async fetchFromApi(dataType: ExchangeDataType, path: string): Promise<any> {
     if (dataType === ExchangeDataType.ORDERBOOK_STATUS) {
-      return this.fetchFromApiWithoutOrderbookCheck(dataType, path)
+      return this.fetchFromApiWithoutOrderbookCheck(path)
     } else {
       const [orderbookLive, response] = await Promise.all([
         this.isOrderbookLive(),
-        this.fetchFromApiWithoutOrderbookCheck(dataType, path),
+        this.fetchFromApiWithoutOrderbookCheck(path),
       ])
 
       if (!orderbookLive) {
@@ -228,21 +221,16 @@ export abstract class BaseExchangeAdapter {
   /**
    * Fetches from an exchange api endpoint and returns the json-parsed result
    *
-   * @param dataType The data type being fetched from the exchange
    * @param path The api endpoint to fetch from. Assumes that this is added onto
    *    the end of the baseUrl
    */
-  private async fetchFromApiWithoutOrderbookCheck(
-    dataType: ExchangeDataType,
-    path: string
-  ): Promise<any> {
+  private async fetchFromApiWithoutOrderbookCheck(path: string): Promise<any> {
     this.config.metricCollector?.exchangeApiRequest(
       this.exchangeName,
       path,
       this.standardPairSymbol
     )
     const startTime = Date.now()
-    this.lastFetchAttempt.set([dataType, path], startTime)
     let res: Response
     try {
       res = await fetch(`${this.baseApiUrl}/${path}`, {
@@ -271,9 +259,7 @@ export abstract class BaseExchangeAdapter {
       )
     }
 
-    if (res.ok) {
-      this.lastFetchSuccess.set([dataType, path], startTime)
-    } else {
+    if (!res.ok) {
       this.metricCollector?.exchangeApiRequestError(
         this.exchangeName,
         path,
