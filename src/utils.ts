@@ -20,10 +20,6 @@ export enum ReportStrategy {
    * The oracle has an assigned block that triggers report and expiry attempts
    */
   BLOCK_BASED = 'BLOCK_BASED',
-  /**
-   * The oracle reports/expires according to ticks of a timer
-   */
-  TIMER_BASED = 'TIMER_BASED',
 }
 
 export enum Exchange {

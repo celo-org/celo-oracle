@@ -5,7 +5,6 @@ import {
   BlockBasedReporterConfigSubset,
   DataAggregatorConfigSubset,
   OracleApplicationConfig,
-  TimerReporterConfigSubset,
 } from './app'
 import {
   AggregationMethod,
@@ -48,11 +47,6 @@ export const defaultBaseReporterConfig: BaseReporterConfigSubset = {
   transactionRetryLimit: 3,
   transactionRetryGasPriceMultiplier: new BigNumber(0.1),
   unusedOracleAddresses: [],
-}
-
-export const defaultTimerReporterConfig: TimerReporterConfigSubset = {
-  ...defaultBaseReporterConfig,
-  removeExpiredFrequency: minutesToMs(1),
 }
 
 export const defaultBlockBasedReporterConfig: BlockBasedReporterConfigSubset = {

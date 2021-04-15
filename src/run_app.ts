@@ -4,14 +4,12 @@ import {
   DataAggregatorConfigSubset,
   OracleApplication,
   OracleApplicationConfig,
-  TimerReporterConfigSubset,
 } from './app'
 import {
   baseLogger,
   defaultApplicationConfig,
   defaultBlockBasedReporterConfig,
   defaultDataAggregatorConfig,
-  defaultTimerReporterConfig,
 } from './default_config'
 import { EnvVar, fetchParseValidateEnvVar } from './envvar_utils'
 import { ReportStrategy } from './utils'
@@ -65,14 +63,6 @@ const baseReporterConfigEnvVars: EnvVarMap<BaseReporterConfigSubset> = {
   unusedOracleAddresses: EnvVar.UNUSED_ORACLE_ADDRESSES,
 }
 
-export const timerReporterConfigEnvVars: EnvVarMap<TimerReporterConfigSubset> = {
-  ...baseReporterConfigEnvVars,
-  removeExpiredFrequency: EnvVar.REMOVE_EXPIRED_FREQUENCY,
-  removeExpiredOffsetOverride: EnvVar.REMOVE_EXPIRED_OFFSET_OVERRIDE,
-  reportFrequencyOverride: EnvVar.REPORT_FREQUENCY_OVERRIDE,
-  reportOffsetOverride: EnvVar.REPORT_OFFSET_OVERRIDE,
-}
-
 export const blockBasedReporterConfigEnvVars: EnvVarMap<BlockBasedReporterConfigSubset> = {
   ...baseReporterConfigEnvVars,
   maxBlockTimestampAgeMs: EnvVar.MAX_BLOCK_TIMESTAMP_AGE_MS,
@@ -114,17 +104,11 @@ export function getApplicationConfig(): OracleApplicationConfig {
     defaultDataAggregatorConfig,
     dataAggregatorConfigEnvVars
   )
-  let reporterConfig: BlockBasedReporterConfigSubset | TimerReporterConfigSubset
+  let reporterConfig: BlockBasedReporterConfigSubset
   switch (baseConfig.reportStrategy) {
     case ReportStrategy.BLOCK_BASED:
       reporterConfig = getComponentConfig(
         defaultBlockBasedReporterConfig,
-        blockBasedReporterConfigEnvVars
-      )
-      break
-    case ReportStrategy.TIMER_BASED:
-      reporterConfig = getComponentConfig(
-        defaultTimerReporterConfig,
         blockBasedReporterConfigEnvVars
       )
       break

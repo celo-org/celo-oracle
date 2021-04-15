@@ -73,8 +73,8 @@ describe('run_app', () => {
       })
 
       it('correctly processes REPORT_STRATEGY', () => {
-        const corrects = ['BLOCK_BASED', 'TIMER_BASED', 'block_based', 'timer_based']
-        const incorrects = ['timerbased', 'block']
+        const corrects = ['BLOCK_BASED', 'block_based']
+        const incorrects = ['block', 'blockbased']
         setAndTestEnvVarValue(EnvVar.REPORT_STRATEGY, corrects, incorrects)
       })
 
