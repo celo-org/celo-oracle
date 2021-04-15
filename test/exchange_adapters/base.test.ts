@@ -72,50 +72,6 @@ describe('BaseExchangeAdapter', () => {
     jest.clearAllTimers()
   })
 
-  describe('updateTradeData', () => {
-    it('collects metrics', async () => {
-      await adapter.updateTradeData()
-      expect(metricCollector.trades).toBeCalledWith(
-        adapter.exchangeName,
-        adapter.standardPairSymbol,
-        await adapter.fetchTrades()
-      )
-    })
-  })
-
-  describe('startCollectingTrades', () => {
-    it('collects metrics on error', async () => {
-      adapter.startCollectingTrades()
-      jest.advanceTimersToNextTimer()
-      // No errors reported when there is no error
-      expect(metricCollector.error).not.toBeCalled()
-      // Then throw an error on the next trade collection
-      jest.spyOn(adapter, 'updateTradeData').mockImplementation(() => {
-        throw Error('foo')
-      })
-      jest.advanceTimersToNextTimer()
-      expect(metricCollector.error).toBeCalledWith(adapter.exchangeName)
-    })
-    it('starts the trade collection loop', () => {
-      expect(jest.getTimerCount()).toEqual(0)
-      adapter.startCollectingTrades()
-      expect(jest.getTimerCount()).toEqual(1)
-
-      const updateTradeSpy = jest.spyOn(adapter, 'updateTradeData')
-      jest.advanceTimersToNextTimer()
-      expect(updateTradeSpy).toHaveBeenCalledTimes(1)
-    })
-  })
-
-  describe('stopCollectingTrades', () => {
-    it('stops trade collection if running', () => {
-      adapter.startCollectingTrades()
-      expect(jest.getTimerCount()).toEqual(1)
-      adapter.stopCollectingTrades()
-      expect(jest.getTimerCount()).toEqual(0)
-    })
-  })
-
   describe('fetchFromApi', () => {
     let metricArgs: string[]
     beforeEach(() => {

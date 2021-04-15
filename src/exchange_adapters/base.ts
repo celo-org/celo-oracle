@@ -5,14 +5,7 @@ import https from 'https'
 import fetch, { Response } from 'node-fetch'
 import tls from 'tls'
 import { ExchangeApiRequestError, MetricCollector } from '../metric_collector'
-import {
-  Currency,
-  doAsyncFnWithErrorContext,
-  Exchange,
-  ExternalCurrency,
-  megabytesToBytes,
-  requireVariables,
-} from '../utils'
+import { Currency, Exchange, ExternalCurrency, megabytesToBytes, requireVariables } from '../utils'
 
 export enum DataType {
   TICKER = 'Ticker',
@@ -72,14 +65,9 @@ export enum ExchangeDataType {
 
 export interface ExchangeAdapter {
   exchangeName: Exchange
-  tradeData: Trade[]
   lastFetchAttempt: Map<[ExchangeDataType, string], number>
   lastFetchSuccess: Map<[ExchangeDataType, string], number>
   fetchTrades: () => Promise<Trade[]>
-  startCollectingTrades: () => void
-  stopCollectingTrades: () => void
-  tradesSince: (sinceTimestamp: number) => Trade[]
-  updateTradeData: () => Promise<void>
   fetchTicker: () => Promise<Ticker>
 }
 
@@ -107,7 +95,6 @@ export abstract class BaseExchangeAdapter {
   protected readonly config: ExchangeAdapterConfig
   private readonly httpsAgent?: https.Agent
 
-  _tradeData: Trade[]
   tradeInterval: NodeJS.Timeout | undefined
 
   lastFetchAttempt: Map<[ExchangeDataType, string], number>
@@ -175,7 +162,6 @@ export abstract class BaseExchangeAdapter {
    */
   constructor(config: ExchangeAdapterConfig) {
     this.config = config
-    this._tradeData = []
     this.pairSymbol = this.generatePairSymbol()
     this.standardPairSymbol = this.generateStandardPairSymbol()
     this.lastFetchAttempt = new Map<[ExchangeDataType, string], number>()
@@ -213,103 +199,6 @@ export abstract class BaseExchangeAdapter {
    * in chronological order.
    */
   abstract fetchTrades(): Promise<Trade[]>
-
-  get tradeData(): Trade[] {
-    return this._tradeData
-  }
-
-  set tradeData(newTrades: Trade[]) {
-    // Prevents duplicates in the tradeData array
-    const tradeIds = new Set()
-    const timeThreshold = Date.now() - this.config.dataRetentionWindow
-
-    // Only keep trades if they're not in the set yet, and they're not older than
-    // the data-retention window
-    this._tradeData = newTrades.filter((trade) => {
-      if (!tradeIds.has(trade.id) && trade.timestamp > timeThreshold) {
-        tradeIds.add(trade.id)
-        return true
-      } else {
-        return false
-      }
-    })
-  }
-
-  /**
-   * Gets the timestamp of the most recent trade in this.tradeData, assuming that
-   * the trades are sorted chronologically. If no trade data exists, this is undefined.
-   */
-  get mostRecentTradeTimetamp(): number | undefined {
-    const lastTrade = this.tradeData[this.tradeData.length - 1]
-    return lastTrade ? lastTrade.timestamp : undefined
-  }
-
-  // TODO: use the same interval timer that other things use
-  /**
-   * Start the cycle of collecting trades from the API on the schedule set in the config
-   */
-  startCollectingTrades(): void {
-    if (this.tradeInterval) {
-      this.logger.error('Trade collection already in progress')
-    } else {
-      this.tradeInterval = setInterval(async () => {
-        await doAsyncFnWithErrorContext({
-          fn: this.updateTradeData.bind(this),
-          context: this.exchangeName,
-          metricCollector: this.config.metricCollector,
-          logger: this.logger,
-          logMsg: 'Error updating trade data',
-          swallowError: true,
-        })
-      }, this.config.fetchFrequency)
-    }
-  }
-
-  /**
-   * Stop the process of collecting trades from the API
-   */
-  stopCollectingTrades(): void {
-    if (this.tradeInterval) {
-      clearInterval(this.tradeInterval)
-      this.tradeInterval = undefined
-      this.logger.info('Trade collection has been stopped')
-    } else {
-      this.logger.error('Trade collection is not in progress')
-    }
-  }
-
-  /**
-   * Fetches new trades from the API, adds them to the stored tradeData, and
-   * removes trades that are older than allowed by the data-retention window
-   */
-  async updateTradeData(): Promise<void> {
-    const newTrades = await this.fetchTrades()
-
-    const tradeIds = new Set()
-    const timeThreshold = Date.now() - this.config.dataRetentionWindow
-
-    // Only keep trades if they're not in the set yet, and they're not older than
-    // the data-retention window
-    this._tradeData = [...this._tradeData, ...newTrades].filter((trade) => {
-      if (!tradeIds.has(trade.id) && trade.timestamp > timeThreshold) {
-        tradeIds.add(trade.id)
-        return true
-      } else {
-        return false
-      }
-    })
-    this.metricCollector?.trades(this.exchangeName, this.standardPairSymbol, this.tradeData)
-  }
-
-  /**
-   * Returns the collected Trade Data that is newer than the given time
-   * @param timestamp trades before this time will be omitted
-   */
-  tradesSince(sinceTimestamp: number): Trade[] {
-    // since trades are already sorted chronologically, this could be done more efficiently
-    // TODO: do this in a smarter way
-    return this.tradeData.filter((t) => t.timestamp > sinceTimestamp)
-  }
 
   /**
    * Fetches from an exchange api endpoint and returns the json-parsed result.
