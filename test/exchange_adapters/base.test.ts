@@ -9,7 +9,7 @@ import {
   Trade,
 } from '../../src/exchange_adapters/base'
 import { ExchangeApiRequestError, MetricCollector } from '../../src/metric_collector'
-import { Exchange, ExternalCurrency, MS_PER_MINUTE, MS_PER_SECOND } from '../../src/utils'
+import { Exchange, ExternalCurrency } from '../../src/utils'
 
 jest.mock('@celo/contractkit')
 jest.mock('node-fetch')
@@ -60,9 +60,7 @@ describe('BaseExchangeAdapter', () => {
     adapter = new MockAdapter({
       baseCurrency: CeloContract.GoldToken,
       baseLogger,
-      dataRetentionWindow: 10 * MS_PER_MINUTE,
       quoteCurrency: ExternalCurrency.USD,
-      fetchFrequency: 5 * MS_PER_SECOND,
       metricCollector,
     })
   })

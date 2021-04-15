@@ -30,7 +30,6 @@ export const defaultDataAggregatorConfig: DataAggregatorConfigSubset = {
   baseLogger,
   bidMaxPercentageDeviation: new BigNumber(0.2),
   exchanges: [Exchange.BITTREX],
-  fetchFrequency: secondsToMs(5),
   maxExchangeVolumeShare: new BigNumber(0.99),
   maxPercentageBidAskSpread: new BigNumber(0.1),
   maxNoTradeDuration: secondsToMs(20), // with ETH on Coinbase it's common to see a no trade duration of 10s

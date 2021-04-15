@@ -49,7 +49,6 @@ describe('OracleApplication', () => {
   const circuitBreakerPriceChangeThresholdTimeMultiplier = new BigNumber(0.0075)
   const currencyPair = OracleCurrencyPair.CELOUSD
   const expectedBlockTimeMs = secondsToMs(5)
-  const fetchFrequency = secondsToMs(30)
   const httpRpcProviderUrl = 'http://test.foo'
   const metrics = true
   const maxBlockTimestampAgeMs = secondsToMs(30)
@@ -88,7 +87,6 @@ describe('OracleApplication', () => {
     aggregationMethod,
     aggregationWindowDuration,
     baseLogger,
-    fetchFrequency,
     maxNoTradeDuration,
     minExchangeCount,
     askMaxPercentageDeviation,

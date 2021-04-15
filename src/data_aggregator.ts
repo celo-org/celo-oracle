@@ -66,10 +66,6 @@ export interface DataAggregatorConfig {
    */
   exchanges?: Exchange[]
   /**
-   * Milliseconds between API calls to fetch data
-   */
-  fetchFrequency: number
-  /**
    * Max volume share of a single exchange
    */
   maxExchangeVolumeShare: BigNumber
@@ -119,8 +115,6 @@ export class DataAggregator {
       apiRequestTimeout: this.config.apiRequestTimeout,
       baseCurrency: CurrencyPairBaseQuote[this.config.currencyPair].base,
       baseLogger: this.config.baseLogger,
-      dataRetentionWindow: this.config.aggregationWindowDuration * 2,
-      fetchFrequency: this.config.fetchFrequency,
       quoteCurrency: CurrencyPairBaseQuote[this.config.currencyPair].quote,
       metricCollector: this.config.metricCollector,
     }

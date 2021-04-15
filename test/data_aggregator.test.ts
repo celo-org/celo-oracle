@@ -29,7 +29,6 @@ jest.mock('../src/exchange_adapters/okcoin')
 describe('DataAggregator', () => {
   const aggregationWindowDuration = minutesToMs(6)
   const apiRequestTimeout = secondsToMs(5)
-  const fetchFrequency = secondsToMs(30)
   const maxNoTradeDuration = secondsToMs(10)
   const metricCollector = new MetricCollector(baseLogger)
 
@@ -64,7 +63,6 @@ describe('DataAggregator', () => {
       bidMaxPercentageDeviation,
       currencyPair,
       exchanges,
-      fetchFrequency,
       maxExchangeVolumeShare,
       maxNoTradeDuration,
       maxPercentageBidAskSpread,
@@ -252,8 +250,6 @@ describe('DataAggregator', () => {
           apiRequestTimeout,
           baseCurrency: expectedBaseCurrency,
           baseLogger: expect.anything(),
-          dataRetentionWindow: aggregationWindowDuration * 2,
-          fetchFrequency,
           metricCollector: expect.anything(),
           quoteCurrency: expectedQuoteCurrency,
         }

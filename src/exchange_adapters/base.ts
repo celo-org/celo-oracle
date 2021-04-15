@@ -79,10 +79,6 @@ export interface ExchangeAdapterConfig {
    * A base instance of the logger that can be extended for a particular context
    */
   baseLogger: Logger
-  /** Discard data more than this number of milliseconds old */
-  dataRetentionWindow: number
-  /** Number of milliseconds between API calls to fetch data */
-  fetchFrequency: number
   /** An optional MetricCollector instance to report metrics */
   metricCollector?: MetricCollector
   /**

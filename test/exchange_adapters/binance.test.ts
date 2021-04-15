@@ -3,15 +3,13 @@ import BigNumber from 'bignumber.js'
 import { baseLogger } from '../../src/default_config'
 import { ExchangeAdapterConfig } from '../../src/exchange_adapters/base'
 import { BinanceAdapter } from '../../src/exchange_adapters/binance'
-import { Exchange, ExternalCurrency, minutesToMs, secondsToMs } from '../../src/utils'
+import { Exchange, ExternalCurrency } from '../../src/utils'
 
 describe('BinanceAdapter', () => {
   let binanceAdapter: BinanceAdapter
   const config: ExchangeAdapterConfig = {
     baseCurrency: CeloContract.GoldToken,
     baseLogger,
-    dataRetentionWindow: minutesToMs(5),
-    fetchFrequency: secondsToMs(30),
     quoteCurrency: ExternalCurrency.BTC,
   }
   beforeEach(() => {
