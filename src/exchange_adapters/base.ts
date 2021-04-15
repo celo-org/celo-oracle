@@ -95,8 +95,6 @@ export abstract class BaseExchangeAdapter {
   protected readonly config: ExchangeAdapterConfig
   private readonly httpsAgent?: https.Agent
 
-  tradeInterval: NodeJS.Timeout | undefined
-
   lastFetchAttempt: Map<[ExchangeDataType, string], number>
   lastFetchSuccess: Map<[ExchangeDataType, string], number>
 
