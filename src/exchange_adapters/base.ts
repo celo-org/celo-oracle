@@ -184,6 +184,7 @@ export abstract class BaseExchangeAdapter {
   /**
    * Fetches trades from the exchange, normalizes their format, and returns them
    * in chronological order.
+   * It's not currently used by any BaseExchangeAdapter client.
    */
   abstract fetchTrades(): Promise<Trade[]>
 
