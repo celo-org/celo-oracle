@@ -49,7 +49,6 @@ describe('OracleApplication', () => {
   const circuitBreakerPriceChangeThresholdTimeMultiplier = new BigNumber(0.0075)
   const currencyPair = OracleCurrencyPair.CELOUSD
   const expectedBlockTimeMs = secondsToMs(5)
-  const fetchFrequency = secondsToMs(30)
   const httpRpcProviderUrl = 'http://test.foo'
   const metrics = true
   const maxBlockTimestampAgeMs = secondsToMs(30)
@@ -58,11 +57,9 @@ describe('OracleApplication', () => {
   const maxPercentageBidAskSpread = new BigNumber(0.1)
   const minExchangeCount = 1
   const minReportPriceChangeThreshold = new BigNumber(0.05)
-  const minTradeCount = 3
   const privateKeyPath = mockPrivateKeyPath
   const prometheusPort = 9090
   const reportStrategy = ReportStrategy.BLOCK_BASED
-  const scalingRate = new BigNumber(0.01 / 1000)
   const minAggregatedVolume = new BigNumber(1000)
   const walletType = WalletType.AZURE_HSM
   const wsRpcProviderUrl = 'ws://test.foo'
@@ -90,11 +87,8 @@ describe('OracleApplication', () => {
     aggregationMethod,
     aggregationWindowDuration,
     baseLogger,
-    fetchFrequency,
     maxNoTradeDuration,
     minExchangeCount,
-    minTradeCount,
-    scalingRate,
     askMaxPercentageDeviation,
     bidMaxPercentageDeviation,
     maxExchangeVolumeShare,
@@ -198,10 +192,6 @@ describe('OracleApplication', () => {
     describe('when the app is initialized', () => {
       beforeEach(async () => {
         await oracleApplication.init()
-      })
-      it('starts data collection for the DataAggregator', () => {
-        oracleApplication.start()
-        expect(oracleApplication.dataAggregator.startDataCollection).toHaveBeenCalledTimes(1)
       })
       it('starts the reporter', () => {
         oracleApplication.start()

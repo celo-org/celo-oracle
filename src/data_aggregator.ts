@@ -3,7 +3,7 @@ import BigNumber from 'bignumber.js'
 import Logger from 'bunyan'
 import * as aggregators from './aggregator_functions'
 import { OracleApplicationConfig } from './app'
-import { ExchangeAdapter, ExchangeAdapterConfig, Ticker, Trade } from './exchange_adapters/base'
+import { ExchangeAdapter, ExchangeAdapterConfig, Ticker } from './exchange_adapters/base'
 import { BinanceAdapter } from './exchange_adapters/binance'
 import { BittrexAdapter } from './exchange_adapters/bittrex'
 import { CoinbaseAdapter } from './exchange_adapters/coinbase'
@@ -66,10 +66,6 @@ export interface DataAggregatorConfig {
    */
   exchanges?: Exchange[]
   /**
-   * Milliseconds between API calls to fetch data
-   */
-  fetchFrequency: number
-  /**
    * Max volume share of a single exchange
    */
   maxExchangeVolumeShare: BigNumber
@@ -90,14 +86,6 @@ export interface DataAggregatorConfig {
    */
   minExchangeCount: number
   /**
-   * Minimum number of total trades required to calculate price
-   */
-  minTradeCount: number
-  /**
-   * Rate used to apply exponential scaling to the amount of past trades
-   */
-  scalingRate: BigNumber
-  /**
    * The minimum aggregate volume across all exchanges to report
    */
   minAggregatedVolume: BigNumber
@@ -108,8 +96,6 @@ export interface DataAggregatorConfig {
  * to come up with a single price value for the current moment
  */
 export class DataAggregator {
-  private lastFetchTime: number
-
   public readonly config: DataAggregatorConfig
   exchangeAdapters: ExchangeAdapter[]
 
@@ -121,7 +107,6 @@ export class DataAggregator {
   constructor(config: DataAggregatorConfig) {
     this.config = config
     this.logger = this.config.baseLogger.child({ context: 'data_aggregator' })
-    this.lastFetchTime = NaN
     this.exchangeAdapters = this.setupExchangeAdapters()
   }
 
@@ -130,8 +115,6 @@ export class DataAggregator {
       apiRequestTimeout: this.config.apiRequestTimeout,
       baseCurrency: CurrencyPairBaseQuote[this.config.currencyPair].base,
       baseLogger: this.config.baseLogger,
-      dataRetentionWindow: this.config.aggregationWindowDuration * 2,
-      fetchFrequency: this.config.fetchFrequency,
       quoteCurrency: CurrencyPairBaseQuote[this.config.currencyPair].quote,
       metricCollector: this.config.metricCollector,
     }
@@ -155,106 +138,6 @@ export class DataAggregator {
       )
       return adapter
     })
-  }
-
-  /**
-   * If appropriate to the aggregation method, kick off the cycle of collecting
-   * data from all exchanges
-   */
-  startDataCollection(): void {
-    if (this.config.aggregationMethod === AggregationMethod.TRADES) {
-      for (const adapter of this.exchangeAdapters) {
-        adapter.startCollectingTrades()
-      }
-    }
-  }
-
-  stopDataCollection(): void {
-    if (this.config.aggregationMethod === AggregationMethod.TRADES) {
-      for (const adapter of this.exchangeAdapters) {
-        adapter.stopCollectingTrades()
-      }
-    }
-  }
-
-  get tradesPerExchange(): Trade[][] {
-    const tradesInWindow: Trade[][] = []
-    this.lastFetchTime = Date.now()
-    for (const exchangeAdapter of this.exchangeAdapters) {
-      tradesInWindow.push(
-        exchangeAdapter.tradesSince(this.lastFetchTime - this.config.aggregationWindowDuration)
-      )
-    }
-    return tradesInWindow
-  }
-
-  constrainAcrossExchanges(values: Trade[][], exchangeFactor: number): Trade[][] {
-    const weightsPerExchange = values
-      .map((tradeArray) => tradeArray.map((trade) => trade.amount))
-      .map((amounts: BigNumber[]) => amounts.reduce((x, y) => x.plus(y)))
-    const totalWeight = weightsPerExchange.reduce((x, y) => x.plus(y))
-    const maxWeightBelowThreshold = BigNumber.max.apply(
-      null,
-      weightsPerExchange.filter((x) => x <= totalWeight.multipliedBy(exchangeFactor))
-    )
-    // TODO: Make sure dividedby applied to very small number doesn't return exact 0
-    const constrainedValues = values.map((tradeArray, i) => {
-      if (weightsPerExchange[i] > totalWeight.multipliedBy(exchangeFactor)) {
-        return tradeArray.map((trade) => {
-          const amount = trade.amount
-            .multipliedBy(maxWeightBelowThreshold)
-            .dividedBy(weightsPerExchange[i])
-          return { ...trade, amount }
-        })
-      } else {
-        return tradeArray
-      }
-    })
-    return constrainedValues
-  }
-
-  timeScalingVolume(tradesPerExchange: Trade[][], mostRecentTradeTimestamp: number) {
-    // time argument of exponentialWeights needs to be a time delta now-timestamp
-    const valuesTimeScaled = tradesPerExchange.map((trades) =>
-      trades.map((trade) => {
-        const amount = aggregators.exponentialWeights(
-          trade.amount,
-          mostRecentTradeTimestamp - trade.timestamp,
-          this.config.scalingRate
-        )
-        return { ...trade, amount }
-      })
-    )
-    return valuesTimeScaled
-  }
-
-  requireValidTrades(tradesPerExchange: Trade[][], mostRecentTradeTimestamp: number) {
-    const { maxNoTradeDuration, minExchangeCount, minTradeCount } = this.config
-
-    // Require trades from minNumberOfExchanges exchanges
-    if (tradesPerExchange.length < minExchangeCount) {
-      throw Error(
-        `An insufficient number of exchanges provided data: ${tradesPerExchange.length} < ${minExchangeCount}`
-      )
-    }
-    // Require at least minTradeCount trades across all exchanges
-    const totalTradeCount = tradesPerExchange.reduce(
-      (sum: number, trades: Trade[]) => sum + trades.length,
-      0
-    )
-    if (totalTradeCount < minTradeCount) {
-      throw Error(
-        `An insufficient number of total trades has been provided: ${totalTradeCount} < ${minTradeCount}`
-      )
-    }
-    // Require the most recent trade timestamp relative to the lastFetchTime to
-    // be within the maxNoTradeDuration
-    const mostRecentTradeAgeAtFetch = this.lastFetchTime - mostRecentTradeTimestamp
-    if (mostRecentTradeAgeAtFetch > maxNoTradeDuration) {
-      throw Error(
-        `The most recent trade was executed too far in the past: ${mostRecentTradeAgeAtFetch} > ${maxNoTradeDuration}`
-      )
-    }
   }
 
   /**
@@ -302,34 +185,11 @@ export class DataAggregator {
 
   async currentPrice(): Promise<BigNumber> {
     switch (this.config.aggregationMethod) {
-      case AggregationMethod.TRADES:
-        return this.currentPriceFromTrades()
       case AggregationMethod.MIDPRICES:
         return this.currentPriceFromTickerData()
       default:
         throw Error(`Aggregation method ${this.config.aggregationMethod} not recognized`)
     }
-  }
-
-  async currentPriceFromTrades(): Promise<BigNumber> {
-    let tradesPerExchange = this.tradesPerExchange
-    // Removing exchanges without trades within fetchTime - aggregationWindowDuration
-    tradesPerExchange = tradesPerExchange.filter((trades) => trades.length > 0)
-
-    // Assumes that trades per exchange are sorted by timestamp
-    const mostRecentTradeTimestamp = Math.max(
-      ...tradesPerExchange.map((trades) => trades[trades.length - 1].timestamp)
-    )
-    this.requireValidTrades(tradesPerExchange, mostRecentTradeTimestamp)
-
-    tradesPerExchange = this.timeScalingVolume(tradesPerExchange, mostRecentTradeTimestamp)
-
-    return aggregators.weightedMedian(
-      tradesPerExchange.reduce(
-        (flattenedTrades: Trade[], trades) => flattenedTrades.concat(trades),
-        []
-      )
-    )
   }
 
   async currentPriceFromTickerData(): Promise<BigNumber> {

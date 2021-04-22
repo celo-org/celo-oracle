@@ -58,7 +58,6 @@ export const CurrencyPairBaseQuote: Record<
 }
 
 export enum AggregationMethod {
-  TRADES = 'TRADES',
   MIDPRICES = 'MIDPRICES',
 }
 

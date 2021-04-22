@@ -49,8 +49,6 @@ describe('fetchParseValidateEnvVar()', () => {
     expect(fetchParseValidateEnvVar(EnvVar.CURRENCY_PAIR)).toEqual('CELOBTC')
   })
   it('parses aggregation method correctly', () => {
-    process.env[EnvVar.AGGREGATION_METHOD] = 'trades'
-    expect(fetchParseValidateEnvVar(EnvVar.AGGREGATION_METHOD)).toEqual(AggregationMethod.TRADES)
     process.env[EnvVar.AGGREGATION_METHOD] = 'Midprices'
     expect(fetchParseValidateEnvVar(EnvVar.AGGREGATION_METHOD)).toEqual(AggregationMethod.MIDPRICES)
   })

@@ -44,12 +44,9 @@ export const dataAggregatorConfigEnvVars: EnvVarMap<DataAggregatorConfigSubset> 
   askMaxPercentageDeviation: EnvVar.MID_AGGREGATION_ASK_MAX_PERCENTAGE_DEVIATION,
   bidMaxPercentageDeviation: EnvVar.MID_AGGREGATION_BID_MAX_PERCENTAGE_DEVIATION,
   exchanges: EnvVar.EXCHANGES,
-  fetchFrequency: EnvVar.DATA_FETCH_FREQUENCY,
   maxExchangeVolumeShare: EnvVar.MID_AGGREGATION_MAX_EXCHANGE_VOLUME_SHARE,
   maxPercentageBidAskSpread: EnvVar.MID_AGGREGATION_MAX_PERCENTAGE_BID_ASK_SPREAD,
   minExchangeCount: EnvVar.MINIMUM_EXCHANGES,
-  minTradeCount: EnvVar.MINIMUM_DATA,
-  scalingRate: EnvVar.AGGREGATION_SCALING_RATE,
 }
 
 const baseReporterConfigEnvVars: EnvVarMap<BaseReporterConfigSubset> = {
