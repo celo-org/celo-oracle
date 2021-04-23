@@ -55,13 +55,19 @@ yarn start | npx bunyan
 
 ### **ExchangeAdapters**
 
-Each ExchangeAdapter is responsible for querying information from a specific exchange's API, and transforming the response into the standard format expected by the DataAggregator.
+Each ExchangeAdapter is responsible for querying information from a specific exchange's API, and transforming the response into the standard format expected by ExchangePriceSource.
 
 Currently supported exchanges are: [Binance](src/exchange_adapters/binance.ts), [Bittrex](src/exchange_adapters/bittrex.ts), [Coinbase](src/exchange_adapters/coinbase.ts), and [OKCoin](src/exchange_adapters/okcoin.ts).
 
+### **PriceSources**
+
+PriceSource is an interface representing an entity capable of fetching a price and an associated weight.
+
+Currently the only implemented price source is [ExchangePriceSource](src/exchange_price_source.ts) which calculates an implied rate from a sequence of pairs, where each pair is a symbol traded on an exchange.
+
 ### **DataAggregator**
 
-The DataAggregator orchestrates the collection of data via a set of ExchangeAdapters. Using this collected data, it calculates the price for the current moment. If using Ticker data, it takes a volume-weighted mean across all exchanges. If using Trade data, it takes a weighted median of trades from all exchanges within a small window of time.
+The DataAggregator orchestrates the collection of data via a set of PriceSources. Using this collected data, it calculates the price for the current moment. If using Ticker data, it takes a volume-weighted mean across all exchanges.
 
 This component is also responsible for validating the data, and determining whether there is enough certainty in the data in order to calculate anything.
 
@@ -98,9 +104,9 @@ The current price calculation is volume-weighted. This means that the price on a
 
 This configurable threshold allows setting a cap on how much weight any one exchange can have in the calculation.
 
-### **Maximum Deviation of Asks and Bids**
+### **Maximum Deviation of Prices**
 
-If the asks or bids from different exchanges deviate too much, it suggests there is too much uncertainty in the current market conditions. When this threshold is exceeded, the Oracle will avoid reporting a new value until the exchanges are in closer agreement.
+If the prices from different sources (i.e. exchanges) deviate too much, it suggests there is too much uncertainty in the current market conditions. When a set threshold is exceeded, the Oracle will avoid reporting a new value until the sources are in closer agreement.
 
 ## Build checks
 
