@@ -6,6 +6,7 @@ import { collectDefaultMetrics, Counter, Gauge, Histogram, register } from 'prom
 import { Transaction, TransactionReceipt } from 'web3-core'
 import { Ticker, Trade } from './exchange_adapters/base'
 import { Exchange, msToSeconds, RequiredKeysOfType } from './utils'
+import { WeightedPrice } from './price_source'
 
 /**
  * Represents a particular context in the oracle client
@@ -64,6 +65,7 @@ export class MetricCollector {
   private reportValueGauge: Gauge<string>
 
   private tickerPropertyGauge: Gauge<string>
+  private priceSourceGauge: Gauge<string>
 
   private tradesCountGauge: Gauge<string>
   private tradesPriceStatsGauge: Gauge<string>
@@ -145,6 +147,12 @@ export class MetricCollector {
       name: 'oracle_ticker_property',
       help: 'Gauge indicating values of various properties from ticker data',
       labelNames: ['exchange', 'pair', 'property'],
+    })
+
+    this.priceSourceGauge = new Gauge({
+      name: 'oracle_price_source',
+      help: 'Gauge indicating values from different price sources',
+      labelNames: ['pair', 'source', 'property'],
     })
 
     this.tradesCountGauge = new Gauge({
@@ -354,6 +362,14 @@ export class MetricCollector {
         value
       )
     }
+  }
+
+  /**
+   * Records price and weight for a price source.
+   */
+  priceSource(pair: string, source: string, weightedPrice: WeightedPrice) {
+    this.priceSourceGauge.set({ pair, source, property: 'price' }, weightedPrice.price.toNumber())
+    this.priceSourceGauge.set({ pair, source, property: 'weight' }, weightedPrice.weight.toNumber())
   }
 
   /**
