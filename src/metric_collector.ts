@@ -32,7 +32,7 @@ type ExchangeApiRequestErrorType = number | ExchangeApiRequestError
 /**
  * A valid context for an error metric
  */
-export type ErrorContext = Context | Exchange
+export type ErrorContext = Context | Exchange | string
 
 /**
  * The reason for a report
