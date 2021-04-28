@@ -65,6 +65,7 @@ export enum ExchangeDataType {
 
 export interface ExchangeAdapter {
   exchangeName: Exchange
+  pairSymbol: string
   fetchTrades: () => Promise<Trade[]>
   fetchTicker: () => Promise<Ticker>
 }
