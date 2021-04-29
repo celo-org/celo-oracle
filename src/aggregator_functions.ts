@@ -3,6 +3,7 @@ import Logger from 'bunyan'
 import { DataAggregatorConfig } from './data_aggregator'
 import { Ticker, Trade } from './exchange_adapters/base'
 import { doFnWithErrorContext } from './utils'
+import { MetricCollector } from './metric_collector'
 
 export function weightedMedian(trades: Trade[], needsSorting: boolean = true): BigNumber {
   if (needsSorting) {
@@ -65,12 +66,60 @@ export function weightedMeanMidPrice(tickerData: Ticker[]): BigNumber {
 }
 
 /**
- * checks to be performed on each ticker individually
+ * Checks to be performed for a ticker.
  */
+export function individualTickerChecks(tickerData: Ticker, maxPercentageBidAskSpread: BigNumber) {
+  // types
+  assert(
+    typeof tickerData.timestamp === 'number',
+    `${tickerData.source}: timestamp is ${tickerData.timestamp} and not of type number`
+  )
+  assert(
+    BigNumber.isBigNumber(tickerData.ask),
+    `${tickerData.source}: ask is ${tickerData.ask} and not of type BigNumber`
+  )
+  assert(
+    BigNumber.isBigNumber(tickerData.bid),
+    `${tickerData.source}: bid is ${tickerData.bid} and not of type BigNumber`
+  )
+  assert(
+    BigNumber.isBigNumber(tickerData.baseVolume),
+    `${tickerData.source}: baseVolume is ${tickerData.baseVolume} and not of type BigNumber`
+  )
+
+  // Check percentage bid-ask spread smaller than maxPercentageBidAskSpread.
+  const percentageBidAskSpread = tickerData.ask.minus(tickerData.bid).div(tickerData.ask)
+  assert(
+    percentageBidAskSpread.isLessThanOrEqualTo(maxPercentageBidAskSpread),
+    `${tickerData.source}: percentage bid-ask spread (${percentageBidAskSpread}) larger than maxPercentageBidAskSpread (${maxPercentageBidAskSpread})`
+  )
+  // values are greater than zero
+  assert(
+    tickerData.ask.isGreaterThan(0),
+    `${tickerData.source}: ask (${tickerData.ask}) not positive`
+  )
+  assert(
+    tickerData.bid.isGreaterThan(0),
+    `${tickerData.source}: bid (${tickerData.bid}) not positive`
+  )
+  // ask bigger equal bid
+  assert(
+    tickerData.ask.isGreaterThanOrEqualTo(tickerData.bid),
+    `${tickerData.source}: bid (${tickerData.bid}) larger than ask (${tickerData.ask})`
+  )
+  // Check that there is some volume on the exchange
+  assert(
+    tickerData.baseVolume.isGreaterThan(0),
+    `${tickerData.source}: volume (${tickerData.baseVolume}) not positive`
+  )
+  // TODO: Check timestamp not older than X (X as config parameter) seconds
+}
+
 export function checkIndividualTickerData(
   tickerData: Ticker[],
-  config: DataAggregatorConfig,
-  logger: Logger
+  maxPercentageBidAskSpread: BigNumber,
+  metricCollector?: MetricCollector,
+  logger?: Logger
 ): Ticker[] {
   const validTickerData: Ticker[] = []
 
@@ -78,52 +127,7 @@ export function checkIndividualTickerData(
     // 1. Non-recoverable errors (should lead to the client not reporting)
     // Ignore individual ticker if any of these checks fail
     const checkRecoverableErrors = () => {
-      // types
-      assert(
-        typeof thisTickerData.timestamp === 'number',
-        `${thisTickerData.source}: timestamp is ${thisTickerData.timestamp} and not of type number`
-      )
-      assert(
-        BigNumber.isBigNumber(thisTickerData.ask),
-        `${thisTickerData.source}: ask is ${thisTickerData.ask} and not of type BigNumber`
-      )
-      assert(
-        BigNumber.isBigNumber(thisTickerData.bid),
-        `${thisTickerData.source}: bid is ${thisTickerData.bid} and not of type BigNumber`
-      )
-      assert(
-        BigNumber.isBigNumber(thisTickerData.baseVolume),
-        `${thisTickerData.source}: baseVolume is ${thisTickerData.baseVolume} and not of type BigNumber`
-      )
-      // Check percentage bid-ask spread smaller than maxPercentageBidAskSpread
-      const percentageBidAskSpread = thisTickerData.ask
-        .minus(thisTickerData.bid)
-        .div(thisTickerData.ask)
-      assert(
-        percentageBidAskSpread.isLessThanOrEqualTo(config.maxPercentageBidAskSpread),
-        `${thisTickerData.source}: percentage bid-ask spread (${percentageBidAskSpread}) larger than maxPercentageBidAskSpread (${config.maxPercentageBidAskSpread})`
-      )
-      // values are greater than zero
-      assert(
-        thisTickerData.ask.isGreaterThan(0),
-        `${thisTickerData.source}: ask (${thisTickerData.ask}) not positive`
-      )
-      assert(
-        thisTickerData.bid.isGreaterThan(0),
-        `${thisTickerData.source}: bid (${thisTickerData.bid}) not positive`
-      )
-      // ask bigger equal bid
-      assert(
-        thisTickerData.ask.isGreaterThanOrEqualTo(thisTickerData.bid),
-        `${thisTickerData.source}: bid (${thisTickerData.bid}) larger than ask (${thisTickerData.ask})`
-      )
-      // Check that there is some volume on the exchange
-      assert(
-        thisTickerData.baseVolume.isGreaterThan(0),
-        `${thisTickerData.source}: volume (${thisTickerData.baseVolume}) not positive`
-      )
-      // TODO: Check timestamp not older than X (X as config parameter) seconds
-
+      individualTickerChecks(thisTickerData, maxPercentageBidAskSpread)
       // keep current ticker if all checks passed
       validTickerData.push(thisTickerData)
     }
@@ -131,7 +135,7 @@ export function checkIndividualTickerData(
     doFnWithErrorContext({
       fn: checkRecoverableErrors,
       context: thisTickerData.source,
-      metricCollector: config.metricCollector,
+      metricCollector: metricCollector,
       logger,
       logMsg: 'Recoverable error in individual ticker check',
       swallowError: true,
