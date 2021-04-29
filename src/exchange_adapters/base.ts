@@ -65,6 +65,7 @@ export enum ExchangeDataType {
 
 export interface ExchangeAdapter {
   exchangeName: Exchange
+  pairSymbol: string
   fetchTrades: () => Promise<Trade[]>
   fetchTicker: () => Promise<Ticker>
 }
@@ -141,6 +142,7 @@ export abstract class BaseExchangeAdapter {
     [ExternalCurrency.USD, 'USD'],
     [ExternalCurrency.EUR, 'EUR'],
     [ExternalCurrency.BTC, 'BTC'],
+    [ExternalCurrency.USDT, 'USDT'],
   ])
 
   protected readonly logger: Logger

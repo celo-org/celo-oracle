@@ -194,6 +194,12 @@ export class DataAggregator {
 
   async currentPriceFromTickerData(): Promise<BigNumber> {
     const allTickerData = await this.fetchAllTickers()
-    return aggregators.weightedMeanMidPrice(allTickerData, this.config, this.logger)
+    let validTickerData = aggregators.checkIndividualTickerData(
+      allTickerData,
+      this.config,
+      this.logger
+    )
+    validTickerData = aggregators.crossCheckTickerData(validTickerData, this.config)
+    return aggregators.weightedMeanMidPrice(validTickerData)
   }
 }

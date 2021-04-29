@@ -33,6 +33,7 @@ export enum ExternalCurrency {
   USD = 'USD',
   BTC = 'BTC',
   EUR = 'EUR',
+  USDT = 'USDT',
 }
 
 export type Currency = ExternalCurrency | CeloToken
@@ -41,6 +42,9 @@ export enum OracleCurrencyPair {
   CELOUSD = 'CELOUSD',
   CELOEUR = 'CELOEUR',
   CELOBTC = 'CELOBTC',
+  BTCEUR = 'BTCEUR',
+  CELOUSDT = 'CELOUSDT',
+  EURUSDT = 'EURUSDT',
 }
 
 export const CoreCurrencyPair: OracleCurrencyPair[] = [
@@ -55,6 +59,9 @@ export const CurrencyPairBaseQuote: Record<
   [OracleCurrencyPair.CELOUSD]: { base: CeloContract.GoldToken, quote: ExternalCurrency.USD },
   [OracleCurrencyPair.CELOBTC]: { base: CeloContract.GoldToken, quote: ExternalCurrency.BTC },
   [OracleCurrencyPair.CELOEUR]: { base: CeloContract.GoldToken, quote: ExternalCurrency.EUR },
+  [OracleCurrencyPair.BTCEUR]: { base: ExternalCurrency.BTC, quote: ExternalCurrency.EUR },
+  [OracleCurrencyPair.CELOUSDT]: { base: CeloContract.GoldToken, quote: ExternalCurrency.USDT },
+  [OracleCurrencyPair.EURUSDT]: { base: ExternalCurrency.EUR, quote: ExternalCurrency.USDT },
 }
 
 export enum AggregationMethod {
