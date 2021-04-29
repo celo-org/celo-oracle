@@ -62,13 +62,33 @@ async function fetchPairData(
   return adapter[1] ? invertPair(pair) : pair
 }
 
+function cumprod(array: BigNumber[]): BigNumber[] {
+  if (array.length == 0) {
+    return []
+  }
+  let sum: BigNumber[] = [array[0]]
+  for (const x of array) {
+    sum.push(sum[sum.length - 1].multipliedBy(x))
+  }
+  return sum
+}
+
 export function impliedPair(pairs: PairData[]): PairData {
-  const bids = pairs.map((t) => t.bid)
-  const asks = pairs.map((t) => t.ask)
+  const bids = pairs.map((p) => p.bid)
+  const asks = pairs.map((p) => p.ask)
+
+  // Uses VWAP rates (derived from quote/base volumes) to convert the base and
+  // quote volumes to the implied pair base and quote currencies, respectively.
+  const averageRates = pairs.map((p) => p.quoteVolume.dividedBy(p.baseVolume))
+  const convRates = [new BigNumber(1), ...averageRates.slice(0, -1)]
+  const convFactors = cumprod(convRates)
+  const convBaseVolumes = pairs.map((p, i) => p.baseVolume.multipliedBy(convFactors[i]))
+  const convQuoteVolumes = pairs.map((p, i) => p.quoteVolume.multipliedBy(convFactors[i]))
+
   const bid = bids.reduce((a, b) => a.multipliedBy(b), new BigNumber(1))
   const ask = asks.reduce((a, b) => a.multipliedBy(b), new BigNumber(1))
-  const baseVolume = BigNumber.min(...pairs.map((t) => t.baseVolume))
-  const quoteVolume = BigNumber.min(...pairs.map((t) => t.quoteVolume))
+  const baseVolume = BigNumber.min(...convBaseVolumes)
+  const quoteVolume = BigNumber.min(...convQuoteVolumes)
   return { bid, ask, baseVolume, quoteVolume }
 }
 

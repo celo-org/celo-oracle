@@ -34,33 +34,47 @@ class MockAdapter implements ExchangeAdapter {
 }
 
 describe('implicitPair', () => {
+  const testPair1: PairData = {
+    bid: new BigNumber(10.0),
+    ask: new BigNumber(10.01),
+    baseVolume: new BigNumber(10),
+    quoteVolume: new BigNumber(10),
+  }
+  const testPair2: PairData = {
+    bid: new BigNumber(2.0),
+    ask: new BigNumber(3.0),
+    baseVolume: new BigNumber(100),
+    quoteVolume: new BigNumber(100),
+  }
+  const testPair3: PairData = {
+    bid: new BigNumber(1.0),
+    ask: new BigNumber(1.0),
+    baseVolume: new BigNumber(100000),
+    quoteVolume: new BigNumber(100000),
+  }
+
   describe('singlePair', () => {
-    const pairData: PairData = {
-      bid: new BigNumber(10.0),
-      ask: new BigNumber(10.01),
-      baseVolume: new BigNumber(10),
-      quoteVolume: new BigNumber(10),
-    }
     it('calculates implied pair', () => {
-      const implied = impliedPair([pairData])
-      expect(implied).toEqual(pairData)
+      const implied = impliedPair([testPair1])
+      expect(implied).toEqual(testPair1)
     })
   })
+
   describe('twoPairs', () => {
-    const pairs: PairData[] = [
-      {
-        bid: new BigNumber(10.0),
-        ask: new BigNumber(10.01),
+    const pairs: PairData[] = [testPair1, testPair2]
+    it('calculates implied pair', () => {
+      const implied = impliedPair(pairs)
+      expect(implied).toEqual({
+        bid: new BigNumber(20.0),
+        ask: new BigNumber(30.03),
         baseVolume: new BigNumber(10),
         quoteVolume: new BigNumber(10),
-      },
-      {
-        bid: new BigNumber(2.0),
-        ask: new BigNumber(3.0),
-        baseVolume: new BigNumber(100),
-        quoteVolume: new BigNumber(100),
-      },
-    ]
+      })
+    })
+  })
+
+  describe('middleConstrained', () => {
+    const pairs: PairData[] = [testPair3, testPair1, testPair2]
     it('calculates implied pair', () => {
       const implied = impliedPair(pairs)
       expect(implied).toEqual({
