@@ -76,6 +76,19 @@ function cumulativeProduct(array: BigNumber[]): BigNumber[] {
   return prod
 }
 
+/**
+ * Given a sequence of pairs data, calculate the data for the pair implied by
+ * such sequence.
+ *
+ * Each instance of PairData contains a buy and a sell quote (bid and ask,
+ * respectively), as well as the base and quote notional traded over a period
+ * of time. The implied buy quote is the product of all buy quotes on the input
+ * pairs data and, similarly, the implied sell quote is the product of all sell
+ * quotes. The implied base notional is the smallest base notional of the input
+ * pairs, once the notionals are converted to the base currency. Similarly the
+ * implied quote notional is the smallest quote notional of the input pairs,
+ * once they are converted to the quote currency.
+ */
 export function impliedPair(pairs: PairData[]): PairData {
   const bids = pairs.map((p) => p.bid)
   const asks = pairs.map((p) => p.ask)
@@ -95,6 +108,11 @@ export function impliedPair(pairs: PairData[]): PairData {
   return { bid, ask, baseVolume, quoteVolume }
 }
 
+/**
+ * MultiPairExchangePriceSource implements a PriceSource capable of fetching
+ * Tickers from different exchanges and pairs and combining them into a single
+ * WeightedPrice.
+ */
 export class MultiPairExchangePriceSource implements PriceSource {
   private adapters: OrientedAdapter[]
   private maxPercentageBidAskSpread: BigNumber
@@ -110,6 +128,12 @@ export class MultiPairExchangePriceSource implements PriceSource {
     this.metricCollector = metricCollector
   }
 
+  /**
+   * Returns a unique string representation of a source's adapters.
+   *
+   * Example: a MultiPairExchangePriceSource using two Binance adapters for the CELOBTC
+   * and BTCEUR pairs would have "BINANCE:CELOBTC:false|BINANCE:BTCEUR:false" as a name.
+   */
   name(): string {
     return this.adapters
       .map((adapter) => {
