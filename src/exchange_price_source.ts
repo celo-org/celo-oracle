@@ -66,10 +66,10 @@ async function fetchPairData(
 }
 
 function cumulativeProduct(array: BigNumber[]): BigNumber[] {
-  if (array.length == 0) {
+  if (array.length === 0) {
     return []
   }
-  let prod: BigNumber[] = [array[0]]
+  const prod: BigNumber[] = [array[0]]
   for (const x of array) {
     prod.push(prod[prod.length - 1].multipliedBy(x))
   }

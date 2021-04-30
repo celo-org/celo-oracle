@@ -135,7 +135,7 @@ export function checkIndividualTickerData(
     doFnWithErrorContext({
       fn: checkRecoverableErrors,
       context: thisTickerData.source,
-      metricCollector: metricCollector,
+      metricCollector,
       logger,
       logMsg: 'Recoverable error in individual ticker check',
       swallowError: true,
