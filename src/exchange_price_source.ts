@@ -62,15 +62,15 @@ async function fetchPairData(
   return adapter[1] ? invertPair(pair) : pair
 }
 
-function cumprod(array: BigNumber[]): BigNumber[] {
+function cumulativeProduct(array: BigNumber[]): BigNumber[] {
   if (array.length == 0) {
     return []
   }
-  let sum: BigNumber[] = [array[0]]
+  let prod: BigNumber[] = [array[0]]
   for (const x of array) {
-    sum.push(sum[sum.length - 1].multipliedBy(x))
+    prod.push(prod[prod.length - 1].multipliedBy(x))
   }
-  return sum
+  return prod
 }
 
 export function impliedPair(pairs: PairData[]): PairData {
@@ -81,7 +81,7 @@ export function impliedPair(pairs: PairData[]): PairData {
   // quote volumes to the implied pair base and quote currencies, respectively.
   const averageRates = pairs.map((p) => p.quoteVolume.dividedBy(p.baseVolume))
   const convRates = [new BigNumber(1), ...averageRates.slice(0, -1)]
-  const convFactors = cumprod(convRates)
+  const convFactors = cumulativeProduct(convRates)
   const convBaseVolumes = pairs.map((p, i) => p.baseVolume.multipliedBy(convFactors[i]))
   const convQuoteVolumes = pairs.map((p, i) => p.quoteVolume.multipliedBy(convFactors[i]))
 
