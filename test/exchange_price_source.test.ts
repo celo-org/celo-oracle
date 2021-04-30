@@ -92,7 +92,7 @@ describe('MultiPairExchangePriceSource', () => {
 
   function sourceFromTickers(tickers: Ticker[]): MultiPairExchangePriceSource {
     const adapters = tickers.map(
-      (ticker: Ticker): OrientedAdapter => [new MockAdapter(ticker), false]
+      (ticker: Ticker): OrientedAdapter => ({ adapter: new MockAdapter(ticker), toInvert: false })
     )
     return new MultiPairExchangePriceSource(adapters, new BigNumber(0.2), metricCollector)
   }

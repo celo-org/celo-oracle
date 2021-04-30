@@ -15,7 +15,10 @@ export interface ExchangePriceSourceConfig {
   pairs: OrientedExchangePair[]
 }
 
-export type OrientedAdapter = [ExchangeAdapter, boolean]
+export type OrientedAdapter = {
+  adapter: ExchangeAdapter
+  toInvert: boolean
+}
 
 export type PairData = {
   bid: BigNumber
@@ -49,7 +52,7 @@ async function fetchPairData(
   maxPercentageBidAskSpread: BigNumber,
   metricCollector?: MetricCollector
 ): Promise<PairData> {
-  const ticker = await adapter[0].fetchTicker()
+  const ticker = await adapter.adapter.fetchTicker()
 
   // Validate fetched ticker -- will throw if invalid.
   individualTickerChecks(ticker, maxPercentageBidAskSpread)
@@ -59,7 +62,7 @@ async function fetchPairData(
   }
 
   const pair = tickerToPairData(ticker)
-  return adapter[1] ? invertPair(pair) : pair
+  return adapter.toInvert ? invertPair(pair) : pair
 }
 
 function cumulativeProduct(array: BigNumber[]): BigNumber[] {
@@ -109,8 +112,8 @@ export class MultiPairExchangePriceSource implements PriceSource {
 
   name(): string {
     return this.adapters
-      .map(([adapter, isInverted]) => {
-        return `${adapter.exchangeName}:${adapter.pairSymbol}:${isInverted}`
+      .map((adapter) => {
+        return `${adapter.adapter.exchangeName}:${adapter.adapter.pairSymbol}:${adapter.toInvert}`
       })
       .join('|')
   }
