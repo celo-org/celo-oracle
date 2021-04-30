@@ -8,7 +8,7 @@ import { individualTickerChecks } from './aggregator_functions'
 export interface OrientedExchangePair {
   exchange: Exchange
   symbol: OracleCurrencyPair
-  to_invert: boolean
+  toInvert: boolean
 }
 
 export interface ExchangePriceSourceConfig {
