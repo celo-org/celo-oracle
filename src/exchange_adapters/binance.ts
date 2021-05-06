@@ -71,6 +71,7 @@ export class BinanceAdapter extends BaseExchangeAdapter implements ExchangeAdapt
       lastPrice: this.safeBigNumberParse(json.lastPrice)!,
       low: this.safeBigNumberParse(json.lowPrice),
       open: this.safeBigNumberParse(json.openPrice),
+      quoteVolume: this.safeBigNumberParse(json.quoteVolume)!,
       timestamp: this.safeBigNumberParse(json.closeTime)?.toNumber()!,
     }
     this.verifyTicker(ticker)

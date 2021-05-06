@@ -62,13 +62,23 @@ export class CoinbaseAdapter extends BaseExchangeAdapter implements ExchangeAdap
    */
   parseTicker(json: any): Ticker {
     const lastPrice = this.safeBigNumberParse(json.price)!
+    const baseVolume = this.safeBigNumberParse(json.volume)!
+    // Using lastPrice to convert from baseVolume to quoteVolume, as CoinBase's
+    // API does not provide this information. The correct price for the
+    // conversion would be the VWAP over the period contemplated by the ticker,
+    // but it's also not available. As a price has to be chosen for the
+    // conversion, and none of them are correct, lastPrice is chose as it
+    // was actually on one trade (whereas the bid, ask or mid could have no
+    // relation to the VWAP).
+    const quoteVolume = baseVolume?.multipliedBy(lastPrice)
     const ticker = {
       ...this.priceObjectMetadata,
       ask: this.safeBigNumberParse(json.ask)!,
-      baseVolume: this.safeBigNumberParse(json.volume)!,
+      baseVolume,
       bid: this.safeBigNumberParse(json.bid)!,
       close: lastPrice,
       lastPrice,
+      quoteVolume,
       timestamp: this.safeDateParse(json.time)!,
     }
     this.verifyTicker(ticker)

@@ -45,6 +45,11 @@ export type Ticker = PriceMetadata & {
    */
   low?: BigNumber
   open?: BigNumber
+  /**
+   * the total volume of the quote currency traded in the period considered. This
+   * is generally the last 24 hours, but it could vary between exchanges.
+   */
+  quoteVolume: BigNumber
   timestamp: number
 }
 

@@ -60,6 +60,25 @@ const testTickerVolumes = [
   [1000, 2000, 2000],
 ]
 
+const testTickerQuoteVolumes = [
+  [1000, 40000, 12000],
+  [1000000, 12000, 40000],
+  [1000, 2000, 2000],
+  [1000, 2000, 2000],
+  [1000, 2000, 2000],
+  [-1000, 2000, 2000],
+  [1000, 2000, 2000],
+  [1000, 2000, 2000],
+  [1000, 2000, 2000],
+  [1000, 2000, 2000],
+  [1000, 2000, 1000000],
+  [100000, 60000, 40000],
+  [1000, 2000, 2000],
+  [1000, 2000, 2000],
+  [-1000, -2000, -2000],
+  [1000, 2000, 2000],
+]
+
 const testTickerExchanges = [
   [Exchange.COINBASE, Exchange.OKCOIN, Exchange.BITTREX],
   [Exchange.COINBASE, Exchange.OKCOIN, Exchange.BITTREX],
@@ -90,6 +109,7 @@ export const testTickerArray: Ticker[][] = testTickerAsks.map((row, rowIndex) =>
       bid: new BigNumber(testTickerBids[rowIndex][colIndex]),
       lastPrice: new BigNumber(testTickerBids[rowIndex][colIndex] - 0.03),
       baseVolume: new BigNumber(testTickerVolumes[rowIndex][colIndex]),
+      quoteVolume: new BigNumber(testTickerQuoteVolumes[rowIndex][colIndex]),
     }
     return thisTicker
   })
@@ -105,5 +125,6 @@ export function generateGoodTicker(exchange: Exchange): Ticker {
     bid: new BigNumber(1.05),
     lastPrice: new BigNumber(1.07),
     baseVolume: new BigNumber(1000),
+    quoteVolume: new BigNumber(1070),
   }
 }
