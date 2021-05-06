@@ -54,6 +54,7 @@ describe('BinanceAdapter', () => {
         lastPrice: new BigNumber(0.00008174),
         low: new BigNumber(0.00007948),
         open: new BigNumber(0.00008059),
+        quoteVolume: new BigNumber(12.22296665),
         timestamp: 1614690999055,
       })
     })

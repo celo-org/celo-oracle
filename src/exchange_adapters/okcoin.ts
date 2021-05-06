@@ -64,6 +64,7 @@ export class OKCoinAdapter extends BaseExchangeAdapter {
       lastPrice: this.safeBigNumberParse(json.last)!,
       low: this.safeBigNumberParse(json.low_24h),
       open: this.safeBigNumberParse(json.open_24h),
+      quoteVolume: this.safeBigNumberParse(json.quote_volume_24h)!,
       timestamp: this.safeDateParse(json.timestamp)!,
     }
     this.verifyTicker(ticker)

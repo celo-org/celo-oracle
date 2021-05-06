@@ -120,6 +120,7 @@ describe('CoinbaseAdapter', () => {
         bid: new BigNumber(200.93),
         close: new BigNumber(200.81),
         lastPrice: new BigNumber(200.81),
+        quoteVolume: new BigNumber(513386.930205),
         timestamp: 1590497345049,
       })
     })

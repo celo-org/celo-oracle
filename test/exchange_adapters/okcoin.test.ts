@@ -50,6 +50,7 @@ describe('OKCoinAdapter', () => {
         lastPrice: new BigNumber(200.81),
         low: new BigNumber(200.36),
         open: new BigNumber(203.43),
+        quoteVolume: new BigNumber(519342.82),
         timestamp: 1590497345049,
       })
     })

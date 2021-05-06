@@ -52,6 +52,7 @@ describe('BittrexAdapter', () => {
         ask: new BigNumber(213.834),
         lastPrice: new BigNumber(213.762),
         baseVolume: new BigNumber(3335.48514449),
+        quoteVolume: new BigNumber(711062.81323057),
       })
     })
     it('throws an error when a required BigNumber field is missing', () => {

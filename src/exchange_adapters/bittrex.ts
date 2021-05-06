@@ -72,6 +72,7 @@ export class BittrexAdapter extends BaseExchangeAdapter {
       ask: this.safeBigNumberParse(tickerJson.askRate)!,
       lastPrice: this.safeBigNumberParse(tickerJson.lastTradeRate)!,
       baseVolume: this.safeBigNumberParse(summaryJson.volume)!,
+      quoteVolume: this.safeBigNumberParse(summaryJson.quoteVolume)!,
     }
     this.verifyTicker(ticker)
     return ticker
