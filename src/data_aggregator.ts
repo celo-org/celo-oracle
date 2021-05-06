@@ -196,7 +196,8 @@ export class DataAggregator {
     const allTickerData = await this.fetchAllTickers()
     let validTickerData = aggregators.checkIndividualTickerData(
       allTickerData,
-      this.config,
+      this.config.maxPercentageBidAskSpread,
+      this.config.metricCollector,
       this.logger
     )
     validTickerData = aggregators.crossCheckTickerData(validTickerData, this.config)
