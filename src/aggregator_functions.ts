@@ -159,7 +159,7 @@ export function crossCheckPriceData(
     `Max price cross-sectional deviation too large (${maxNormalizedAbsMeanDev} >= ${config.maxPercentageDeviation} )`
   )
 
-  // 2. No source should make up more than maxExchangeVolumeShare
+  // 2. No source should make up more than maxSourceWeightShare
   const volumes = tickerData.map((price: WeightedPrice) => price.weight)
   const volumesSum = volumes.reduce(
     (sum: BigNumber, el: BigNumber) => sum.plus(el),
@@ -168,8 +168,8 @@ export function crossCheckPriceData(
   const exchangeVolumeShares = volumes.map((el: BigNumber) => el.div(volumesSum))
   const largestExchangeVolumeShare = BigNumber.max.apply(null, exchangeVolumeShares)
   assert(
-    largestExchangeVolumeShare.isLessThanOrEqualTo(config.maxExchangeVolumeShare),
-    `The weight share of one source is too large (${largestExchangeVolumeShare} > ${config.maxExchangeVolumeShare})`
+    largestExchangeVolumeShare.isLessThanOrEqualTo(config.maxSourceWeightShare),
+    `The weight share of one source is too large (${largestExchangeVolumeShare} > ${config.maxSourceWeightShare})`
   )
 
   // 3. The sum of all weights should be greater than the min threshold

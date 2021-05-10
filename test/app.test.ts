@@ -50,7 +50,7 @@ describe('OracleApplication', () => {
   const httpRpcProviderUrl = 'http://test.foo'
   const metrics = true
   const maxBlockTimestampAgeMs = secondsToMs(30)
-  const maxExchangeVolumeShare = new BigNumber(0.99)
+  const maxSourceWeightShare = new BigNumber(0.99)
   const maxNoTradeDuration = minutesToMs(1)
   const maxPercentageBidAskSpread = new BigNumber(0.1)
   const maxPercentageDeviation = new BigNumber(0.2)
@@ -88,7 +88,7 @@ describe('OracleApplication', () => {
     baseLogger,
     maxNoTradeDuration,
     minExchangeCount,
-    maxExchangeVolumeShare,
+    maxSourceWeightShare,
     maxPercentageBidAskSpread,
     maxPercentageDeviation,
     minAggregatedVolume,

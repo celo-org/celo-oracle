@@ -88,9 +88,9 @@ export interface DataAggregatorConfig {
    */
   priceSourceConfigs?: ExchangePriceSourceConfig[]
   /**
-   * Max volume share of a single exchange
+   * Max weight share of a single source
    */
-  maxExchangeVolumeShare: BigNumber
+  maxSourceWeightShare: BigNumber
   /**
    * Maximum duration in ms between the most recent trade and the fetch time
    */

@@ -28,7 +28,7 @@ export const defaultDataAggregatorConfig: DataAggregatorConfigSubset = {
   apiRequestTimeout: secondsToMs(5),
   baseLogger,
   exchanges: [Exchange.BITTREX],
-  maxExchangeVolumeShare: new BigNumber(0.99),
+  maxSourceWeightShare: new BigNumber(0.99),
   maxPercentageBidAskSpread: new BigNumber(0.1),
   maxPercentageDeviation: new BigNumber(0.2),
   maxNoTradeDuration: secondsToMs(20), // with ETH on Coinbase it's common to see a no trade duration of 10s

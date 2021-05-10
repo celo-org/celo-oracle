@@ -39,7 +39,7 @@ describe('DataAggregator', () => {
   let aggregationMethod = AggregationMethod.MIDPRICES
   let testWeightedPrices: WeightedPrice[]
 
-  const maxExchangeVolumeShare = new BigNumber(0.99)
+  const maxSourceWeightShare = new BigNumber(0.99)
   const maxPercentageBidAskSpread = new BigNumber(0.1)
   const maxPercentageDeviation = new BigNumber(0.2)
 
@@ -58,7 +58,7 @@ describe('DataAggregator', () => {
       baseLogger,
       currencyPair,
       exchanges,
-      maxExchangeVolumeShare,
+      maxSourceWeightShare,
       maxNoTradeDuration,
       maxPercentageBidAskSpread,
       maxPercentageDeviation,
@@ -125,8 +125,7 @@ describe('DataAggregator', () => {
           )
         })
 
-        // TODO(pedro-clabs): rename to maxSourceWeightShare?
-        it('no price source should have a total weight share bigger than maxExchangeVolumeShare', () => {
+        it('no price source should have a total weight share bigger than maxSourceVolumeShare', () => {
           const prices: WeightedPrice[] = [
             { price: new BigNumber(10.0), weight: new BigNumber(1) },
             { price: new BigNumber(11.0), weight: new BigNumber(1000) },

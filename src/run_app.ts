@@ -42,7 +42,7 @@ export const dataAggregatorConfigEnvVars: EnvVarMap<DataAggregatorConfigSubset> 
   aggregationWindowDuration: EnvVar.AGGREGATION_PERIOD,
   apiRequestTimeout: EnvVar.API_REQUEST_TIMEOUT,
   exchanges: EnvVar.EXCHANGES,
-  maxExchangeVolumeShare: EnvVar.MID_AGGREGATION_MAX_EXCHANGE_VOLUME_SHARE,
+  maxSourceWeightShare: EnvVar.MID_AGGREGATION_MAX_EXCHANGE_VOLUME_SHARE,
   maxPercentageBidAskSpread: EnvVar.MID_AGGREGATION_MAX_PERCENTAGE_BID_ASK_SPREAD,
   maxPercentageDeviation: EnvVar.MID_AGGREGATION_MAX_PERCENTAGE_DEVIATION,
   minExchangeCount: EnvVar.MINIMUM_EXCHANGES,
