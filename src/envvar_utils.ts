@@ -33,7 +33,6 @@ export enum EnvVar {
   CIRCUIT_BREAKER_PRICE_CHANGE_THRESHOLD_TIME_MULTIPLIER = 'CIRCUIT_BREAKER_PRICE_CHANGE_THRESHOLD_TIME_MULTIPLIER',
   CURRENCY_PAIR = 'CURRENCY_PAIR',
   DATA_FETCH_FREQUENCY = 'DATA_FETCH_FREQUENCY',
-  EXCHANGES = 'EXCHANGES',
   GAS_PRICE_MULTIPLIER = 'GAS_PRICE_MULTIPLIER',
   HTTP_RPC_PROVIDER_URL = 'HTTP_RPC_PROVIDER_URL',
   MAX_BLOCK_TIMESTAMP_AGE_MS = 'MAX_BLOCK_TIMESTAMP_AGE_MS',
@@ -321,18 +320,6 @@ const envVarHandlingMap = new Map<EnvVar, EnvVarHandling>([
     {
       ...integerEnvVarHandling,
       validationFns: [envVarValidations.isInteger, envVarValidations.isGreaterThanZero],
-    },
-  ],
-  [
-    EnvVar.EXCHANGES,
-    {
-      parseFn: (unparsed: string): Exchange[] => {
-        const exchangeNames = unparsed.split(',').map((e) => e.trim().toUpperCase())
-        return exchangeNames.map((e) => Exchange[e as keyof typeof Exchange])
-      },
-      validationFns: [
-        (values: Exchange[]) => envVarValidations.allAreInSet(values, Object.values(Exchange)),
-      ],
     },
   ],
   [

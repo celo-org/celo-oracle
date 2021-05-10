@@ -8,7 +8,6 @@ import {
 } from './app'
 import {
   AggregationMethod,
-  Exchange,
   minutesToMs,
   OracleCurrencyPair,
   ReportStrategy,
@@ -27,7 +26,6 @@ export const defaultDataAggregatorConfig: DataAggregatorConfigSubset = {
   aggregationWindowDuration: minutesToMs(5),
   apiRequestTimeout: secondsToMs(5),
   baseLogger,
-  exchanges: [Exchange.BITTREX],
   maxSourceWeightShare: new BigNumber(0.99),
   maxPercentageBidAskSpread: new BigNumber(0.1),
   maxPercentageDeviation: new BigNumber(0.2),

@@ -16,6 +16,7 @@ import {
   secondsToMs,
 } from '../src/utils'
 import { WeightedPrice } from '../src/price_source'
+import { ExchangePriceSourceConfig } from '../src/exchange_price_source'
 
 jest.mock('../src/metric_collector')
 
@@ -43,10 +44,10 @@ describe('DataAggregator', () => {
   const maxPercentageBidAskSpread = new BigNumber(0.1)
   const maxPercentageDeviation = new BigNumber(0.2)
 
-  let exchanges: Exchange[] | undefined
+  let priceSourceConfigs: ExchangePriceSourceConfig[] | undefined
 
   function resetDefaults() {
-    exchanges = undefined
+    priceSourceConfigs = undefined
     minExchangeCount = 1
   }
 
@@ -57,7 +58,6 @@ describe('DataAggregator', () => {
       apiRequestTimeout,
       baseLogger,
       currencyPair,
-      exchanges,
       maxSourceWeightShare,
       maxNoTradeDuration,
       maxPercentageBidAskSpread,
@@ -65,6 +65,7 @@ describe('DataAggregator', () => {
       metricCollector,
       minExchangeCount,
       minAggregatedVolume,
+      priceSourceConfigs,
     })
   }
 
@@ -195,7 +196,26 @@ describe('DataAggregator', () => {
 
         describe('when a subset of adapters are specified', () => {
           beforeEach(() => {
-            exchanges = [Exchange.BITTREX, Exchange.OKCOIN]
+            priceSourceConfigs = [
+              {
+                pairs: [
+                  {
+                    exchange: Exchange.BITTREX,
+                    symbol: currencyPairToTest,
+                    toInvert: false,
+                  },
+                ],
+              },
+              {
+                pairs: [
+                  {
+                    exchange: Exchange.OKCOIN,
+                    symbol: currencyPairToTest,
+                    toInvert: false,
+                  },
+                ],
+              },
+            ]
             currencyPair = currencyPairToTest
             setupDataAggregatorWithCurrentConfig()
           })
@@ -206,17 +226,9 @@ describe('DataAggregator', () => {
 
             expect(CoinbaseAdapter).not.toHaveBeenCalled()
           })
-          it('adds only those adapters to the set', () => {
+          it('adds only those price sources to the set', () => {
             expect(dataAggregator.priceSources.length).toEqual(2)
           })
-        })
-
-        it('prevents duplicate adapters from being added', () => {
-          exchanges = [Exchange.BITTREX, Exchange.BITTREX, Exchange.COINBASE, Exchange.BITTREX]
-          currencyPair = currencyPairToTest
-          setupDataAggregatorWithCurrentConfig()
-          expect(BittrexAdapter).toHaveBeenCalledTimes(1)
-          expect(dataAggregator.priceSources.length).toEqual(2)
         })
       })
     }
@@ -230,7 +242,44 @@ describe('DataAggregator', () => {
 
     beforeAll(() => {
       aggregationMethod = AggregationMethod.MIDPRICES
-      exchanges = [Exchange.COINBASE, Exchange.OKCOIN, Exchange.BITTREX, Exchange.BINANCE]
+      priceSourceConfigs = [
+        {
+          pairs: [
+            {
+              exchange: Exchange.COINBASE,
+              symbol: OracleCurrencyPair.CELOUSD,
+              toInvert: false,
+            },
+          ],
+        },
+        {
+          pairs: [
+            {
+              exchange: Exchange.OKCOIN,
+              symbol: OracleCurrencyPair.CELOUSD,
+              toInvert: false,
+            },
+          ],
+        },
+        {
+          pairs: [
+            {
+              exchange: Exchange.BITTREX,
+              symbol: OracleCurrencyPair.CELOUSD,
+              toInvert: false,
+            },
+          ],
+        },
+        {
+          pairs: [
+            {
+              exchange: Exchange.BINANCE,
+              symbol: OracleCurrencyPair.CELOUSD,
+              toInvert: false,
+            },
+          ],
+        },
+      ]
       setupDataAggregatorWithCurrentConfig()
     })
 

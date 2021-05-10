@@ -1,6 +1,6 @@
 import BigNumber from 'bignumber.js'
 import { EnvVar, fetchParseValidateEnvVar } from '../src/envvar_utils'
-import { AggregationMethod, Exchange } from '../src/utils'
+import { AggregationMethod } from '../src/utils'
 
 describe('fetchParseValidateEnvVar()', () => {
   const env = { ...process.env }
@@ -28,13 +28,6 @@ describe('fetchParseValidateEnvVar()', () => {
   it('correctly handles a non-integer number type envvar', () => {
     process.env[EnvVar.AGGREGATION_SCALING_RATE] = '0.0123'
     expect(fetchParseValidateEnvVar(EnvVar.AGGREGATION_SCALING_RATE)).toEqual(new BigNumber(0.0123))
-  })
-  it('handles transformation of exchange strings to values in exchange enum', () => {
-    process.env[EnvVar.EXCHANGES] = 'COINBASE,BITTREX'
-    expect(fetchParseValidateEnvVar(EnvVar.EXCHANGES)).toEqual([
-      Exchange.COINBASE,
-      Exchange.BITTREX,
-    ])
   })
   it('correctly handles a boolean', () => {
     process.env[EnvVar.METRICS] = 'true'

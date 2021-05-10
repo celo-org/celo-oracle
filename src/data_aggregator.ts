@@ -79,11 +79,6 @@ export interface DataAggregatorConfig {
    */
   currencyPair: OracleApplicationConfig['currencyPair']
   /**
-   * Exchange APIs from which to collect data
-   * DEFAULT: all exchanges that have adapters
-   */
-  exchanges?: Exchange[]
-  /**
    * Price sources from which to collect data
    */
   priceSourceConfigs?: ExchangePriceSourceConfig[]
@@ -154,23 +149,7 @@ export class DataAggregator {
       return adapterFromExchangeName(exchange, config)
     }
 
-    let priceSourceConfigs = this.config.priceSourceConfigs ?? ([] as ExchangePriceSourceConfig[])
-
-    // Append any configs passed in via exchange to priceSourceConfigs.
-    const exchangeToConfig = (exchange: Exchange): ExchangePriceSourceConfig => ({
-      pairs: [
-        {
-          exchange,
-          symbol: this.config.currencyPair,
-          toInvert: false,
-        },
-      ],
-    })
-    // Protect against duplicates.
-    const exchanges = [...new Set(this.config.exchanges ?? ([] as Exchange[]))]
-    // Transform any config exchange into a price source.
-    priceSourceConfigs = priceSourceConfigs.concat(exchanges.map(exchangeToConfig))
-
+    const priceSourceConfigs = this.config.priceSourceConfigs ?? ([] as ExchangePriceSourceConfig[])
     this.logger.info({ priceSources: priceSourceConfigs }, 'Setting up price sources')
 
     return priceSourceConfigs.map((sourceConfig) => {
