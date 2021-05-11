@@ -54,7 +54,7 @@ describe('OracleApplication', () => {
   const maxNoTradeDuration = minutesToMs(1)
   const maxPercentageBidAskSpread = new BigNumber(0.1)
   const maxPercentageDeviation = new BigNumber(0.2)
-  const minExchangeCount = 1
+  const minPriceSourceCount = 1
   const minReportPriceChangeThreshold = new BigNumber(0.05)
   const privateKeyPath = mockPrivateKeyPath
   const prometheusPort = 9090
@@ -87,7 +87,7 @@ describe('OracleApplication', () => {
     aggregationWindowDuration,
     baseLogger,
     maxNoTradeDuration,
-    minExchangeCount,
+    minPriceSourceCount,
     maxSourceWeightShare,
     maxPercentageBidAskSpread,
     maxPercentageDeviation,

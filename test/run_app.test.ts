@@ -124,7 +124,7 @@ describe('run_app', () => {
           '[[{ exchange: "COINBASE", symbol: "CELOBTC", toInvert: false }], \
             [{ exchange: "BITTREX", symbol: "CELOBTC", toInvert: false }]]',
         [EnvVar.HTTP_RPC_PROVIDER_URL]: 'http://bar.foo',
-        [EnvVar.MINIMUM_EXCHANGES]: '2',
+        [EnvVar.MINIMUM_PRICE_SOURCES]: '2',
         [EnvVar.PRIVATE_KEY_PATH]: 'testPkeyPath',
         [EnvVar.REPORT_OFFSET_OVERRIDE]: '5000',
         [EnvVar.CURRENCY_PAIR]: 'CELOBTC',
@@ -161,7 +161,7 @@ describe('run_app', () => {
               ],
             },
           ],
-          minExchangeCount: 2,
+          minPriceSourceCount: 2,
         },
         httpRpcProviderUrl: 'http://bar.foo',
         privateKeyPath: 'testPkeyPath',

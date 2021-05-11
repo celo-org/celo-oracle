@@ -32,7 +32,7 @@ describe('DataAggregator', () => {
   const metricCollector = new MetricCollector(baseLogger)
 
   let currencyPair = OracleCurrencyPair.CELOUSD
-  let minExchangeCount = 1
+  let minPriceSourceCount = 1
   const minAggregatedVolume = new BigNumber(1000)
 
   let dataAggregator: DataAggregator
@@ -48,7 +48,7 @@ describe('DataAggregator', () => {
 
   function resetDefaults() {
     priceSourceConfigs = undefined
-    minExchangeCount = 1
+    minPriceSourceCount = 1
   }
 
   function setupDataAggregatorWithCurrentConfig(): void {
@@ -63,7 +63,7 @@ describe('DataAggregator', () => {
       maxPercentageBidAskSpread,
       maxPercentageDeviation,
       metricCollector,
-      minExchangeCount,
+      minPriceSourceCount,
       minAggregatedVolume,
       priceSourceConfigs,
     })

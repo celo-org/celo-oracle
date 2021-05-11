@@ -30,7 +30,7 @@ export const defaultDataAggregatorConfig: DataAggregatorConfigSubset = {
   maxPercentageBidAskSpread: new BigNumber(0.1),
   maxPercentageDeviation: new BigNumber(0.2),
   maxNoTradeDuration: secondsToMs(20), // with ETH on Coinbase it's common to see a no trade duration of 10s
-  minExchangeCount: 1,
+  minPriceSourceCount: 1,
   minAggregatedVolume: new BigNumber(0),
 }
 

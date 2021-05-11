@@ -22,8 +22,8 @@ describe('fetchParseValidateEnvVar()', () => {
     expect(fetchParseValidateEnvVar(EnvVar.AZURE_KEY_VAULT_NAME)).toBeUndefined()
   })
   it('correctly handles a defined number-type envvar', () => {
-    process.env[EnvVar.MINIMUM_EXCHANGES] = '2'
-    expect(fetchParseValidateEnvVar(EnvVar.MINIMUM_EXCHANGES)).toEqual(2)
+    process.env[EnvVar.MINIMUM_PRICE_SOURCES] = '2'
+    expect(fetchParseValidateEnvVar(EnvVar.MINIMUM_PRICE_SOURCES)).toEqual(2)
   })
   it('correctly handles a non-integer number type envvar', () => {
     process.env[EnvVar.AGGREGATION_SCALING_RATE] = '0.0123'

@@ -103,9 +103,9 @@ export interface DataAggregatorConfig {
    */
   metricCollector?: MetricCollector
   /**
-   * Minimum number of exchanges required to provide data to calculate price
+   * Minimum number of price sources required to provide data to calculate price
    */
-  minExchangeCount: number
+  minPriceSourceCount: number
   /**
    * The minimum aggregate volume across all exchanges to report
    */
