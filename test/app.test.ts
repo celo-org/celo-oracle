@@ -38,12 +38,10 @@ describe('OracleApplication', () => {
   const address = mockOracleAccount
   const aggregationMethod = AggregationMethod.MIDPRICES
   const aggregationWindowDuration = minutesToMs(6)
-  const askMaxPercentageDeviation = new BigNumber(0.2)
   const awsKeyRegion = 'eu-central-1'
   const azureKeyVaultName = mockAzureKeyVaultName
   const azureHsmInitMaxRetryBackoffMs = secondsToMs(30)
   const azureHsmInitTryCount = 5
-  const bidMaxPercentageDeviation = new BigNumber(0.2)
   const circuitBreakerPriceChangeThresholdMax = new BigNumber(0.1)
   const circuitBreakerPriceChangeThresholdMin = new BigNumber(0.1)
   const circuitBreakerPriceChangeThresholdTimeMultiplier = new BigNumber(0.0075)
@@ -52,10 +50,11 @@ describe('OracleApplication', () => {
   const httpRpcProviderUrl = 'http://test.foo'
   const metrics = true
   const maxBlockTimestampAgeMs = secondsToMs(30)
-  const maxExchangeVolumeShare = new BigNumber(0.99)
+  const maxSourceWeightShare = new BigNumber(0.99)
   const maxNoTradeDuration = minutesToMs(1)
   const maxPercentageBidAskSpread = new BigNumber(0.1)
-  const minExchangeCount = 1
+  const maxPercentageDeviation = new BigNumber(0.2)
+  const minPriceSourceCount = 1
   const minReportPriceChangeThreshold = new BigNumber(0.05)
   const privateKeyPath = mockPrivateKeyPath
   const prometheusPort = 9090
@@ -88,11 +87,10 @@ describe('OracleApplication', () => {
     aggregationWindowDuration,
     baseLogger,
     maxNoTradeDuration,
-    minExchangeCount,
-    askMaxPercentageDeviation,
-    bidMaxPercentageDeviation,
-    maxExchangeVolumeShare,
+    minPriceSourceCount,
+    maxSourceWeightShare,
     maxPercentageBidAskSpread,
+    maxPercentageDeviation,
     minAggregatedVolume,
   }
 

@@ -1,6 +1,6 @@
 import BigNumber from 'bignumber.js'
 import { EnvVar, fetchParseValidateEnvVar } from '../src/envvar_utils'
-import { AggregationMethod, Exchange } from '../src/utils'
+import { AggregationMethod } from '../src/utils'
 
 describe('fetchParseValidateEnvVar()', () => {
   const env = { ...process.env }
@@ -22,19 +22,12 @@ describe('fetchParseValidateEnvVar()', () => {
     expect(fetchParseValidateEnvVar(EnvVar.AZURE_KEY_VAULT_NAME)).toBeUndefined()
   })
   it('correctly handles a defined number-type envvar', () => {
-    process.env[EnvVar.MINIMUM_EXCHANGES] = '2'
-    expect(fetchParseValidateEnvVar(EnvVar.MINIMUM_EXCHANGES)).toEqual(2)
+    process.env[EnvVar.MINIMUM_PRICE_SOURCES] = '2'
+    expect(fetchParseValidateEnvVar(EnvVar.MINIMUM_PRICE_SOURCES)).toEqual(2)
   })
   it('correctly handles a non-integer number type envvar', () => {
     process.env[EnvVar.AGGREGATION_SCALING_RATE] = '0.0123'
     expect(fetchParseValidateEnvVar(EnvVar.AGGREGATION_SCALING_RATE)).toEqual(new BigNumber(0.0123))
-  })
-  it('handles transformation of exchange strings to values in exchange enum', () => {
-    process.env[EnvVar.EXCHANGES] = 'COINBASE,BITTREX'
-    expect(fetchParseValidateEnvVar(EnvVar.EXCHANGES)).toEqual([
-      Exchange.COINBASE,
-      Exchange.BITTREX,
-    ])
   })
   it('correctly handles a boolean', () => {
     process.env[EnvVar.METRICS] = 'true'

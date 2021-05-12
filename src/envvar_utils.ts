@@ -9,6 +9,8 @@ import {
   ReportStrategy,
   WalletType,
 } from './utils'
+import { OrientedExchangePair, ExchangePriceSourceConfig } from './exchange_price_source'
+const yaml = require('js-yaml')
 
 export class EnvVarValidationError extends Error {
   constructor(envVar: EnvVar, value: string, message: string) {
@@ -31,20 +33,19 @@ export enum EnvVar {
   CIRCUIT_BREAKER_PRICE_CHANGE_THRESHOLD_TIME_MULTIPLIER = 'CIRCUIT_BREAKER_PRICE_CHANGE_THRESHOLD_TIME_MULTIPLIER',
   CURRENCY_PAIR = 'CURRENCY_PAIR',
   DATA_FETCH_FREQUENCY = 'DATA_FETCH_FREQUENCY',
-  EXCHANGES = 'EXCHANGES',
   GAS_PRICE_MULTIPLIER = 'GAS_PRICE_MULTIPLIER',
   HTTP_RPC_PROVIDER_URL = 'HTTP_RPC_PROVIDER_URL',
   MAX_BLOCK_TIMESTAMP_AGE_MS = 'MAX_BLOCK_TIMESTAMP_AGE_MS',
   METRICS = 'METRICS',
-  MID_AGGREGATION_ASK_MAX_PERCENTAGE_DEVIATION = 'MID_AGGREGATION_ASK_MAX_PERCENTAGE_DEVIATION',
-  MID_AGGREGATION_BID_MAX_PERCENTAGE_DEVIATION = 'MID_AGGREGATION_BID_MAX_PERCENTAGE_DEVIATION',
+  MID_AGGREGATION_MAX_PERCENTAGE_DEVIATION = 'MID_AGGREGATION_MAX_PERCENTAGE_DEVIATION',
   MID_AGGREGATION_MAX_EXCHANGE_VOLUME_SHARE = 'MID_AGGREGATION_MAX_EXCHANGE_VOLUME_SHARE',
   MID_AGGREGATION_MAX_PERCENTAGE_BID_ASK_SPREAD = 'MID_AGGREGATION_MAX_PERCENTAGE_BID_ASK_SPREAD',
   MIN_REPORT_PRICE_CHANGE_THRESHOLD = 'MIN_REPORT_PRICE_CHANGE_THRESHOLD',
   MINIMUM_DATA = 'MINIMUM_DATA',
-  MINIMUM_EXCHANGES = 'MINIMUM_EXCHANGES',
+  MINIMUM_PRICE_SOURCES = 'MINIMUM_PRICE_SOURCES',
   OVERRIDE_INDEX = 'OVERRIDE_INDEX',
   OVERRIDE_ORACLE_COUNT = 'OVERRIDE_ORACLE_COUNT',
+  PRICE_SOURCES = 'PRICE_SOURCES',
   PRIVATE_KEY_PATH = 'PRIVATE_KEY_PATH',
   PROMETHEUS_PORT = 'PROMETHEUS_PORT',
   REMOVE_EXPIRED_FREQUENCY = 'REMOVE_EXPIRED_FREQUENCY',
@@ -59,6 +60,33 @@ export enum EnvVar {
   UNUSED_ORACLE_ADDRESSES = 'UNUSED_ORACLE_ADDRESSES',
   WALLET_TYPE = 'WALLET_TYPE',
   WS_RPC_PROVIDER_URL = 'WS_RPC_PROVIDER_URL',
+}
+
+interface OrientedExchangePairConfig {
+  exchange: string
+  symbol: string
+  toInvert: boolean
+}
+
+type PriceSourceConfig = OrientedExchangePairConfig[]
+
+function parseOrientedExchangePair(config: OrientedExchangePairConfig): OrientedExchangePair {
+  return {
+    exchange: Exchange[config.exchange as keyof typeof Exchange],
+    symbol: OracleCurrencyPair[config.symbol as keyof typeof OracleCurrencyPair],
+    toInvert: config.toInvert,
+  }
+}
+
+function transformPriceSourceConfig(config: PriceSourceConfig): ExchangePriceSourceConfig {
+  return {
+    pairs: config.map(parseOrientedExchangePair),
+  }
+}
+
+function parseExchangePriceSourceConfig(yamlString: string): ExchangePriceSourceConfig[] {
+  const yamlConfig: PriceSourceConfig[] = yaml.safeLoad(yamlString)
+  return yamlConfig.map(transformPriceSourceConfig)
 }
 
 type WebProtocol = 'http' | 'ws'
@@ -295,18 +323,6 @@ const envVarHandlingMap = new Map<EnvVar, EnvVarHandling>([
     },
   ],
   [
-    EnvVar.EXCHANGES,
-    {
-      parseFn: (unparsed: string): Exchange[] => {
-        const exchangeNames = unparsed.split(',').map((e) => e.trim().toUpperCase())
-        return exchangeNames.map((e) => Exchange[e as keyof typeof Exchange])
-      },
-      validationFns: [
-        (values: Exchange[]) => envVarValidations.allAreInSet(values, Object.values(Exchange)),
-      ],
-    },
-  ],
-  [
     EnvVar.GAS_PRICE_MULTIPLIER,
     {
       ...numberEnvVarHandling,
@@ -338,14 +354,7 @@ const envVarHandlingMap = new Map<EnvVar, EnvVarHandling>([
     },
   ],
   [
-    EnvVar.MID_AGGREGATION_ASK_MAX_PERCENTAGE_DEVIATION,
-    {
-      ...numberEnvVarHandling,
-      validationFns: [envVarValidations.isFinite, envVarValidations.isGreaterThanZero],
-    },
-  ],
-  [
-    EnvVar.MID_AGGREGATION_BID_MAX_PERCENTAGE_DEVIATION,
+    EnvVar.MID_AGGREGATION_MAX_PERCENTAGE_DEVIATION,
     {
       ...numberEnvVarHandling,
       validationFns: [envVarValidations.isFinite, envVarValidations.isGreaterThanZero],
@@ -384,7 +393,7 @@ const envVarHandlingMap = new Map<EnvVar, EnvVarHandling>([
     },
   ],
   [
-    EnvVar.MINIMUM_EXCHANGES,
+    EnvVar.MINIMUM_PRICE_SOURCES,
     {
       ...integerEnvVarHandling,
       validationFns: [
@@ -409,6 +418,13 @@ const envVarHandlingMap = new Map<EnvVar, EnvVarHandling>([
     {
       ...integerEnvVarHandling,
       validationFns: [envVarValidations.isInteger, envVarValidations.isGreaterThanZero],
+    },
+  ],
+  [
+    EnvVar.PRICE_SOURCES,
+    {
+      parseFn: parseExchangePriceSourceConfig,
+      validationFns: [],
     },
   ],
   [EnvVar.PRIVATE_KEY_PATH, { validationFns: [] }],

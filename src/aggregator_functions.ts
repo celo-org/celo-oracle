@@ -4,6 +4,7 @@ import { DataAggregatorConfig } from './data_aggregator'
 import { Ticker, Trade } from './exchange_adapters/base'
 import { doFnWithErrorContext } from './utils'
 import { MetricCollector } from './metric_collector'
+import { WeightedPrice } from './price_source'
 
 export function weightedMedian(trades: Trade[], needsSorting: boolean = true): BigNumber {
   if (needsSorting) {
@@ -45,11 +46,9 @@ export function exponentialWeights(weight: BigNumber, time: number, rate: BigNum
   return weight.multipliedBy(Math.exp(rate.negated().times(time).toNumber()))
 }
 
-export function weightedMeanMidPrice(tickerData: Ticker[]): BigNumber {
-  const asks = tickerData.map((ticker: Ticker) => ticker.ask)
-  const bids = tickerData.map((ticker: Ticker) => ticker.bid)
-  const baseVolumes = tickerData.map((ticker: Ticker) => ticker.baseVolume)
-  const mids = asks.map((ask, i) => ask.plus(bids[i]).div(new BigNumber(2)))
+export function weightedMeanPrice(prices: WeightedPrice[]): BigNumber {
+  const baseVolumes = prices.map((price: WeightedPrice) => price.weight)
+  const mids = prices.map((price: WeightedPrice) => price.price)
   const weightedMids = mids.map((mid, i) => mid.multipliedBy(baseVolumes[i]))
 
   const baseVolumesSum = baseVolumes.reduce(
@@ -146,27 +145,22 @@ export function checkIndividualTickerData(
 }
 
 /**
- * checks to be performed across tickers
+ * checks to be performed across prices
  */
-export function crossCheckTickerData(tickerData: Ticker[], config: DataAggregatorConfig): Ticker[] {
-  // 1. Asks should not deviate more than askMaxPercentageDeviation
-  const asks = tickerData.map((ticker: Ticker) => ticker.ask)
-  const askMaxNormalizedAbsMeanDev = maxPercentageDeviaton(asks)
+export function crossCheckPriceData(
+  tickerData: WeightedPrice[],
+  config: DataAggregatorConfig
+): WeightedPrice[] {
+  // 1. Prices should not deviate more than maxPercentageDeviation.
+  const prices = tickerData.map((price: WeightedPrice) => price.price)
+  const maxNormalizedAbsMeanDev = maxPercentageDeviaton(prices)
   assert(
-    askMaxNormalizedAbsMeanDev.isLessThanOrEqualTo(config.askMaxPercentageDeviation),
-    `Max ask price cross-sectional deviation too large (${askMaxNormalizedAbsMeanDev} >= ${config.askMaxPercentageDeviation})`
+    maxNormalizedAbsMeanDev.isLessThanOrEqualTo(config.maxPercentageDeviation),
+    `Max price cross-sectional deviation too large (${maxNormalizedAbsMeanDev} >= ${config.maxPercentageDeviation} )`
   )
 
-  // 2. Bids should not deviate more than bidMaxPercentageDeviation
-  const bids = tickerData.map((ticker: Ticker) => ticker.bid)
-  const bidsMaxNormalizedAbsMeanDev = maxPercentageDeviaton(bids)
-  assert(
-    bidsMaxNormalizedAbsMeanDev.isLessThanOrEqualTo(config.bidMaxPercentageDeviation),
-    `Max bid price cross-sectional deviation too large (${bidsMaxNormalizedAbsMeanDev} >= ${config.bidMaxPercentageDeviation} )`
-  )
-
-  // 3. No exchange should make up more than maxExchangeVolumeShare
-  const volumes = tickerData.map((ticker: Ticker) => ticker.baseVolume)
+  // 2. No source should make up more than maxSourceWeightShare
+  const volumes = tickerData.map((price: WeightedPrice) => price.weight)
   const volumesSum = volumes.reduce(
     (sum: BigNumber, el: BigNumber) => sum.plus(el),
     new BigNumber(0)
@@ -174,20 +168,13 @@ export function crossCheckTickerData(tickerData: Ticker[], config: DataAggregato
   const exchangeVolumeShares = volumes.map((el: BigNumber) => el.div(volumesSum))
   const largestExchangeVolumeShare = BigNumber.max.apply(null, exchangeVolumeShares)
   assert(
-    largestExchangeVolumeShare.isLessThanOrEqualTo(config.maxExchangeVolumeShare),
-    `The volume share of one exchange is too large (${largestExchangeVolumeShare} > ${config.maxExchangeVolumeShare})`
+    largestExchangeVolumeShare.isLessThanOrEqualTo(config.maxSourceWeightShare),
+    `The weight share of one source is too large (${largestExchangeVolumeShare} > ${config.maxSourceWeightShare})`
   )
 
-  // 4. No exchange should be represented by more than one ticker
-  const sources = tickerData.map((ticker: Ticker) => ticker.source)
-  assert(
-    new Set(sources).size === sources.length,
-    `Received multiple tickers for the same exchange`
-  )
-
-  // 5. The sum of all exchange volume should be greater than the min threshold
+  // 3. The sum of all weights should be greater than the min threshold
   const validTickerAggregateVolume: BigNumber = tickerData.reduce(
-    (sum, el) => sum.plus(el.baseVolume),
+    (sum, el) => sum.plus(el.weight),
     new BigNumber(0)
   )
   assert(

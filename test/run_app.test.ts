@@ -120,9 +120,11 @@ describe('run_app', () => {
         [EnvVar.AGGREGATION_SCALING_RATE]: '0.000123',
         [EnvVar.AZURE_KEY_VAULT_NAME]: 'testKeyVaultName',
         [EnvVar.AGGREGATION_METHOD]: 'MIDPRICES',
-        [EnvVar.EXCHANGES]: 'COINBASE,BITTREX',
+        [EnvVar.PRICE_SOURCES]:
+          '[[{ exchange: "COINBASE", symbol: "CELOBTC", toInvert: false }], \
+            [{ exchange: "BITTREX", symbol: "CELOBTC", toInvert: false }]]',
         [EnvVar.HTTP_RPC_PROVIDER_URL]: 'http://bar.foo',
-        [EnvVar.MINIMUM_EXCHANGES]: '2',
+        [EnvVar.MINIMUM_PRICE_SOURCES]: '2',
         [EnvVar.PRIVATE_KEY_PATH]: 'testPkeyPath',
         [EnvVar.REPORT_OFFSET_OVERRIDE]: '5000',
         [EnvVar.CURRENCY_PAIR]: 'CELOBTC',
@@ -139,8 +141,27 @@ describe('run_app', () => {
         dataAggregatorConfig: {
           ...defaultApplicationConfig.dataAggregatorConfig,
           aggregationMethod: AggregationMethod.MIDPRICES,
-          exchanges: [Exchange.COINBASE, Exchange.BITTREX],
-          minExchangeCount: 2,
+          priceSourceConfigs: [
+            {
+              pairs: [
+                {
+                  exchange: Exchange.COINBASE,
+                  symbol: OracleCurrencyPair.CELOBTC,
+                  toInvert: false,
+                },
+              ],
+            },
+            {
+              pairs: [
+                {
+                  exchange: Exchange.BITTREX,
+                  symbol: OracleCurrencyPair.CELOBTC,
+                  toInvert: false,
+                },
+              ],
+            },
+          ],
+          minPriceSourceCount: 2,
         },
         httpRpcProviderUrl: 'http://bar.foo',
         privateKeyPath: 'testPkeyPath',
