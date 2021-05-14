@@ -1,3 +1,4 @@
+import { strict as assert } from 'assert'
 import { ensureLeading0x, isValidAddress } from '@celo/utils/lib/address'
 import BigNumber from 'bignumber.js'
 import Web3 from 'web3'
@@ -70,7 +71,15 @@ interface OrientedExchangePairConfig {
 
 type PriceSourceConfig = OrientedExchangePairConfig[]
 
+function assertPropertyType<T, K extends keyof T>(object: T, property: K, type: string) {
+  const value = object[property]
+  assert(typeof value === type, `${property} is ${value} and not of type ${type}`)
+}
+
 function parseOrientedExchangePair(config: OrientedExchangePairConfig): OrientedExchangePair {
+  assertPropertyType(config, 'exchange', 'string')
+  assertPropertyType(config, 'symbol', 'string')
+  assertPropertyType(config, 'toInvert', 'boolean')
   return {
     exchange: Exchange[config.exchange as keyof typeof Exchange],
     symbol: OracleCurrencyPair[config.symbol as keyof typeof OracleCurrencyPair],
