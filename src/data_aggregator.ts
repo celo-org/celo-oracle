@@ -187,7 +187,7 @@ export class DataAggregator {
         const source = this.priceSources[i]
         this.logger.warn(
           {
-            source,
+            source: source.name(),
             err: allPrices[i].value,
           },
           'Fetching price failed'
