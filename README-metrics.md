@@ -109,6 +109,25 @@ Example labels:
 {token="StableToken"}
 ```
 
+### `oracle_price_source`
+
+This is a gauge that shows price and weight for a configured PriceSource.
+
+Labels:
+```
+['pair', 'source', 'property']
+```
+
+Example labels:
+```
+{pair="CELOEUR",source="COINBASE:CGLD-EUR:false",property="price"}
+```
+
+Valid property values:
+```
+price, weight
+```
+
 ### `oracle_report_count`
 
 This is a counter that counts the number of reports by trigger.
