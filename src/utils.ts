@@ -27,6 +27,7 @@ export enum Exchange {
   BITTREX = 'BITTREX',
   COINBASE = 'COINBASE',
   OKCOIN = 'OKCOIN',
+  BITSO = 'BITSO',
 }
 
 export enum ExternalCurrency {
@@ -45,6 +46,7 @@ export enum OracleCurrencyPair {
   BTCEUR = 'BTCEUR',
   CELOUSDT = 'CELOUSDT',
   EURUSDT = 'EURUSDT',
+  BTCUSD = 'BTCUSD',
 }
 
 export const CoreCurrencyPair: OracleCurrencyPair[] = [
@@ -62,6 +64,7 @@ export const CurrencyPairBaseQuote: Record<
   [OracleCurrencyPair.BTCEUR]: { base: ExternalCurrency.BTC, quote: ExternalCurrency.EUR },
   [OracleCurrencyPair.CELOUSDT]: { base: CeloContract.GoldToken, quote: ExternalCurrency.USDT },
   [OracleCurrencyPair.EURUSDT]: { base: ExternalCurrency.EUR, quote: ExternalCurrency.USDT },
+  [OracleCurrencyPair.BTCUSD]: { base: ExternalCurrency.BTC, quote: ExternalCurrency.USD },
 }
 
 export enum AggregationMethod {
@@ -98,6 +101,8 @@ export async function reportTargetForCurrencyPair(
   } else if (pair === OracleCurrencyPair.CELOEUR) {
     // XXX: Workaround until StableTokenEUR makes it fully to ContractKit
     return kit.registry.addressFor('StableTokenEUR' as CeloContract)
+    // TODO: If a new stable coin eg. cMXN is added we would need to register it
+    // in a following elif statement.
   } else {
     throw new Error(`${pair} can not be converted to a ReportTarget`)
   }
@@ -316,13 +321,13 @@ export enum PromiseStatus {
 
 export type SettledPromise =
   | {
-      status: PromiseStatus.RESOLVED
-      value: any
-    }
+    status: PromiseStatus.RESOLVED
+    value: any
+  }
   | {
-      status: PromiseStatus.REJECTED
-      value: Error
-    }
+    status: PromiseStatus.REJECTED
+    value: Error
+  }
 
 /**
  * Waits for all promises to complete, whether resolved or rejected.
