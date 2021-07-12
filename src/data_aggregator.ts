@@ -9,14 +9,14 @@ import { BitsoAdapter } from './exchange_adapters/bitso'
 import { BittrexAdapter } from './exchange_adapters/bittrex'
 import { CoinbaseAdapter } from './exchange_adapters/coinbase'
 import { OKCoinAdapter } from './exchange_adapters/okcoin'
-import {
-  ExchangePriceSource, ExchangePriceSourceConfig,
-
-  OrientedAdapter,
-  OrientedExchangePair
-} from './exchange_price_source'
 import { MetricCollector } from './metric_collector'
 import { PriceSource, WeightedPrice } from './price_source'
+import {
+  ExchangePriceSourceConfig,
+  ExchangePriceSource,
+  OrientedAdapter,
+  OrientedExchangePair,
+} from './exchange_price_source'
 import {
   AggregationMethod,
   allSettled,
@@ -24,7 +24,7 @@ import {
   Exchange,
   OracleCurrencyPair,
   PromiseStatus,
-  SettledPromise
+  SettledPromise,
 } from './utils'
 
 function adapterFromExchangeName(name: Exchange, config: ExchangeAdapterConfig): ExchangeAdapter {

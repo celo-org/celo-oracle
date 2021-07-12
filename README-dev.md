@@ -74,7 +74,9 @@ We'll need to add this account address in two places, once in the `migration-ove
 
 This step requires you to have the helper tool `celotooljs` installed on your path, if you didn't do that while setting up the monorepo add this to your `.bashrc`/`.zshrc`/`.XXXrc` file `alias celotooljs=<YOUR_PATH_TO_MONOREPO>/packages/celotool/bin/celotooljs.sh`.
 
-Run the following command in a new terminal window or tab to start up a blockchain node:
+1. Make sure you have [built](https://github.com/celo-org/celo-blockchain/blob/master/README.md#building-the-source) the `geth` package on the blockchain repo.
+   
+2. Run the following command in a new terminal window or tab to start up a blockchain node:
 
 ```shell
 ➜ ~/celo/celo-oracle celotooljs geth start --data-dir /tmp/chain-data --geth-dir ~/celo/celo-blockchain --verbose --migrate --purge --monorepo-dir ~/celo/celo-monorepo --mining --verbosity 1 --migration-overrides ~/celo/celo-monorepo/packages/dev-utils/src/migration-override.json --migrateTo 24 --initial-accounts ~/celo/celo-monorepo/initial-accounts.json

@@ -17,21 +17,21 @@
     "source.organizeImports": false
   },
   "[javascript]": {
-    "editor.formatOnSave": true,
+    "editor.formatOnSave": false,
     "editor.codeActionsOnSave": {
       "source.organizeImports": false
     }
   },
   "[javascriptreact]": {
-    "editor.formatOnSave": true,
+    "editor.formatOnSave": false,
     "editor.codeActionsOnSave": {
       "source.organizeImports": true
     }
   },
   "[typescript]": {
-    "editor.formatOnSave": true,
+    "editor.formatOnSave": false,
     "editor.codeActionsOnSave": {
-      "source.organizeImports": true
+      "source.organizeImports": false
     }
   },
   "javascript.format.enable": false,
