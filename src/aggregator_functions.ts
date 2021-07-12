@@ -39,13 +39,6 @@ export function weightedMedian(trades: Trade[], needsSorting: boolean = true): B
   return trades[indexAbove - 1].price
 }
 
-/**
- * exponentialWeights is mixing BigNumber and Math/Number operations. BigNumber does not support fractional powers.
- */
-export function exponentialWeights(weight: BigNumber, time: number, rate: BigNumber): BigNumber {
-  return weight.multipliedBy(Math.exp(rate.negated().times(time).toNumber()))
-}
-
 export function weightedMeanPrice(prices: WeightedPrice[]): BigNumber {
   const baseVolumes = prices.map((price: WeightedPrice) => price.weight)
   const mids = prices.map((price: WeightedPrice) => price.price)
