@@ -1,15 +1,14 @@
-import BigNumber from 'bignumber.js'
-import { baseLogger } from '../src/default_config'
 import { ExchangeAdapter, Ticker, Trade } from '../src/exchange_adapters/base'
+import BigNumber from 'bignumber.js'
+import { Exchange } from '../src/utils'
 import {
   ExchangePriceSource,
-
-
-  impliedPair, OrientedAdapter,
-  PairData
+  OrientedAdapter,
+  PairData,
+  impliedPair,
 } from '../src/exchange_price_source'
+import { baseLogger } from '../src/default_config'
 import { MetricCollector } from '../src/metric_collector'
-import { Exchange } from '../src/utils'
 
 jest.mock('../src/metric_collector')
 
