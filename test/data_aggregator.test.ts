@@ -6,17 +6,17 @@ import { baseLogger } from '../src/default_config'
 import { BittrexAdapter } from '../src/exchange_adapters/bittrex'
 import { CoinbaseAdapter } from '../src/exchange_adapters/coinbase'
 import { OKCoinAdapter } from '../src/exchange_adapters/okcoin'
-import { ExchangePriceSourceConfig } from '../src/exchange_price_source'
 import { MetricCollector } from '../src/metric_collector'
-import { WeightedPrice } from '../src/price_source'
 import {
   AggregationMethod,
   Exchange,
   ExternalCurrency,
   minutesToMs,
   OracleCurrencyPair,
-  secondsToMs
+  secondsToMs,
 } from '../src/utils'
+import { WeightedPrice } from '../src/price_source'
+import { ExchangePriceSourceConfig } from '../src/exchange_price_source'
 
 jest.mock('../src/metric_collector')
 
