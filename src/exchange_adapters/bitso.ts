@@ -23,7 +23,7 @@ export class BitsoAdapter extends BaseExchangeAdapter implements ExchangeAdapter
       ExchangeDataType.TICKER,
       `ticker?book=${this.pairSymbol}`
     )
-    return this.parseTicker(tickerJson)
+    return this.parseTicker(tickerJson.payload)
   }
 
   async fetchTrades(): Promise<Trade[]> {
@@ -31,8 +31,7 @@ export class BitsoAdapter extends BaseExchangeAdapter implements ExchangeAdapter
       ExchangeDataType.TRADE,
       `trades?book=${this.pairSymbol}`
     )
-    // sort order from API is chronological
-    return this.parseTrades(tradesJson)
+    return this.parseTrades(tradesJson.payload).sort((a, b) => a.timestamp - b.timestamp)
   }
 
   /**
@@ -53,25 +52,21 @@ export class BitsoAdapter extends BaseExchangeAdapter implements ExchangeAdapter
    * }
    */
   parseTicker(json: any): Ticker {
-    const lastPrice = this.safeBigNumberParse(json.payload.last)!
-    const vwap = this.safeBigNumberParse(json.payload.vwap)!
-    const baseVolume = this.safeBigNumberParse(json.payload.volume)!
-    // TODO: We want to use the right conversion to the quoteVolume,
-    // as the coinbase adapter states. Bitso provides the vwap to do so, but further
-    // assistance is needed to get the right conversion here.
-    // I'm leaving this to multiply the vwap times the base volume.
-    const quoteVolume = vwap?.multipliedBy(baseVolume).decimalPlaces(8)
+    const lastPrice = this.safeBigNumberParse(json.last)!
+    const baseVolume = this.safeBigNumberParse(json.volume)!
+    // Quote volume is equivalent to the vwap
+    const quoteVolume = this.safeBigNumberParse(json.vwap)!
     const ticker = {
       ...this.priceObjectMetadata,
-      ask: this.safeBigNumberParse(json.payload.ask)!,
+      ask: this.safeBigNumberParse(json.ask)!,
       baseVolume,
-      bid: this.safeBigNumberParse(json.payload.bid)!,
-      high: this.safeBigNumberParse(json.payload.high),
+      bid: this.safeBigNumberParse(json.bid)!,
+      high: this.safeBigNumberParse(json.high),
       lastPrice,
-      low: this.safeBigNumberParse(json.payload.low),
+      low: this.safeBigNumberParse(json.low),
       open: lastPrice,
       quoteVolume,
-      timestamp: this.safeDateParse(json.payload.created_at)!,
+      timestamp: this.safeDateParse(json.created_at)!,
     }
     this.verifyTicker(ticker)
     return ticker
@@ -93,7 +88,7 @@ export class BitsoAdapter extends BaseExchangeAdapter implements ExchangeAdapter
    * ]
    */
   parseTrades(json: any): Trade[] {
-    return json.payload.map((trade: any) => {
+    return json.map((trade: any) => {
       const price = this.safeBigNumberParse(trade.price)
       const amount = this.safeBigNumberParse(trade.amount)
       const normalizedTrade = {

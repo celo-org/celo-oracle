@@ -36,7 +36,7 @@ describe('BitsoAdapter', () => {
     }
 
     it('handles a response that matches the documentation', () => {
-      expect(bitsoAdapter.parseTicker(tickerJson)).toEqual({
+      expect(bitsoAdapter.parseTicker(tickerJson.payload)).toEqual({
         source: Exchange.BITSO,
         symbol: bitsoAdapter.standardPairSymbol,
         ask: new BigNumber(658600.01),
@@ -46,7 +46,7 @@ describe('BitsoAdapter', () => {
         lastPrice: new BigNumber(658600.01),
         low: new BigNumber(658000.00),
         open: new BigNumber(658600.01),
-        quoteVolume: new BigNumber(126334163.91442202),
+        quoteVolume: new BigNumber(669760.9564740908),
         timestamp: 1625205325000,
       })
     })
@@ -56,17 +56,16 @@ describe('BitsoAdapter', () => {
     for (const field of Object.keys(tickerJson.payload)) {
       // @ts-ignore
       const { [field]: _removed, ...incompleteTickerJson } = tickerJson.payload
-      const wrappedPayload = { payload: incompleteTickerJson }
       if (requiredFields.includes(field)) {
         it(`throws an error if ${field} is missing`, () => {
           expect(() => {
-            bitsoAdapter.parseTicker(wrappedPayload)
+            bitsoAdapter.parseTicker(incompleteTickerJson)
           }).toThrowError()
         })
       } else {
         it(`parses a ticker if ${field} is missing`, () => {
           expect(() => {
-            bitsoAdapter.parseTicker(wrappedPayload)
+            bitsoAdapter.parseTicker(incompleteTickerJson)
           }).not.toThrowError()
         })
       }
