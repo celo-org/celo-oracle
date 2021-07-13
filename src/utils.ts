@@ -101,8 +101,6 @@ export async function reportTargetForCurrencyPair(
   } else if (pair === OracleCurrencyPair.CELOEUR) {
     // XXX: Workaround until StableTokenEUR makes it fully to ContractKit
     return kit.registry.addressFor('StableTokenEUR' as CeloContract)
-    // TODO: If a new stable coin eg. cMXN is added we would need to register it
-    // in a following elif statement.
   } else {
     throw new Error(`${pair} can not be converted to a ReportTarget`)
   }
@@ -321,14 +319,14 @@ export enum PromiseStatus {
 
 export type SettledPromise =
   | {
-    status: PromiseStatus.RESOLVED
-    value: any
-  }
+      status: PromiseStatus.RESOLVED
+      value: any
+    }
   | {
-    status: PromiseStatus.REJECTED
-    value: Error
-  }
-
+      status: PromiseStatus.REJECTED
+      value: Error
+    }
+    
 /**
  * Waits for all promises to complete, whether resolved or rejected.
  * Doesn't throw.
