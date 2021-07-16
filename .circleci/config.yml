@@ -55,8 +55,8 @@ jobs:
             set -euo pipefail
             cd ~/app
             set -v
-            # To get the "master" branch mapping
-            git checkout master
+            # To get the "main" branch mapping
+            git checkout main
             git checkout ${CIRCLE_BRANCH}
             # Verify that following commands work, they are later called in the incremental testing script
             # There output does not matter here, the fact that they finish successfully does.
