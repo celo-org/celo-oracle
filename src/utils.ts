@@ -325,8 +325,7 @@ export type SettledPromise =
   | {
       status: PromiseStatus.REJECTED
       value: Error
-    }
-    
+    }    
 /**
  * Waits for all promises to complete, whether resolved or rejected.
  * Doesn't throw.
