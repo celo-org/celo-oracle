@@ -41,7 +41,6 @@ export enum EnvVar {
   MID_AGGREGATION_MAX_EXCHANGE_VOLUME_SHARE = 'MID_AGGREGATION_MAX_EXCHANGE_VOLUME_SHARE',
   MID_AGGREGATION_MAX_PERCENTAGE_BID_ASK_SPREAD = 'MID_AGGREGATION_MAX_PERCENTAGE_BID_ASK_SPREAD',
   MIN_REPORT_PRICE_CHANGE_THRESHOLD = 'MIN_REPORT_PRICE_CHANGE_THRESHOLD',
-  MINIMUM_DATA = 'MINIMUM_DATA',
   MINIMUM_PRICE_SOURCES = 'MINIMUM_PRICE_SOURCES',
   OVERRIDE_INDEX = 'OVERRIDE_INDEX',
   OVERRIDE_ORACLE_COUNT = 'OVERRIDE_ORACLE_COUNT',
@@ -380,13 +379,6 @@ const envVarHandlingMap = new Map<EnvVar, EnvVarHandling>([
     {
       ...numberEnvVarHandling,
       validationFns: [envVarValidations.isFinite, envVarValidations.isGreaterThanZero],
-    },
-  ],
-  [
-    EnvVar.MINIMUM_DATA,
-    {
-      ...integerEnvVarHandling,
-      validationFns: [envVarValidations.isInteger, envVarValidations.isGreaterThanZero],
     },
   ],
   [
