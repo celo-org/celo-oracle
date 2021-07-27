@@ -1,43 +1,10 @@
 import BigNumber from 'bignumber.js'
 import Logger from 'bunyan'
 import { DataAggregatorConfig } from './data_aggregator'
-import { Ticker, Trade } from './exchange_adapters/base'
+import { Ticker } from './exchange_adapters/base'
 import { doFnWithErrorContext } from './utils'
 import { MetricCollector } from './metric_collector'
 import { WeightedPrice } from './price_source'
-
-export function weightedMedian(trades: Trade[], needsSorting: boolean = true): BigNumber {
-  if (needsSorting) {
-    trades.sort((a: Trade, b: Trade) => a.price.comparedTo(b.price))
-  }
-
-  const weights = trades.map((trade: Trade) => trade.amount)
-  for (const weight of weights) {
-    if (weight.isLessThan(0)) {
-      throw Error(`Weight cannot be negative: ${weight}`)
-    }
-  }
-  const weightsSum = weights.reduce(
-    (sum: BigNumber, weight: BigNumber) => sum.plus(weight),
-    new BigNumber(0)
-  )
-  if (weightsSum.isZero() || !weightsSum.isFinite()) {
-    throw Error(`Invalid weight sum value ${weightsSum}`)
-  }
-  const halfWeight = weightsSum.multipliedBy(0.5)
-
-  let indexAbove = 0
-  let cumulativeWeight = new BigNumber(0)
-
-  for (; cumulativeWeight.isLessThan(halfWeight); ++indexAbove) {
-    cumulativeWeight = cumulativeWeight.plus(weights[indexAbove])
-  }
-
-  if (cumulativeWeight.isEqualTo(halfWeight) && indexAbove < trades.length) {
-    return trades[indexAbove - 1].price.plus(trades[indexAbove].price).multipliedBy(0.5)
-  }
-  return trades[indexAbove - 1].price
-}
 
 export function weightedMeanPrice(prices: WeightedPrice[]): BigNumber {
   const baseVolumes = prices.map((price: WeightedPrice) => price.weight)
