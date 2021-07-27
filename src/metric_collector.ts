@@ -1,10 +1,9 @@
 import { BigNumber } from 'bignumber.js'
 import Logger from 'bunyan'
 import express, { Response } from 'express'
-import { max, mean, median, min, std } from 'mathjs'
 import { collectDefaultMetrics, Counter, Gauge, Histogram, register } from 'prom-client'
 import { Transaction, TransactionReceipt } from 'web3-core'
-import { Ticker, Trade } from './exchange_adapters/base'
+import { Ticker } from './exchange_adapters/base'
 import { Exchange, msToSeconds, RequiredKeysOfType } from './utils'
 import { WeightedPrice } from './price_source'
 
@@ -67,10 +66,6 @@ export class MetricCollector {
   private tickerPropertyGauge: Gauge<string>
   private priceSourceGauge: Gauge<string>
 
-  private tradesCountGauge: Gauge<string>
-  private tradesPriceStatsGauge: Gauge<string>
-  private tradesTimestampStatsGauge: Gauge<string>
-  private tradesVolumeTotalGauge: Gauge<string>
   private transactionBlockNumberGauge: Gauge<string>
   private transactionGasGauge: Gauge<string>
   private transactionGasPriceGauge: Gauge<string>
@@ -153,31 +148,6 @@ export class MetricCollector {
       name: 'oracle_price_source',
       help: 'Gauge indicating values from different price sources',
       labelNames: ['pair', 'source', 'property'],
-    })
-
-    this.tradesCountGauge = new Gauge({
-      name: 'oracle_trades_count',
-      help: 'Gauge indicating the number of in-memory trades for a pair from an exchange',
-      labelNames: ['exchange', 'pair'],
-    })
-
-    this.tradesPriceStatsGauge = new Gauge({
-      name: 'oracle_trades_price_stats',
-      help: 'Gauge of various stats across all in-memory trades for a pair from an exchange',
-      labelNames: ['exchange', 'pair', 'stat'],
-    })
-
-    this.tradesTimestampStatsGauge = new Gauge({
-      name: 'oracle_trades_timestamp',
-      help:
-        'Gauge of various stats on the timestamps across all in-memory trades for a pair from an exchange',
-      labelNames: ['exchange', 'pair', 'stat'],
-    })
-
-    this.tradesVolumeTotalGauge = new Gauge({
-      name: 'oracle_trades_volume_total',
-      help: 'Gauge of the sum of volumes across all in-memory trades for a pair from an exchange',
-      labelNames: ['exchange', 'pair'],
     })
 
     this.transactionBlockNumberGauge = new Gauge({
@@ -318,25 +288,6 @@ export class MetricCollector {
   timeBetweenReports(currencyPair: string, value: number) {
     this.reportTimeSinceLastReportGauge.set({ currencyPair }, value)
   }
-  /*
-   * Gives some information on the prices and timestamps of in-memory trades from
-   * an exchange for a pair.
-   */
-  trades(exchange: string, pair: string, trades: Trade[]) {
-    this.tradesCountGauge.set({ exchange, pair }, trades.length)
-
-    const prices: number[] = trades.map((trade: Trade) => trade.price.toNumber())
-    this.tradesPriceStats(exchange, pair, prices)
-
-    const volumeTotal = trades.reduce(
-      (sum: BigNumber, current: Trade) => sum.plus(current.amount),
-      new BigNumber(0)
-    )
-    this.tradesVolumeTotalGauge.set({ exchange, pair }, volumeTotal.toNumber())
-
-    const timestamps: number[] = trades.map((trade: Trade) => trade.timestamp)
-    this.tradeTimestampStats(exchange, pair, timestamps)
-  }
 
   /**
    * Records some metrics on some properties given a ticker
@@ -381,35 +332,6 @@ export class MetricCollector {
 
   websocketProviderSetup() {
     this.websocketProviderSetupCounter.inc()
-  }
-
-  /*
-   * Sets basic statistics on the prices of in-memory trades for an exchange and pair
-   */
-  private tradesPriceStats(exchange: string, pair: string, prices: number[]) {
-    const stats: { [key: string]: number } = {
-      max: max(prices),
-      mean: mean(prices),
-      median: median(prices),
-      min: min(prices),
-      std: std(prices),
-    }
-    for (const stat of Object.keys(stats)) {
-      this.tradesPriceStatsGauge.set({ exchange, pair, stat }, stats[stat])
-    }
-  }
-
-  /*
-   * Sets basic information on the trade timestamps for an exchange and pair
-   */
-  private tradeTimestampStats(exchange: string, pair: string, timestamps: number[]) {
-    const stats: { [key: string]: number } = {
-      max: max(timestamps),
-      min: min(timestamps),
-    }
-    for (const stat of Object.keys(stats)) {
-      this.tradesTimestampStatsGauge.set({ exchange, pair, stat }, stats[stat])
-    }
   }
 
   /**
