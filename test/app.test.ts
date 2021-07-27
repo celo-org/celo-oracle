@@ -51,7 +51,6 @@ describe('OracleApplication', () => {
   const metrics = true
   const maxBlockTimestampAgeMs = secondsToMs(30)
   const maxSourceWeightShare = new BigNumber(0.99)
-  const maxNoTradeDuration = minutesToMs(1)
   const maxPercentageBidAskSpread = new BigNumber(0.1)
   const maxPercentageDeviation = new BigNumber(0.2)
   const minPriceSourceCount = 1
@@ -86,7 +85,6 @@ describe('OracleApplication', () => {
     aggregationMethod,
     aggregationWindowDuration,
     baseLogger,
-    maxNoTradeDuration,
     minPriceSourceCount,
     maxSourceWeightShare,
     maxPercentageBidAskSpread,

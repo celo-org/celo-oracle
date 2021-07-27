@@ -29,7 +29,6 @@ jest.mock('../src/exchange_adapters/bitso')
 describe('DataAggregator', () => {
   const aggregationWindowDuration = minutesToMs(6)
   const apiRequestTimeout = secondsToMs(5)
-  const maxNoTradeDuration = secondsToMs(10)
   const metricCollector = new MetricCollector(baseLogger)
 
   let currencyPair = OracleCurrencyPair.CELOUSD
@@ -60,7 +59,6 @@ describe('DataAggregator', () => {
       baseLogger,
       currencyPair,
       maxSourceWeightShare,
-      maxNoTradeDuration,
       maxPercentageBidAskSpread,
       maxPercentageDeviation,
       metricCollector,
