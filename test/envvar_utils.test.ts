@@ -26,8 +26,10 @@ describe('fetchParseValidateEnvVar()', () => {
     expect(fetchParseValidateEnvVar(EnvVar.MINIMUM_PRICE_SOURCES)).toEqual(2)
   })
   it('correctly handles a non-integer number type envvar', () => {
-    process.env[EnvVar.AGGREGATION_SCALING_RATE] = '0.0123'
-    expect(fetchParseValidateEnvVar(EnvVar.AGGREGATION_SCALING_RATE)).toEqual(new BigNumber(0.0123))
+    process.env[EnvVar.MIN_REPORT_PRICE_CHANGE_THRESHOLD] = '0.0123'
+    expect(fetchParseValidateEnvVar(EnvVar.MIN_REPORT_PRICE_CHANGE_THRESHOLD)).toEqual(
+      new BigNumber(0.0123)
+    )
   })
   it('correctly handles a boolean', () => {
     process.env[EnvVar.METRICS] = 'true'

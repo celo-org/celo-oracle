@@ -23,7 +23,6 @@ export enum EnvVar {
   ADDRESS = 'ADDRESS',
   AGGREGATION_METHOD = 'AGGREGATION_METHOD',
   AGGREGATION_PERIOD = 'AGGREGATION_PERIOD',
-  AGGREGATION_SCALING_RATE = 'AGGREGATION_SCALING_RATE',
   API_REQUEST_TIMEOUT = 'API_REQUEST_TIMEOUT',
   AWS_KEY_REGION = 'AWS_KEY_REGION',
   AZURE_HSM_INIT_MAX_RETRY_BACKOFF_MS = 'AZURE_HSM_INIT_MAX_RETRY_BACKOFF_MS',
@@ -217,17 +216,6 @@ const envVarHandlingMap = new Map<EnvVar, EnvVarHandling>([
       validationFns: [
         envVarValidations.isInteger,
         (value: BigNumber) => envVarValidations.isGreaterThan(value, 0, true),
-      ],
-    },
-  ],
-  [
-    EnvVar.AGGREGATION_SCALING_RATE,
-    {
-      ...numberEnvVarHandling,
-      validationFns: [
-        envVarValidations.isFinite,
-        (value: BigNumber) => envVarValidations.isGreaterThan(value, 0, true),
-        (value: BigNumber) => envVarValidations.isLessThan(value, 1, false),
       ],
     },
   ],
