@@ -16,12 +16,18 @@ defaults: &defaults
 commands:
   yarn_install:
     steps:
+      - restore_cache:
+          name: Restoring yarn cache
+          keys:
+            - yarn-packages-{{ checksum "yarn.lock" }}
       - run:
           name: Install dependencies
           command: |
             # Deals with yarn install flakiness which can come due to yarnpkg.com being
             # unreliable. For example, https://circleci.com/gh/celo-org/celo-monorepo/82685
-            yarn install || yarn install
+            # --cache-folder sets yarn's cache to the a folder being stored/loaded
+            # on CircleCI's cache.
+            yarn install --cache-folder ~/.cache/yarn || yarn install --cache-folder ~/.cache/yarn
       - run:
           name: Fail if someone forgot to commit "yarn.lock"
           command: |
@@ -30,6 +36,11 @@ commands:
               echo "There are git differences after running yarn install"
               exit 1
             fi
+      - save_cache:
+          name: Saving yarn cache
+          key: yarn-packages-{{ checksum "yarn.lock" }}
+          paths:
+            - ~/.cache/yarn
 jobs:
   install_dependencies:
     <<: *defaults
