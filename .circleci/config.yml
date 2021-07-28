@@ -22,17 +22,12 @@ commands:
             - yarn-packages-{{ checksum "yarn.lock" }}
       - run:
           name: Install dependencies
-          command: |
-            # Deals with yarn install flakiness which can come due to yarnpkg.com being
-            # unreliable. For example, https://circleci.com/gh/celo-org/celo-monorepo/82685
-            # --cache-folder sets yarn's cache to the a folder being stored/loaded
-            # on CircleCI's cache.
-            # --frozen-lockfile instructs yarn not to generate a lockfile, and to
-            # return an error if the lockfile present does not match the
-            # dependencies.
-            yarn install --frozen-lockfile --cache-folder ~/.cache/yarn || yarn install --frozen-lockfile --cache-folder ~/.cache/yarn
+          # --cache-folder sets yarn's cache to the a folder being stored/loaded
+          # on CircleCI's cache.
+          # --frozen-lockfile instructs yarn not to generate a lockfile, and to
           # return an error if the lockfile present does not match the
           # dependencies.
+          command: yarn install --frozen-lockfile --cache-folder ~/.cache/yarn
       - save_cache:
           name: Saving yarn cache
           key: yarn-packages-{{ checksum "yarn.lock" }}
