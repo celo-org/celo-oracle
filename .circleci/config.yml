@@ -27,15 +27,12 @@ commands:
             # unreliable. For example, https://circleci.com/gh/celo-org/celo-monorepo/82685
             # --cache-folder sets yarn's cache to the a folder being stored/loaded
             # on CircleCI's cache.
-            yarn install --cache-folder ~/.cache/yarn || yarn install --cache-folder ~/.cache/yarn
-      - run:
-          name: Fail if someone forgot to commit "yarn.lock"
-          command: |
-            if [[ $(git status --porcelain) ]]; then
-              git --no-pager diff
-              echo "There are git differences after running yarn install"
-              exit 1
-            fi
+            # --frozen-lockfile instructs yarn not to generate a lockfile, and to
+            # return an error if the lockfile present does not match the
+            # dependencies.
+            yarn install --frozen-lockfile --cache-folder ~/.cache/yarn || yarn install --frozen-lockfile --cache-folder ~/.cache/yarn
+          # return an error if the lockfile present does not match the
+          # dependencies.
       - save_cache:
           name: Saving yarn cache
           key: yarn-packages-{{ checksum "yarn.lock" }}
