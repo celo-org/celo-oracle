@@ -108,7 +108,7 @@ jobs:
           name: jest tests
           command: |
             mkdir -p test-results/jest
-            yarn run test
+            yarn run test --maxWorkers 2
       - store_test_results:
           path: test-results
 
