@@ -40,6 +40,7 @@ jobs:
     resource_class: medium+
     steps:
       - restore_cache:
+          name: Loading git cache
           keys:
             - source-v1-{{ .Branch }}-{{ .Revision }}
             - source-v1-{{ .Branch }}-
@@ -48,6 +49,7 @@ jobs:
       - checkout
 
       - save_cache:
+          name: Saving git cache
           key: source-v1-{{ .Branch }}-{{ .Revision }}
           paths:
             - '.git'
