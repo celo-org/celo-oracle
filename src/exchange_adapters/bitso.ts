@@ -11,11 +11,9 @@ export class BitsoAdapter extends BaseExchangeAdapter implements ExchangeAdapter
   private static readonly tokenSymbolMap = BitsoAdapter.standardTokenSymbolMap
 
   protected generatePairSymbol(): string {
-    return `${BitsoAdapter.tokenSymbolMap.get(
-      this.config.baseCurrency
-    )?.toLowerCase()}_${BitsoAdapter.tokenSymbolMap.get(
-      this.config.quoteCurrency
-    )?.toLowerCase()}`
+    return `${BitsoAdapter.tokenSymbolMap
+      .get(this.config.baseCurrency)
+      ?.toLowerCase()}_${BitsoAdapter.tokenSymbolMap.get(this.config.quoteCurrency)?.toLowerCase()}`
   }
 
   async fetchTicker(): Promise<Ticker> {
@@ -37,7 +35,7 @@ export class BitsoAdapter extends BaseExchangeAdapter implements ExchangeAdapter
   /**
    *
    * @param json parsed response from Bitso's ticker endpoint
-   * 
+   *
    * {
    *    "high": "689735.63",
    *    "last": "658600.01",

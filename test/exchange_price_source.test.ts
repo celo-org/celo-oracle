@@ -69,7 +69,7 @@ describe('impliedPair()', () => {
     bid: new BigNumber(0.00009877),
     ask: new BigNumber(0.00009896),
     baseVolume: new BigNumber(626670.7),
-    quoteVolume: new BigNumber(62.54928930),
+    quoteVolume: new BigNumber(62.5492893),
   }
 
   const testBTCUSD: PairData = {
