@@ -24,6 +24,7 @@ jest.mock('../src/exchange_adapters/binance')
 jest.mock('../src/exchange_adapters/bittrex')
 jest.mock('../src/exchange_adapters/coinbase')
 jest.mock('../src/exchange_adapters/okcoin')
+jest.mock('../src/exchange_adapters/bitso')
 
 describe('DataAggregator', () => {
   const aggregationWindowDuration = minutesToMs(6)
@@ -274,6 +275,15 @@ describe('DataAggregator', () => {
           pairs: [
             {
               exchange: Exchange.BINANCE,
+              symbol: OracleCurrencyPair.CELOUSD,
+              toInvert: false,
+            },
+          ],
+        },
+        {
+          pairs: [
+            {
+              exchange: Exchange.BITSO,
               symbol: OracleCurrencyPair.CELOUSD,
               toInvert: false,
             },

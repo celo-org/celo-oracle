@@ -27,6 +27,7 @@ export enum Exchange {
   BITTREX = 'BITTREX',
   COINBASE = 'COINBASE',
   OKCOIN = 'OKCOIN',
+  BITSO = 'BITSO',
 }
 
 export enum ExternalCurrency {
@@ -45,6 +46,7 @@ export enum OracleCurrencyPair {
   BTCEUR = 'BTCEUR',
   CELOUSDT = 'CELOUSDT',
   EURUSDT = 'EURUSDT',
+  BTCUSD = 'BTCUSD',
 }
 
 export const CoreCurrencyPair: OracleCurrencyPair[] = [
@@ -62,6 +64,7 @@ export const CurrencyPairBaseQuote: Record<
   [OracleCurrencyPair.BTCEUR]: { base: ExternalCurrency.BTC, quote: ExternalCurrency.EUR },
   [OracleCurrencyPair.CELOUSDT]: { base: CeloContract.GoldToken, quote: ExternalCurrency.USDT },
   [OracleCurrencyPair.EURUSDT]: { base: ExternalCurrency.EUR, quote: ExternalCurrency.USDT },
+  [OracleCurrencyPair.BTCUSD]: { base: ExternalCurrency.BTC, quote: ExternalCurrency.USD },
 }
 
 export enum AggregationMethod {
