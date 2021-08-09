@@ -117,7 +117,6 @@ describe('run_app', () => {
     it('overrides with env vars according to applicationConfigEnvVars', () => {
       const envVarValues: { [key: string]: any } = {
         [EnvVar.ADDRESS]: '0x0000000000000000000000000000000123456789',
-        [EnvVar.AGGREGATION_SCALING_RATE]: '0.000123',
         [EnvVar.AZURE_KEY_VAULT_NAME]: 'testKeyVaultName',
         [EnvVar.AGGREGATION_METHOD]: 'MIDPRICES',
         [EnvVar.PRICE_SOURCES]:
