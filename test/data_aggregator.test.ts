@@ -145,6 +145,17 @@ describe('DataAggregator', () => {
             `Aggregate volume 4000 is less than minimum threshold 5000`
           )
         })
+
+        it('should fail if less than minPriceSourceCount are provided', () => {
+          dataAggregator.config.minPriceSourceCount = 3
+          const prices: WeightedPrice[] = [
+            { price: new BigNumber(10.0), weight: new BigNumber(2000) },
+            { price: new BigNumber(11.0), weight: new BigNumber(2000) },
+          ]
+          expect(() => aggregators.crossCheckPriceData(prices, dataAggregator.config)).toThrow(
+            `The number of price sources available (2) is less than the minimum required (3)`
+          )
+        })
       })
 
       describe('price calculation', () => {

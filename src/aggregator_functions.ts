@@ -142,6 +142,12 @@ export function crossCheckPriceData(
     `Aggregate volume ${validTickerAggregateVolume} is less than minimum threshold ${config.minAggregatedVolume}`
   )
 
+  // 4. The number of price sources should be greater than or equal to minPriceSourceCount.
+  assert(
+    tickerData.length >= config.minPriceSourceCount,
+    `The number of price sources available (${tickerData.length}) is less than the minimum required (${config.minPriceSourceCount})`
+  )
+
   return tickerData
 }
 
