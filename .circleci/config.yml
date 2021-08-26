@@ -133,7 +133,8 @@ workflows:
             - install_dependencies
       - azure-acr/build-and-push-image:
           requires:
-            # Only push if the tests were successful.
+            # Only push if linting and tests were successful.
+            - lint-checks
             - general-test
           dockerfile: Dockerfile
           login-server-name: celotestnet.azurecr.io
