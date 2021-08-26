@@ -5,6 +5,9 @@ version: 2.1
 reference:
   workspace: &workspace ~/src
 
+orbs:
+  azure-acr: circleci/azure-acr@0.2.0
+
 defaults: &defaults
   working_directory: ~/app
   docker:
@@ -128,3 +131,17 @@ workflows:
       - general-test:
           requires:
             - install_dependencies
+      - azure-acr/build-and-push-image:
+          requires:
+            # Only push if linting and tests were successful.
+            - lint-checks
+            - general-test
+          dockerfile: Dockerfile
+          login-server-name: celotestnet.azurecr.io
+          registry-name: celotestnet
+          repo: testnet/oracle
+          tag: $CIRCLE_SHA1
+          filters:
+            branches:
+              # Only push to ACR when the commit is on the main branch.
+              only: main
