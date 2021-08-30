@@ -17,7 +17,7 @@
     "prettify:diff": "yarn run prettier --config .prettierrc.js --list-different '**/*.+(ts|tsx|js|jsx|sol|java)'"
   },
   "dependencies": {
-    "@celo/connect": "1.1.0",
+    "@celo/connect": "1.2.0",
     "@celo/contractkit": "1.1.0",
     "@celo/utils": "1.1.0",
     "@celo/wallet-hsm-aws": "1.1.0",
