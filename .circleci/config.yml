@@ -137,9 +137,9 @@ workflows:
             - lint-checks
             - general-test
           dockerfile: Dockerfile
-          login-server-name: celotestnet.azurecr.io
-          registry-name: celotestnet
-          repo: testnet/oracle
+          login-server-name: celoprod.azurecr.io
+          registry-name: celoprod
+          repo: oracle
           tag: $CIRCLE_SHA1
           filters:
             branches:
