@@ -19,7 +19,7 @@
   "dependencies": {
     "@celo/connect": "1.1.0",
     "@celo/contractkit": "1.1.0",
-    "@celo/utils": "1.1.0",
+    "@celo/utils": "1.2.1",
     "@celo/wallet-hsm-aws": "1.1.0",
     "@celo/wallet-hsm-azure": "1.1.0",
     "bignumber.js": "^8.1.1",
