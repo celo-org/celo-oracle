@@ -9,6 +9,7 @@ import { BitsoAdapter } from './exchange_adapters/bitso'
 import { BittrexAdapter } from './exchange_adapters/bittrex'
 import { CoinbaseAdapter } from './exchange_adapters/coinbase'
 import { OKCoinAdapter } from './exchange_adapters/okcoin'
+import { NovaDaxAdapter } from './exchange_adapters/novadax'
 import { MetricCollector } from './metric_collector'
 import { PriceSource, WeightedPrice } from './price_source'
 import {
@@ -39,6 +40,8 @@ function adapterFromExchangeName(name: Exchange, config: ExchangeAdapterConfig):
       return new OKCoinAdapter(config)
     case Exchange.BITSO:
       return new BitsoAdapter(config)
+    case Exchange.NOVADAX:
+      return new NovaDaxAdapter(config)
   }
 }
 
