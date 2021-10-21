@@ -28,6 +28,7 @@ export enum Exchange {
   COINBASE = 'COINBASE',
   OKCOIN = 'OKCOIN',
   BITSO = 'BITSO',
+  NOVADAX = 'NOVADAX',
 }
 
 export enum ExternalCurrency {
