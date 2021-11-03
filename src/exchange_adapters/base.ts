@@ -146,6 +146,7 @@ export abstract class BaseExchangeAdapter {
     [CeloContract.StableToken, 'CUSD'],
     [ExternalCurrency.USD, 'USD'],
     [ExternalCurrency.EUR, 'EUR'],
+    [ExternalCurrency.BRL, 'BRL'],
     [ExternalCurrency.BTC, 'BTC'],
     [ExternalCurrency.USDT, 'USDT'],
   ])

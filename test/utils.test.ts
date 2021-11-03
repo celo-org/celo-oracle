@@ -58,6 +58,16 @@ describe('utils', () => {
       })
     })
 
+    describe('with CELOBRL', () => {
+      const pair = OracleCurrencyPair.CELOBRL
+      it('looks up the registry', async () => {
+        const addr = Web3.utils.randomHex(20)
+        registryLookup.mockReturnValue(addr)
+        expect(await reportTargetForCurrencyPair(pair, kit)).toEqual(addr)
+        expect(registryLookup).toHaveBeenCalledWith('StableTokenBRL')
+      })
+    })
+
     describe('with CELOBTC', () => {
       const pair = OracleCurrencyPair.CELOBTC
       it('derives the identifier', async () => {

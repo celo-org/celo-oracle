@@ -35,6 +35,7 @@ export enum ExternalCurrency {
   BTC = 'BTC',
   EUR = 'EUR',
   USDT = 'USDT',
+  BRL = 'BRL',
 }
 
 export type Currency = ExternalCurrency | CeloToken
@@ -43,15 +44,19 @@ export enum OracleCurrencyPair {
   CELOUSD = 'CELOUSD',
   CELOEUR = 'CELOEUR',
   CELOBTC = 'CELOBTC',
+  CELOBRL = 'CELOBRL',
   BTCEUR = 'BTCEUR',
   CELOUSDT = 'CELOUSDT',
   EURUSDT = 'EURUSDT',
   BTCUSD = 'BTCUSD',
+  BTCBRL = 'BTCBRL',
+  USDTBRL = 'USDTBRL',
 }
 
 export const CoreCurrencyPair: OracleCurrencyPair[] = [
   OracleCurrencyPair.CELOEUR,
   OracleCurrencyPair.CELOUSD,
+  OracleCurrencyPair.CELOBRL,
 ]
 
 export const CurrencyPairBaseQuote: Record<
@@ -61,10 +66,13 @@ export const CurrencyPairBaseQuote: Record<
   [OracleCurrencyPair.CELOUSD]: { base: CeloContract.GoldToken, quote: ExternalCurrency.USD },
   [OracleCurrencyPair.CELOBTC]: { base: CeloContract.GoldToken, quote: ExternalCurrency.BTC },
   [OracleCurrencyPair.CELOEUR]: { base: CeloContract.GoldToken, quote: ExternalCurrency.EUR },
+  [OracleCurrencyPair.CELOBRL]: { base: CeloContract.GoldToken, quote: ExternalCurrency.BRL },
   [OracleCurrencyPair.BTCEUR]: { base: ExternalCurrency.BTC, quote: ExternalCurrency.EUR },
   [OracleCurrencyPair.CELOUSDT]: { base: CeloContract.GoldToken, quote: ExternalCurrency.USDT },
   [OracleCurrencyPair.EURUSDT]: { base: ExternalCurrency.EUR, quote: ExternalCurrency.USDT },
   [OracleCurrencyPair.BTCUSD]: { base: ExternalCurrency.BTC, quote: ExternalCurrency.USD },
+  [OracleCurrencyPair.BTCBRL]: { base: ExternalCurrency.BTC, quote: ExternalCurrency.BRL },
+  [OracleCurrencyPair.USDTBRL]: { base: ExternalCurrency.USDT, quote: ExternalCurrency.BRL },
 }
 
 export enum AggregationMethod {
@@ -101,6 +109,9 @@ export async function reportTargetForCurrencyPair(
   } else if (pair === OracleCurrencyPair.CELOEUR) {
     // XXX: Workaround until StableTokenEUR makes it fully to ContractKit
     return kit.registry.addressFor('StableTokenEUR' as CeloContract)
+  } else if (pair === OracleCurrencyPair.CELOBRL) {
+    // Workaround until StableTokenBRL makes it fully to ContractKit.
+    return kit.registry.addressFor('StableTokenBRL' as CeloContract)
   } else {
     throw new Error(`${pair} can not be converted to a ReportTarget`)
   }
