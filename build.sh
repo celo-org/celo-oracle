@@ -7,11 +7,11 @@ case "$1" in
   ;;
 "baklava")
   registry="celoprod"
-  image="celoprod.azurecr.io/oracle/baklava"
+  image="celoprod.azurecr.io/oracle"
   ;;
 "rc1")
   registry="celoprod"
-  image="celoprod.azurecr.io/oracle/mainnet"
+  image="celoprod.azurecr.io/oracle"
   ;;
 *)
   echo "Usage: ./build.sh <env>" 
