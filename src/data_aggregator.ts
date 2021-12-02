@@ -5,6 +5,7 @@ import * as aggregators from './aggregator_functions'
 import { OracleApplicationConfig } from './app'
 import { ExchangeAdapter, ExchangeAdapterConfig } from './exchange_adapters/base'
 import { BinanceAdapter } from './exchange_adapters/binance'
+import { BitcointradeAdapter } from './exchange_adapters/bitcointrade'
 import { BitsoAdapter } from './exchange_adapters/bitso'
 import { BittrexAdapter } from './exchange_adapters/bittrex'
 import { CoinbaseAdapter } from './exchange_adapters/coinbase'
@@ -32,6 +33,8 @@ function adapterFromExchangeName(name: Exchange, config: ExchangeAdapterConfig):
   switch (name) {
     case Exchange.BINANCE:
       return new BinanceAdapter(config)
+    case Exchange.BITCOINTRADE:
+      return new BitcointradeAdapter(config)
     case Exchange.BITTREX:
       return new BittrexAdapter(config)
     case Exchange.COINBASE:
