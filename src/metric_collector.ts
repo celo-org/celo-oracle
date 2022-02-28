@@ -83,7 +83,7 @@ export class MetricCollector {
       name: 'oracle_action_duration',
       help: 'Histogram of various async actions',
       labelNames: ['type', 'action', 'currencyPair'],
-      buckets: [0.02, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.75, 1, 2, 5, 10, 20, 60],
+      buckets: [0.02, 0.05, 0.5, 0.75, 1, 10],
     })
 
     this.errorsTotalCounter = new Counter({
@@ -97,7 +97,7 @@ export class MetricCollector {
       name: 'oracle_exchange_api_request_duration_seconds',
       help: 'Histogram of exchange API request durations in seconds',
       labelNames: ['exchange', 'endpoint', 'pair'],
-      buckets: [0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.75, 1, 2, 5, 10],
+      buckets: [0.2, 0.5, 0.75, 1, 2],
     })
 
     this.exchangeApiRequestErrorCounter = new Counter({
