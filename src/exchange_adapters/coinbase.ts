@@ -155,7 +155,8 @@ export class CoinbaseAdapter extends BaseExchangeAdapter implements ExchangeAdap
     return (
       res.status === 'online' &&
       res.post_only === false &&
-      res.limit_only === false &&
+      // Some stables are in Limit Only and the orderbook is healthy then
+      // res.limit_only === false &&
       res.cancel_only === false &&
       res.trading_disabled === false
     )
