@@ -205,7 +205,6 @@ describe('CoinbaseAdapter', () => {
   describe('isOrderbookLive', () => {
     const falseStatusIndicators = [
       { post_only: true },
-      { limit_only: true },
       { cancel_only: true },
       { status: 'offline' },
     ]
