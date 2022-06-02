@@ -30,7 +30,7 @@ export default async function send(
         from,
         gasPrice,
       })
-    } catch (err) {
+    } catch (err:any) {
       // If anything fails, the error is caught here.
       // We seek the case where gas estimation has failed but the subsequent
       // eth_call made by contractkit to get the revert reason has not given

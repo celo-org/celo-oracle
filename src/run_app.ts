@@ -79,7 +79,7 @@ export function getComponentConfig<T>(defaultConfig: T, envVarMap: EnvVarMap<T>)
       if (override !== undefined) {
         overrides[key as string] = override
       }
-    } catch (err) {
+    } catch (err:any) {
       invalidEnvVars.push(err.message)
     }
   }
