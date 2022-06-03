@@ -19,9 +19,6 @@ import {
   WalletType,
 } from './utils'
 
-// const DEVMODE = true
-const MOCKADDRESS = '0x243860e8216B4F6eC2478Ebd613F6F4bDE0704DE'
-
 /**
  * Omit the fields that are passed in by the Application
  */
@@ -120,6 +117,7 @@ export interface OracleApplicationConfig {
   /** The websocket URL of a web3 provider to listen to events through with block-based reporting */
   wsRpcProviderUrl: string
   devMode: boolean
+  mockAccount: string
 }
 
 export class OracleApplication {
@@ -235,8 +233,8 @@ export class OracleApplication {
             kit.addAccount(privateKey)
             this.config.address = privateKeyToAddress(privateKey)
           } else{
-            this.logger.info(`DEVMODE enabled, used mock address ${MOCKADDRESS}`)
-            this.config.address = MOCKADDRESS
+            this.logger.info(`DEVMODE enabled, used mock address ${this.config.mockAccount}`)
+            this.config.address = this.config.mockAccount
           }
           break
         default:

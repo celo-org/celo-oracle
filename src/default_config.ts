@@ -72,4 +72,5 @@ export const defaultApplicationConfig: OracleApplicationConfig = {
   walletType: WalletType.PRIVATE_KEY,
   wsRpcProviderUrl: 'ws://localhost:8546',
   devMode: false,
+  mockAccount: "0x243860e8216B4F6eC2478Ebd613F6F4bDE0704DE", // Just a valid address used for testing
 }
