@@ -112,6 +112,8 @@ export interface DataAggregatorConfig {
    * The minimum aggregate volume across all exchanges to report
    */
   minAggregatedVolume: BigNumber
+
+  devMode: boolean
 }
 
 /**
@@ -153,7 +155,7 @@ export class DataAggregator {
 
     const priceSourceConfigs = this.config.priceSourceConfigs ?? ([] as ExchangePriceSourceConfig[])
     this.logger.info({ priceSources: priceSourceConfigs }, 'Setting up price sources')
-
+    console.log(`source config + ${priceSourceConfigs}`)
     return priceSourceConfigs.map((sourceConfig) => {
       const source = priceSourceFromConfig(
         adapterFactory,

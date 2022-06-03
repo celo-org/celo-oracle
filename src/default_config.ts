@@ -19,6 +19,7 @@ export const baseLogger = Logger.createLogger({
   name: 'oracle',
   serializers: Logger.stdSerializers,
   level: 'debug',
+  src: true,
 })
 
 export const defaultDataAggregatorConfig: DataAggregatorConfigSubset = {
@@ -31,6 +32,7 @@ export const defaultDataAggregatorConfig: DataAggregatorConfigSubset = {
   maxPercentageDeviation: new BigNumber(0.2),
   minPriceSourceCount: 1,
   minAggregatedVolume: new BigNumber(0),
+  devMode: false
 }
 
 export const defaultBaseReporterConfig: BaseReporterConfigSubset = {
@@ -42,6 +44,7 @@ export const defaultBaseReporterConfig: BaseReporterConfigSubset = {
   transactionRetryLimit: 3,
   transactionRetryGasPriceMultiplier: new BigNumber(0.1),
   unusedOracleAddresses: [],
+  devMode: false
 }
 
 export const defaultBlockBasedReporterConfig: BlockBasedReporterConfigSubset = {
@@ -68,4 +71,5 @@ export const defaultApplicationConfig: OracleApplicationConfig = {
   reportTargetOverride: undefined,
   walletType: WalletType.PRIVATE_KEY,
   wsRpcProviderUrl: 'ws://localhost:8546',
+  devMode: false,
 }

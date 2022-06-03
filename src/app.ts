@@ -19,6 +19,9 @@ import {
   WalletType,
 } from './utils'
 
+// const DEVMODE = true
+const MOCKADDRESS = '0x243860e8216B4F6eC2478Ebd613F6F4bDE0704DE'
+
 /**
  * Omit the fields that are passed in by the Application
  */
@@ -116,6 +119,7 @@ export interface OracleApplicationConfig {
   walletType: WalletType
   /** The websocket URL of a web3 provider to listen to events through with block-based reporting */
   wsRpcProviderUrl: string
+  devMode: boolean
 }
 
 export class OracleApplication {
@@ -180,58 +184,65 @@ export class OracleApplication {
       },
       'Initializing app'
     )
+    
 
-    switch (this.config.walletType) {
-      case WalletType.AWS_HSM:
-        requireVariables({
-          address,
-          awsKeyRegion,
-        })
-        const awsHsmWallet = new AwsHsmWallet({
-          region: awsKeyRegion,
-          apiVersion: '2014-11-01',
-        })
-        await awsHsmWallet.init()
-        kit = newKit(httpRpcProviderUrl, awsHsmWallet)
-        break
-      case WalletType.AZURE_HSM:
-        requireVariables({
-          address,
-          azureHsmInitTryCount,
-          azureHsmInitMaxRetryBackoffMs,
-        })
-        // It can take time (up to ~1-2 minutes) for the pod to be given its appropriate
-        // AAD identity for it to access Azure Key Vault. To prevent the client from
-        // crashing and possibly sending the pod into a CrashLoopBackoff, we
-        // try to authenticate and exponentially backoff between retries.
-        let azureHsmWallet: AzureHSMWallet
-        await tryExponentialBackoff(
-          async () => {
-            // Credentials are set in the constructor, so we must create a fresh
-            // wallet for each try
-            azureHsmWallet = new AzureHSMWallet(azureKeyVaultName!)
-            await azureHsmWallet.init()
-          },
-          azureHsmInitTryCount!,
-          secondsToMs(5),
-          azureHsmInitMaxRetryBackoffMs!,
-          (e: Error, backoffMs: number) => {
-            this.logger.info(e, `Failed to init wallet, backing off ${backoffMs} ms`)
-            this.metricCollector?.error(Context.WALLET_INIT)
+      switch (this.config.walletType) {
+        case WalletType.AWS_HSM:
+          requireVariables({
+            address,
+            awsKeyRegion,
+          })
+          const awsHsmWallet = new AwsHsmWallet({
+            region: awsKeyRegion,
+            apiVersion: '2014-11-01',
+          })
+          await awsHsmWallet.init()
+          kit = newKit(httpRpcProviderUrl, awsHsmWallet)
+          break
+        case WalletType.AZURE_HSM:
+          requireVariables({
+            address,
+            azureHsmInitTryCount,
+            azureHsmInitMaxRetryBackoffMs,
+          })
+          // It can take time (up to ~1-2 minutes) for the pod to be given its appropriate
+          // AAD identity for it to access Azure Key Vault. To prevent the client from
+          // crashing and possibly sending the pod into a CrashLoopBackoff, we
+          // try to authenticate and exponentially backoff between retries.
+          let azureHsmWallet: AzureHSMWallet
+          await tryExponentialBackoff(
+            async () => {
+              // Credentials are set in the constructor, so we must create a fresh
+              // wallet for each try
+              azureHsmWallet = new AzureHSMWallet(azureKeyVaultName!)
+              await azureHsmWallet.init()
+            },
+            azureHsmInitTryCount!,
+            secondsToMs(5),
+            azureHsmInitMaxRetryBackoffMs!,
+            (e: Error, backoffMs: number) => {
+              this.logger.info(e, `Failed to init wallet, backing off ${backoffMs} ms`)
+              this.metricCollector?.error(Context.WALLET_INIT)
+            }
+          )
+          // wallet will be defined if we are here
+          kit = newKit(httpRpcProviderUrl, azureHsmWallet!)
+          break
+        case WalletType.PRIVATE_KEY:
+          kit = newKit(httpRpcProviderUrl)
+          if (!this.config.devMode){
+            const privateKey = this.getPrivateKeyFromPath(privateKeyPath!)
+            kit.addAccount(privateKey)
+            this.config.address = privateKeyToAddress(privateKey)
+          } else{
+            this.logger.info(`DEVMODE enabled, used mock address ${MOCKADDRESS}`)
+            this.config.address = MOCKADDRESS
           }
-        )
-        // wallet will be defined if we are here
-        kit = newKit(httpRpcProviderUrl, azureHsmWallet!)
-        break
-      case WalletType.PRIVATE_KEY:
-        kit = newKit(httpRpcProviderUrl)
-        const privateKey = this.getPrivateKeyFromPath(privateKeyPath!)
-        kit.addAccount(privateKey)
-        this.config.address = privateKeyToAddress(privateKey)
-        break
-      default:
-        throw Error(`Invalid wallet type: ${walletType}`)
-    }
+          break
+        default:
+          throw Error(`Invalid wallet type: ${walletType}`)
+      }
+      
 
     const commonReporterConfig = {
       baseLogger: this.config.baseLogger,
@@ -260,6 +271,7 @@ export class OracleApplication {
     await this._reporter.init()
 
     this.initialized = true
+    this.logger.info("App initialized successfuly")
   }
 
   start(): void {

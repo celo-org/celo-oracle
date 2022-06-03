@@ -103,6 +103,8 @@ export interface BaseReporterConfig {
    * A list of unused addresses to ignore on the whitelist.
    */
   readonly unusedOracleAddresses: string[]
+
+  devMode: boolean
 }
 
 /**
@@ -389,7 +391,7 @@ export abstract class BaseReporter {
    */
   private async requireAccountIsWhitelisted(): Promise<void> {
     const sortedOracles = await this.config.kit.contracts.getSortedOracles()
-    if (!(await sortedOracles.isOracle(this.config.reportTarget, this.config.oracleAccount))) {
+    if (!(await sortedOracles.isOracle(this.config.reportTarget, this.config.oracleAccount)) && !this.config.devMode) {
       throw Error(
         `Account ${this.config.oracleAccount} is not whitelisted as an oracle for ${this.config.currencyPair}`
       )
@@ -406,16 +408,20 @@ export abstract class BaseReporter {
       .map(normalizeAddressWith0x)
       .filter((addr) => !this.config.unusedOracleAddresses.includes(addr))
 
-    const oracleIndex =
+    let oracleIndex =
       this.config.overrideIndex !== undefined
         ? this.config.overrideIndex
         : oracleWhitelist.indexOf(normalizeAddressWith0x(this.config.oracleAccount))
 
     // This should not happen, but handle the edge-case anyway
     if (oracleIndex === -1) {
-      throw Error(
-        `Account ${this.config.oracleAccount} is not whitelisted as an oracle for ${this.config.currencyPair}`
-      )
+      if (this.config.devMode){
+        oracleIndex = 1 // This could be an env variable in the future
+      } else {
+        throw Error(
+          `Account ${this.config.oracleAccount} is not whitelisted as an oracle for ${this.config.currencyPair}`
+        )
+      }
     }
 
     this._oracleIndex = oracleIndex
