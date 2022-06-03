@@ -182,7 +182,15 @@ export abstract class BaseReporter {
         trigger,
       },
       'Reporting price'
-    )
+    ) 
+    if (this.config.devMode){
+      this.logger.info({
+        price,
+        trigger,
+      },
+      "Mock call, did not report because of devMode")
+      return
+    } 
     const receipt = await this.doAsyncReportAction(() => this.reportPrice(price), 'total')
     this.logger.info(
       {
@@ -192,6 +200,8 @@ export abstract class BaseReporter {
       },
       'Successfully reported price'
     )
+
+
     // This is only meant for metric collection purposes.
     // There's no straightforward way to get tx details from contractkit without
     // another RPC call. If we add gas estimation and gasPrice into the oracle

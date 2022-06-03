@@ -10,7 +10,7 @@
     "build": "tsc -b .",
     "clean": "tsc -b . --clean",
     "start": "node lib/index.js",
-    "dev": "yarn build && export `cat .env.dev` && yarn start",
+    "dev": "yarn build && source .env.dev && yarn start",
     "test": "jest",
     "lint": "tslint -c tslint.json --project .",
     "lint:tests": "tslint -c tslint.json 'test/**/*.test.ts'",
