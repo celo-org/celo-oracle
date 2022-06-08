@@ -155,7 +155,6 @@ export class DataAggregator {
 
     const priceSourceConfigs = this.config.priceSourceConfigs ?? ([] as ExchangePriceSourceConfig[])
     this.logger.info({ priceSources: priceSourceConfigs }, 'Setting up price sources')
-    console.log(`source config + ${priceSourceConfigs}`)
     return priceSourceConfigs.map((sourceConfig) => {
       const source = priceSourceFromConfig(
         adapterFactory,

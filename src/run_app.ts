@@ -82,7 +82,6 @@ export function getComponentConfig<T>(defaultConfig: T, envVarMap: EnvVarMap<T>)
         overrides[key as string] = override
       }
     } catch (err) {
-      console.log(k)
       invalidEnvVars.push(err.message)
     }
   }
