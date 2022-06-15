@@ -28,6 +28,7 @@ describe('Reporter', () => {
   const circuitBreakerPriceChangeThresholdMax = new BigNumber(0.01)
   const circuitBreakerPriceChangeThresholdMin = new BigNumber(0.01)
   const circuitBreakerPriceChangeThresholdTimeMultiplier = new BigNumber(0.0075)
+  const circuitBreakerDurationTimeMs = 20 * 60 * 1000 // 20 minutes.
   const expectedBlockTimeMs = secondsToMs(5)
   const minReportPriceChangeThreshold = new BigNumber(0.01)
   const maxBlockTimestampAgeMs = secondsToMs(30)
@@ -93,6 +94,7 @@ describe('Reporter', () => {
       circuitBreakerPriceChangeThresholdMax,
       circuitBreakerPriceChangeThresholdMin,
       circuitBreakerPriceChangeThresholdTimeMultiplier,
+      circuitBreakerDurationTimeMs,
       dataAggregator,
       expectedBlockTimeMs,
       gasPriceMultiplier: new BigNumber(5),
