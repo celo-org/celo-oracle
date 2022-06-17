@@ -272,6 +272,11 @@ export abstract class BaseReporter {
    */
   async expire() {
     this.logger.info('Checking for expired reports')
+    if (this.config.devMode){
+      this.logger.info("Mock call, did not expire reports because of devMode")
+      return
+    }
+
     const receipt = await this.doAsyncExpiryAction(() => this.removeExpiredReports(), 'total')
     if (receipt) {
       this.logger.info(
@@ -293,6 +298,7 @@ export abstract class BaseReporter {
     } else {
       this.logger.info('No expired reports')
     }
+
   }
 
   /**
@@ -434,11 +440,16 @@ export abstract class BaseReporter {
       }
     }
 
+    this.logger.info(`Starting oracle with index #${oracleIndex}`) 
+
     this._oracleIndex = oracleIndex
+    // TODO add mock here
     this._totalOracleCount =
       this.config.overrideTotalOracleCount !== undefined
         ? this.config.overrideTotalOracleCount
         : oracleWhitelist.length
+
+        this.logger.info(`Found a total of #${oracleIndex}`) 
   }
 
   /**
