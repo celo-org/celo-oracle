@@ -424,23 +424,21 @@ export abstract class BaseReporter {
       .map(normalizeAddressWith0x)
       .filter((addr) => !this.config.unusedOracleAddresses.includes(addr))
 
+    const indexOverrided = this.config.overrideIndex !== undefined
+
     let oracleIndex =
-      this.config.overrideIndex !== undefined
+      indexOverrided
         ? this.config.overrideIndex
         : oracleWhitelist.indexOf(normalizeAddressWith0x(this.config.oracleAccount))
 
     // This should not happen, but handle the edge-case anyway
     if (oracleIndex === -1) {
-      if (this.config.devMode){
-        oracleIndex = 1 // This could be an env variable in the future
-      } else {
-        throw Error(
-          `Account ${this.config.oracleAccount} is not whitelisted as an oracle for ${this.config.currencyPair}`
-        )
-      }
+      throw Error(
+        `Account ${this.config.oracleAccount} is not whitelisted as an oracle for ${this.config.currencyPair}`
+      )
     }
 
-    this.logger.info(`Starting oracle with index #${oracleIndex}`) 
+    this.logger.info(`Starting oracle with index #${oracleIndex} ${indexOverrided? '(mocked)' : ''}`) 
 
     this._oracleIndex = oracleIndex
     // TODO add mock here
