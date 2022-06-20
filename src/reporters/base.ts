@@ -416,9 +416,8 @@ export abstract class BaseReporter {
 
   /**
    * Sets the oracleIndex and totalOracleCount using on chain data
-   * TODO: this should occasionally be rerun to account for changes to the oracle set
    */
-  private async setOracleInfo() {
+  async setOracleInfo() {
     const sortedOracles = await this.config.kit.contracts.getSortedOracles()
     const oracleWhitelist = (await sortedOracles.getOracles(this.config.reportTarget))
       .map(normalizeAddressWith0x)

@@ -217,6 +217,13 @@ export class BlockBasedReporter extends BaseReporter {
   async maybeReport(blockNumber: number) {
     const price = await this.priceToReport()
     this.config.metricCollector?.potentialReport(this.config.currencyPair, price)
+    // If it's a heartbeat block.
+    if (this.isHeartbeatCycle(blockNumber)) {
+      // Update the oracle index / count information.
+      // The next isHeartbeatCycle call may return a different result than the
+      // one above if the index / count have changed.
+      await this.setOracleInfo()
+    }
     const heartbeat = this.isHeartbeatCycle(blockNumber) || this.lastReportHasExpired()
 
     const shouldReport =
