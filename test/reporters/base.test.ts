@@ -73,6 +73,7 @@ describe('BaseReporter', () => {
       reportTarget: CeloContract.StableToken,
       metricCollector,
       unusedOracleAddresses: [],
+      devMode: false
     }
   })
 
