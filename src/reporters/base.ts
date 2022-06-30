@@ -426,7 +426,7 @@ export abstract class BaseReporter {
 
     const indexOverrided = this.config.overrideIndex !== undefined
 
-    let oracleIndex =
+    const oracleIndex =
       indexOverrided
         ? this.config.overrideIndex
         : oracleWhitelist.indexOf(normalizeAddressWith0x(this.config.oracleAccount))
