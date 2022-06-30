@@ -54,6 +54,11 @@ export interface BaseReporterConfig {
    */
   circuitBreakerPriceChangeThresholdTimeMultiplier: BigNumber
   /**
+   * How long the oracle will stop reporting for in case of market movements
+   * larger than the circuit breaker price threshold.
+   */
+  circuitBreakerDurationTimeMs: number
+  /**
    * The currency pair to report upon
    */
   readonly currencyPair: OracleApplicationConfig['currencyPair']
@@ -61,6 +66,10 @@ export interface BaseReporterConfig {
    * An instance of DataAggregator from which to get the current price
    */
   readonly dataAggregator: DataAggregator
+  /**
+   * If the oracles should be in development mode, which doesn't require a node nor account key
+   */
+  devMode: boolean
   /**
    * The multiplier value for the gas price minimum which shall be used to compute the gasPrice for a transaction to send
    */
@@ -124,11 +133,6 @@ export abstract class BaseReporter {
    */
   private initializedBase: boolean
 
-  /**
-   * When circuitBreakerOpen is true, the circuit breaker has been triggered
-   * and no reports will occur.
-   */
-  protected _circuitBreakerOpen: boolean
   protected _lastReportedPrice: BigNumber | undefined
   protected _lastReportedTimeMs: number | undefined
 
@@ -147,7 +151,6 @@ export abstract class BaseReporter {
       reportStrategy: this.reportStrategy,
     })
     this.initializedBase = false
-    this._circuitBreakerOpen = false
     this.initialized = false
   }
 
@@ -181,6 +184,16 @@ export abstract class BaseReporter {
       },
       'Reporting price'
     )
+    if (this.config.devMode) {
+      this.logger.info(
+        {
+          price,
+          trigger,
+        },
+        'Mock call, did not report because of devMode'
+      )
+      return
+    }
     const receipt = await this.doAsyncReportAction(() => this.reportPrice(price), 'total')
     this.logger.info(
       {
@@ -190,6 +203,7 @@ export abstract class BaseReporter {
       },
       'Successfully reported price'
     )
+
     // This is only meant for metric collection purposes.
     // There's no straightforward way to get tx details from contractkit without
     // another RPC call. If we add gas estimation and gasPrice into the oracle
@@ -260,6 +274,11 @@ export abstract class BaseReporter {
    */
   async expire() {
     this.logger.info('Checking for expired reports')
+    if (this.config.devMode) {
+      this.logger.info('Mock call, did not expire reports because of devMode')
+      return
+    }
+
     const receipt = await this.doAsyncExpiryAction(() => this.removeExpiredReports(), 'total')
     if (receipt) {
       this.logger.info(
@@ -345,30 +364,26 @@ export abstract class BaseReporter {
    */
   async priceToReport() {
     const getPrice = async (): Promise<BigNumber> => {
-      // If the circuit breaker is already open, complain loudly
-      if (this.circuitBreakerOpen) {
-        throw Error('Circuit breaker is open')
-      }
       // This can throw if there is an issue with trade data
       const price = await this.config.dataAggregator.currentPrice()
-      // lastReportedPrice is a BigNumber and therefore truthy even if zero.
-      // Determine if we should open the circuit breaker.
-      // TODO: consider lastReportedTime in circuit breaker calculation
 
-      this._circuitBreakerOpen =
-        (this.calculateCircuitBreakerPriceChangeThreshold() !== undefined &&
-          this.lastReportedPrice &&
-          isOutsideTolerance(
-            this.lastReportedPrice,
-            price,
-            this.calculateCircuitBreakerPriceChangeThreshold()
-          )) ||
-        false // false so that it can't be undefined
+      // Circuit breaker logic only applies if the oracle client has previously
+      // reported.
+      const haveReported =
+        this.lastReportedTimeMs !== undefined && this.lastReportedPrice !== undefined
+      if (haveReported) {
+        // Determine if we should open the circuit breaker.
+        const circuitBreakerThreshold = this.calculateCircuitBreakerPriceChangeThreshold()
+        const timeSinceLastReport = Date.now() - this.lastReportedTimeMs!
+        const circuitBreakerOpen =
+          isOutsideTolerance(this.lastReportedPrice!, price, circuitBreakerThreshold) &&
+          timeSinceLastReport < this.config.circuitBreakerDurationTimeMs
 
-      if (this._circuitBreakerOpen) {
-        throw Error(
-          `Opening circuit breaker, price to report is too different from the last reported price. Price: ${price} Last reported price: ${this.lastReportedPrice} Price change threshold: ${this.config.circuitBreakerPriceChangeThresholdMin}`
-        )
+        if (circuitBreakerOpen) {
+          throw Error(
+            `Circuit breaker is open, price to report is too different from the last reported price and not enough time has elapsed. Price: ${price} Last reported price: ${this.lastReportedPrice} Price change threshold: ${circuitBreakerThreshold} Last reported time: ${this.lastReportedTimeMs} Circuit breaker duration [ms]: ${this.config.circuitBreakerDurationTimeMs}`
+          )
+        }
       }
       return price
     }
@@ -389,7 +404,10 @@ export abstract class BaseReporter {
    */
   private async requireAccountIsWhitelisted(): Promise<void> {
     const sortedOracles = await this.config.kit.contracts.getSortedOracles()
-    if (!(await sortedOracles.isOracle(this.config.reportTarget, this.config.oracleAccount))) {
+    if (
+      !(await sortedOracles.isOracle(this.config.reportTarget, this.config.oracleAccount)) &&
+      !this.config.devMode
+    ) {
       throw Error(
         `Account ${this.config.oracleAccount} is not whitelisted as an oracle for ${this.config.currencyPair}`
       )
@@ -406,10 +424,11 @@ export abstract class BaseReporter {
       .map(normalizeAddressWith0x)
       .filter((addr) => !this.config.unusedOracleAddresses.includes(addr))
 
-    const oracleIndex =
-      this.config.overrideIndex !== undefined
-        ? this.config.overrideIndex
-        : oracleWhitelist.indexOf(normalizeAddressWith0x(this.config.oracleAccount))
+    const indexOverrided = this.config.overrideIndex !== undefined
+
+    const oracleIndex = indexOverrided
+      ? this.config.overrideIndex
+      : oracleWhitelist.indexOf(normalizeAddressWith0x(this.config.oracleAccount))
 
     // This should not happen, but handle the edge-case anyway
     if (oracleIndex === -1) {
@@ -418,11 +437,21 @@ export abstract class BaseReporter {
       )
     }
 
+    this.logger.info(
+      `Starting oracle with index #${oracleIndex} ${indexOverrided ? '(mocked)' : ''}`
+    )
+
     this._oracleIndex = oracleIndex
-    this._totalOracleCount =
-      this.config.overrideTotalOracleCount !== undefined
-        ? this.config.overrideTotalOracleCount
-        : oracleWhitelist.length
+
+    const oracleCountOverrided = this.config.overrideTotalOracleCount !== undefined
+
+    this._totalOracleCount = oracleCountOverrided
+      ? this.config.overrideTotalOracleCount
+      : oracleWhitelist.length
+
+    this.logger.info(
+      `Found a total of #${this._totalOracleCount} ${oracleCountOverrided ? '(mocked)' : ''}`
+    )
   }
 
   /**
@@ -502,10 +531,6 @@ export abstract class BaseReporter {
     return doWithDurationMetric(fn, (duration: number) => {
       this.config.metricCollector?.expiryDuration(action, this.config.currencyPair, duration)
     })
-  }
-
-  get circuitBreakerOpen(): boolean {
-    return this._circuitBreakerOpen
   }
 
   get lastReportedPrice(): BigNumber | undefined {
