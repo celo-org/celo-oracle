@@ -31,6 +31,7 @@ export enum EnvVar {
   CIRCUIT_BREAKER_PRICE_CHANGE_THRESHOLD_MAX = 'CIRCUIT_BREAKER_PRICE_CHANGE_THRESHOLD_MAX',
   CIRCUIT_BREAKER_PRICE_CHANGE_THRESHOLD_MIN = 'CIRCUIT_BREAKER_PRICE_CHANGE_THRESHOLD_MIN',
   CIRCUIT_BREAKER_PRICE_CHANGE_THRESHOLD_TIME_MULTIPLIER = 'CIRCUIT_BREAKER_PRICE_CHANGE_THRESHOLD_TIME_MULTIPLIER',
+  CIRCUIT_BREAKER_DURATION_MS = 'CIRCUIT_BREAKER_DURATION_MS',
   CURRENCY_PAIR = 'CURRENCY_PAIR',
   DATA_FETCH_FREQUENCY = 'DATA_FETCH_FREQUENCY',
   GAS_PRICE_MULTIPLIER = 'GAS_PRICE_MULTIPLIER',
@@ -282,6 +283,13 @@ const envVarHandlingMap = new Map<EnvVar, EnvVarHandling>([
     {
       ...numberEnvVarHandling,
       validationFns: [envVarValidations.isFinite, envVarValidations.isGreaterThanZero],
+    },
+  ],
+  [
+    EnvVar.CIRCUIT_BREAKER_DURATION_MS,
+    {
+      ...integerEnvVarHandling,
+      validationFns: [envVarValidations.isInteger, envVarValidations.isGreaterThanZero],
     },
   ],
   [

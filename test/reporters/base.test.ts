@@ -35,6 +35,7 @@ describe('BaseReporter', () => {
   const circuitBreakerPriceChangeThresholdMax = new BigNumber(0.01)
   const circuitBreakerPriceChangeThresholdMin = new BigNumber(0.01)
   const circuitBreakerPriceChangeThresholdTimeMultiplier = new BigNumber(0.0075)
+  const circuitBreakerDurationTimeMs = 20 * 60 * 1000 // 20 minutes.
 
   let dataAggregator: DataAggregator
   let reporter: BaseReporter
@@ -64,6 +65,7 @@ describe('BaseReporter', () => {
       circuitBreakerPriceChangeThresholdMax,
       circuitBreakerPriceChangeThresholdMin,
       circuitBreakerPriceChangeThresholdTimeMultiplier,
+      circuitBreakerDurationTimeMs,
       dataAggregator,
       gasPriceMultiplier: new BigNumber(5.0),
       transactionRetryLimit: 0,
@@ -142,6 +144,7 @@ describe('BaseReporter', () => {
         circuitBreakerPriceChangeThresholdMax,
         circuitBreakerPriceChangeThresholdMin,
         circuitBreakerPriceChangeThresholdTimeMultiplier,
+        circuitBreakerDurationTimeMs,
         dataAggregator,
         gasPriceMultiplier: new BigNumber(5.0),
         transactionRetryLimit: 0,
@@ -542,6 +545,7 @@ describe('BaseReporter', () => {
           circuitBreakerPriceChangeThresholdMax: testThreshMax,
           circuitBreakerPriceChangeThresholdMin: testThreshMin,
           circuitBreakerPriceChangeThresholdTimeMultiplier,
+          circuitBreakerDurationTimeMs,
           dataAggregator,
           gasPriceMultiplier: new BigNumber(5.0),
           transactionRetryLimit: 0,
@@ -613,7 +617,6 @@ describe('BaseReporter', () => {
         const price = await reporter.priceToReport()
         expect(currentPriceFn).toBeCalledTimes(1)
         expect(price).toBe(currentPriceValue)
-        expect(reporter.circuitBreakerOpen).toBe(false)
       })
 
       it('throws if the currentPrice from the dataAggregator throws', async () => {
@@ -621,20 +624,17 @@ describe('BaseReporter', () => {
           throw Error('foo')
         })
         await expect(async () => reporter.priceToReport()).rejects.toThrow()
-        expect(reporter.circuitBreakerOpen).toBe(false)
       })
 
       it('does not throw if there is no last reported price', () => {
         jest.spyOn(reporter, 'lastReportedPrice', 'get').mockReturnValue(undefined)
         expect(() => reporter.priceToReport).not.toThrow()
-        expect(reporter.circuitBreakerOpen).toBe(false)
       })
 
       it('does not throw if the new price is greater and close enough to the last reported price', () => {
         // the maximum value
         currentPriceValue = lastReportedPrice.times(circuitBreakerPriceChangeThresholdMin.plus(1))
         expect(() => reporter.priceToReport).not.toThrow()
-        expect(reporter.circuitBreakerOpen).toBe(false)
       })
 
       it('does not throw if the new price is less and close enough to the last reported price', () => {
@@ -643,31 +643,30 @@ describe('BaseReporter', () => {
           circuitBreakerPriceChangeThresholdMin.negated().plus(1)
         )
         expect(() => reporter.priceToReport).not.toThrow()
-        expect(reporter.circuitBreakerOpen).toBe(false)
       })
 
       it('throws if the new price is greater and not close enough to the last reported price', async () => {
         currentPriceValue = lastReportedPrice.times(circuitBreakerPriceChangeThresholdMin.plus(1.1))
-        await expect(() => reporter.priceToReport()).rejects.toThrow(
-          `Opening circuit breaker, price to report is too different from the last reported price. Price: ${currentPriceValue} Last reported price: ${lastReportedPrice} Price change threshold: ${circuitBreakerPriceChangeThresholdMin}`
-        )
-        expect(reporter.circuitBreakerOpen).toBe(true)
+        await expect(() => reporter.priceToReport()).rejects.toThrow('Circuit breaker is open')
       })
 
       it('throws if the new price is less and not close enough to the last reported price', async () => {
         currentPriceValue = lastReportedPrice.times(
           circuitBreakerPriceChangeThresholdMin.negated().plus(0.9)
         )
-        await expect(() => reporter.priceToReport()).rejects.toThrow(
-          `Opening circuit breaker, price to report is too different from the last reported price. Price: ${currentPriceValue} Last reported price: ${lastReportedPrice} Price change threshold: ${circuitBreakerPriceChangeThresholdMin}`
-        )
-        expect(reporter.circuitBreakerOpen).toBe(true)
+        await expect(() => reporter.priceToReport()).rejects.toThrow('Circuit breaker is open')
       })
 
-      it('throws if the circuit breaker is already open', async () => {
-        jest.spyOn(reporter, 'circuitBreakerOpen', 'get').mockReturnValue(true)
-        await expect(() => reporter.priceToReport()).rejects.toThrow(`Circuit breaker is open`)
-        expect(reporter.circuitBreakerOpen).toBe(true)
+      it('does not throw if the new price is less and not close enough to the last reported price but enough time has elapsed', async () => {
+        currentPriceValue = lastReportedPrice.times(
+          circuitBreakerPriceChangeThresholdMin.negated().plus(0.9)
+        )
+        jest
+          .spyOn(reporter, 'lastReportedTimeMs', 'get')
+          .mockImplementation(
+            () => Date.now() - reporter.config.circuitBreakerDurationTimeMs - 20000
+          )
+        await expect(() => reporter.priceToReport()).not.toThrow()
       })
 
       it('uses doWithErrorContext to track thrown errors', async () => {

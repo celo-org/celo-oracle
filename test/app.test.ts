@@ -45,6 +45,7 @@ describe('OracleApplication', () => {
   const circuitBreakerPriceChangeThresholdMax = new BigNumber(0.1)
   const circuitBreakerPriceChangeThresholdMin = new BigNumber(0.1)
   const circuitBreakerPriceChangeThresholdTimeMultiplier = new BigNumber(0.0075)
+  const circuitBreakerDurationTimeMs = 20 * 60 * 1000 // 20 minutes.
   const currencyPair = OracleCurrencyPair.CELOUSD
   const expectedBlockTimeMs = secondsToMs(5)
   const httpRpcProviderUrl = 'http://test.foo'
@@ -67,6 +68,7 @@ describe('OracleApplication', () => {
     circuitBreakerPriceChangeThresholdMax,
     circuitBreakerPriceChangeThresholdMin,
     circuitBreakerPriceChangeThresholdTimeMultiplier,
+    circuitBreakerDurationTimeMs,
     gasPriceMultiplier: new BigNumber(5.0),
     transactionRetryLimit: 0,
     transactionRetryGasPriceMultiplier: new BigNumber(0),
@@ -151,6 +153,7 @@ describe('OracleApplication', () => {
         circuitBreakerPriceChangeThresholdMax,
         circuitBreakerPriceChangeThresholdMin,
         circuitBreakerPriceChangeThresholdTimeMultiplier,
+        circuitBreakerDurationTimeMs,
         maxBlockTimestampAgeMs,
         minReportPriceChangeThreshold,
         metricCollector: expect.any(MetricCollector),

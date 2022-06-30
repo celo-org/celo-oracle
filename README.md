@@ -84,9 +84,7 @@ The MetricCollector collects information from a running oracle application insta
 ### **Circuit Breaker**
 
 <!-- TODO: resolve feedback from Brynly in this section -->
-If extreme market volatility is detected, the “circuit breaker” will shut down the Oracle. As of now, when this happens, the Oracle application must be restarted manually. In instances when the circuit breaker is activated, the manual restart is expected to be a coordinated investigation and discussion between those running Oracles, collectively determining when to restart them.
-
-The current implementation assumes that all participating Oracles are operating with a circuit breaker and using the same configuration. The coordinated shutdown of all Oracles prevents the on-chain exchange rate from being updated. Until the circuit breakers are reset, the on-chain exchange rate adjusts dynamically. One-sided trading with the reserve will push the exchange rate towards the current market price, while limiting the effect on the reserve of having a rate that is "wrong".
+If extreme market volatility is detected, the “circuit breaker” will shut down the Oracle. The current implementation assumes that all participating Oracles are operating with a circuit breaker and using the same configuration. The coordinated shutdown of all Oracles prevents the on-chain exchange rate from being updated. Until the circuit breakers are reset, the on-chain exchange rate adjusts dynamically. One-sided trading with the reserve will push the exchange rate towards the current market price, while limiting the effect on the reserve of having a rate that is "wrong".
 
 ### **Minimum Number of Exchanges**
 

@@ -55,6 +55,7 @@ const baseReporterConfigEnvVars: EnvVarMap<BaseReporterConfigSubset> = {
     EnvVar.CIRCUIT_BREAKER_PRICE_CHANGE_THRESHOLD_TIME_MULTIPLIER,
   circuitBreakerPriceChangeThresholdMax: EnvVar.CIRCUIT_BREAKER_PRICE_CHANGE_THRESHOLD_MAX,
   devMode: EnvVar.DEVMODE,
+  circuitBreakerDurationTimeMs: EnvVar.CIRCUIT_BREAKER_DURATION_MS,
   gasPriceMultiplier: EnvVar.GAS_PRICE_MULTIPLIER,
   transactionRetryGasPriceMultiplier: EnvVar.TRANSACTION_RETRY_GAS_PRICE_MULTIPLIER,
   transactionRetryLimit: EnvVar.TRANSACTION_RETRY_LIMIT,
