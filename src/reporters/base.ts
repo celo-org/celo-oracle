@@ -67,6 +67,10 @@ export interface BaseReporterConfig {
    */
   readonly dataAggregator: DataAggregator
   /**
+   * If the oracles should be in development mode, which doesn't require a node nor account key
+   */
+  devMode: boolean
+  /**
    * The multiplier value for the gas price minimum which shall be used to compute the gasPrice for a transaction to send
    */
   gasPriceMultiplier: BigNumber
@@ -108,8 +112,6 @@ export interface BaseReporterConfig {
    * A list of unused addresses to ignore on the whitelist.
    */
   readonly unusedOracleAddresses: string[]
-
-  devMode: boolean
 }
 
 /**

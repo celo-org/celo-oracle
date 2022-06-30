@@ -81,6 +81,10 @@ export interface DataAggregatorConfig {
    */
   baseLogger: Logger
   /**
+   * If the oracles should be in development mode, which doesn't require a node nor account key
+   */
+  devMode: boolean
+  /**
    * Currency pair to get the price of in centralized exchanges
    */
   currencyPair: OracleApplicationConfig['currencyPair']
@@ -112,8 +116,6 @@ export interface DataAggregatorConfig {
    * The minimum aggregate volume across all exchanges to report
    */
   minAggregatedVolume: BigNumber
-
-  devMode: boolean
 }
 
 /**

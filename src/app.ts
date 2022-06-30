@@ -85,6 +85,10 @@ export interface OracleApplicationConfig {
   currencyPair: OracleCurrencyPair
   /** Configuration for the Data Aggregator */
   dataAggregatorConfig: DataAggregatorConfigSubset
+  /**
+   * If the oracles should be in development mode, which doesn't require a node nor account key
+   */
+  devMode: boolean
   /** The http URL of a web3 provider to send RPCs to */
   httpRpcProviderUrl: string
   /**
@@ -116,7 +120,6 @@ export interface OracleApplicationConfig {
   walletType: WalletType
   /** The websocket URL of a web3 provider to listen to events through with block-based reporting */
   wsRpcProviderUrl: string
-  devMode: boolean
   mockAccount: string
 }
 

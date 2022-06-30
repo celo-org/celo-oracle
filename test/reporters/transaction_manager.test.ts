@@ -58,7 +58,7 @@ describe('transaction manager', () => {
       gasPriceMultiplier: new BigNumber(5.0),
       transactionRetryLimit: 0,
       transactionRetryGasPriceMultiplier: new BigNumber(0),
-      oracleAccount: mockOracleAccount
+      oracleAccount: mockOracleAccount,
     }
   })
 
