@@ -391,7 +391,7 @@ export abstract class BaseExchangeAdapter {
               currentCert = issuerCertificate !== currentCert ? issuerCertificate : undefined
             }
           }
-          throw new Error('Pinned fingerprint not found in certificate chain')
+          return Error('Pinned fingerprint not found in certificate chain')
         }
       },
     })
