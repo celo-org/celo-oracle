@@ -60,6 +60,7 @@ export enum EnvVar {
   UNUSED_ORACLE_ADDRESSES = 'UNUSED_ORACLE_ADDRESSES',
   WALLET_TYPE = 'WALLET_TYPE',
   WS_RPC_PROVIDER_URL = 'WS_RPC_PROVIDER_URL',
+  DEVMODE = 'DEVMODE',
 }
 
 interface OrientedExchangePairConfig {
@@ -518,6 +519,13 @@ const envVarHandlingMap = new Map<EnvVar, EnvVarHandling>([
     {
       parseFn: (unparsed: string) => unparsed.toLowerCase(),
       validationFns: [(value: string) => envVarValidations.isValidUrl(value, 'ws')],
+    },
+  ],
+  [
+    EnvVar.DEVMODE,
+    {
+      parseFn: (unparsed: string): boolean => unparsed.toLowerCase() === 'true',
+      validationFns: [],
     },
   ],
 ])

@@ -45,6 +45,7 @@ describe('DataAggregator', () => {
   const maxPercentageDeviation = new BigNumber(0.2)
 
   let priceSourceConfigs: ExchangePriceSourceConfig[] | undefined
+  const devMode = false
 
   function resetDefaults() {
     priceSourceConfigs = undefined
@@ -58,6 +59,7 @@ describe('DataAggregator', () => {
       apiRequestTimeout,
       baseLogger,
       currencyPair,
+      devMode,
       maxSourceWeightShare,
       maxPercentageBidAskSpread,
       maxPercentageDeviation,

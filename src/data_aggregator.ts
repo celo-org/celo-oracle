@@ -81,6 +81,10 @@ export interface DataAggregatorConfig {
    */
   baseLogger: Logger
   /**
+   * If the oracles should be in development mode, which doesn't require a node nor account key
+   */
+  devMode: boolean
+  /**
    * Currency pair to get the price of in centralized exchanges
    */
   currencyPair: OracleApplicationConfig['currencyPair']
@@ -153,7 +157,6 @@ export class DataAggregator {
 
     const priceSourceConfigs = this.config.priceSourceConfigs ?? ([] as ExchangePriceSourceConfig[])
     this.logger.info({ priceSources: priceSourceConfigs }, 'Setting up price sources')
-
     return priceSourceConfigs.map((sourceConfig) => {
       const source = priceSourceFromConfig(
         adapterFactory,

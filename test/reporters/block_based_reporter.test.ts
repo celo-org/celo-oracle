@@ -90,6 +90,7 @@ describe('Reporter', () => {
 
     defaultConfig = {
       baseLogger,
+      devMode: false,
       kit,
       circuitBreakerPriceChangeThresholdMax,
       circuitBreakerPriceChangeThresholdMin,

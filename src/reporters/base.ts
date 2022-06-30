@@ -67,6 +67,10 @@ export interface BaseReporterConfig {
    */
   readonly dataAggregator: DataAggregator
   /**
+   * If the oracles should be in development mode, which doesn't require a node nor account key
+   */
+  devMode: boolean
+  /**
    * The multiplier value for the gas price minimum which shall be used to compute the gasPrice for a transaction to send
    */
   gasPriceMultiplier: BigNumber
@@ -180,6 +184,16 @@ export abstract class BaseReporter {
       },
       'Reporting price'
     )
+    if (this.config.devMode) {
+      this.logger.info(
+        {
+          price,
+          trigger,
+        },
+        'Mock call, did not report because of devMode'
+      )
+      return
+    }
     const receipt = await this.doAsyncReportAction(() => this.reportPrice(price), 'total')
     this.logger.info(
       {
@@ -189,6 +203,7 @@ export abstract class BaseReporter {
       },
       'Successfully reported price'
     )
+
     // This is only meant for metric collection purposes.
     // There's no straightforward way to get tx details from contractkit without
     // another RPC call. If we add gas estimation and gasPrice into the oracle
@@ -259,6 +274,11 @@ export abstract class BaseReporter {
    */
   async expire() {
     this.logger.info('Checking for expired reports')
+    if (this.config.devMode) {
+      this.logger.info('Mock call, did not expire reports because of devMode')
+      return
+    }
+
     const receipt = await this.doAsyncExpiryAction(() => this.removeExpiredReports(), 'total')
     if (receipt) {
       this.logger.info(
@@ -384,7 +404,10 @@ export abstract class BaseReporter {
    */
   private async requireAccountIsWhitelisted(): Promise<void> {
     const sortedOracles = await this.config.kit.contracts.getSortedOracles()
-    if (!(await sortedOracles.isOracle(this.config.reportTarget, this.config.oracleAccount))) {
+    if (
+      !(await sortedOracles.isOracle(this.config.reportTarget, this.config.oracleAccount)) &&
+      !this.config.devMode
+    ) {
       throw Error(
         `Account ${this.config.oracleAccount} is not whitelisted as an oracle for ${this.config.currencyPair}`
       )
@@ -401,10 +424,11 @@ export abstract class BaseReporter {
       .map(normalizeAddressWith0x)
       .filter((addr) => !this.config.unusedOracleAddresses.includes(addr))
 
-    const oracleIndex =
-      this.config.overrideIndex !== undefined
-        ? this.config.overrideIndex
-        : oracleWhitelist.indexOf(normalizeAddressWith0x(this.config.oracleAccount))
+    const indexOverrided = this.config.overrideIndex !== undefined
+
+    const oracleIndex = indexOverrided
+      ? this.config.overrideIndex
+      : oracleWhitelist.indexOf(normalizeAddressWith0x(this.config.oracleAccount))
 
     // This should not happen, but handle the edge-case anyway
     if (oracleIndex === -1) {
@@ -413,11 +437,21 @@ export abstract class BaseReporter {
       )
     }
 
+    this.logger.info(
+      `Starting oracle with index #${oracleIndex} ${indexOverrided ? '(mocked)' : ''}`
+    )
+
     this._oracleIndex = oracleIndex
-    this._totalOracleCount =
-      this.config.overrideTotalOracleCount !== undefined
-        ? this.config.overrideTotalOracleCount
-        : oracleWhitelist.length
+
+    const oracleCountOverrided = this.config.overrideTotalOracleCount !== undefined
+
+    this._totalOracleCount = oracleCountOverrided
+      ? this.config.overrideTotalOracleCount
+      : oracleWhitelist.length
+
+    this.logger.info(
+      `Found a total of #${this._totalOracleCount} ${oracleCountOverrided ? '(mocked)' : ''}`
+    )
   }
 
   /**
