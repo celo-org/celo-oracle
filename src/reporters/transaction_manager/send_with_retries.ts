@@ -32,7 +32,7 @@ export default async function sendWithRetries(
         metricAction,
         fallbackGas
       )
-    } catch (err) {
+    } catch (err: any) {
       lastCaughtError = err
       onError(err, {
         context: Context.TRANSACTION_MANAGER,
