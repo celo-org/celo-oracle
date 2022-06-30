@@ -441,13 +441,15 @@ export abstract class BaseReporter {
     this.logger.info(`Starting oracle with index #${oracleIndex} ${indexOverrided? '(mocked)' : ''}`) 
 
     this._oracleIndex = oracleIndex
-    // TODO add mock here
+
+    const oracleCountOverrided = this.config.overrideTotalOracleCount !== undefined
+
     this._totalOracleCount =
-      this.config.overrideTotalOracleCount !== undefined
+        oracleCountOverrided
         ? this.config.overrideTotalOracleCount
         : oracleWhitelist.length
 
-        this.logger.info(`Found a total of #${oracleIndex}`) 
+        this.logger.info(`Found a total of #${this._totalOracleCount} ${oracleCountOverrided? '(mocked)' : ''}`)
   }
 
   /**
