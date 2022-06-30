@@ -61,6 +61,7 @@ describe('BaseReporter', () => {
 
     defaultConfig = {
       baseLogger,
+      devMode: false,
       kit,
       circuitBreakerPriceChangeThresholdMax,
       circuitBreakerPriceChangeThresholdMin,
@@ -75,7 +76,6 @@ describe('BaseReporter', () => {
       reportTarget: CeloContract.StableToken,
       metricCollector,
       unusedOracleAddresses: [],
-      devMode: false,
     }
   })
 
@@ -140,6 +140,7 @@ describe('BaseReporter', () => {
     ) {
       const config: BaseReporterConfig = {
         baseLogger,
+        devMode: false,
         kit,
         circuitBreakerPriceChangeThresholdMax,
         circuitBreakerPriceChangeThresholdMin,
@@ -541,6 +542,7 @@ describe('BaseReporter', () => {
       beforeEach(async () => {
         const config: BaseReporterConfig = {
           baseLogger,
+          devMode: false,
           kit,
           circuitBreakerPriceChangeThresholdMax: testThreshMax,
           circuitBreakerPriceChangeThresholdMin: testThreshMin,
