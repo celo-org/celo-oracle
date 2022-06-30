@@ -1,4 +1,4 @@
-;[
+[
   [{ exchange: 'BITTREX', symbol: 'CELOUSD', toInvert: false }],
   [{ exchange: 'COINBASE', symbol: 'CELOUSD', toInvert: false }],
   [{ exchange: 'OKCOIN', symbol: 'CELOUSD', toInvert: false }],

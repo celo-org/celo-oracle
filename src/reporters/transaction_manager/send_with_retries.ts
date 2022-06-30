@@ -32,9 +32,9 @@ export default async function sendWithRetries(
         metricAction,
         fallbackGas
       )
-    } catch (e) {
-      lastCaughtError = e
-      onError(e, {
+    } catch (err: any) {
+      lastCaughtError = err
+      onError(err, {
         context: Context.TRANSACTION_MANAGER,
         logger: config.logger,
         logMsg: 'Unable to send transaction',

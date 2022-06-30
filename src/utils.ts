@@ -249,20 +249,20 @@ export async function tryExponentialBackoff<T>(
   if (maxTries < 1) {
     throw Error(`maxTries must be >= 1`)
   }
-  let err: Error
+  let e: Error
   for (let i = 0; i < maxTries; i++) {
     try {
       const returnValue = await fn()
       return returnValue
-    } catch (e) {
+    } catch (err: any) {
       if (i < maxTries - 1) {
         const backoff = min(2 ** i * baseBackoffMs, maxBackoffMs)
         await sleep(backoff, () => (onBackoff ? onBackoff(e, backoff) : undefined))
       }
-      err = e
+      e = err
     }
   }
-  throw err!
+  throw e!
 }
 
 /**
@@ -411,7 +411,7 @@ export function doFnWithErrorContext<T>(
 export function doFnWithErrorContext<T>(errorFnWrapper: ErrorFnWrapper<T>): T | undefined {
   try {
     return errorFnWrapper.fn()
-  } catch (err) {
+  } catch (err: any) {
     onError(err, errorFnWrapper)
   }
 }
@@ -431,7 +431,7 @@ export async function doAsyncFnWithErrorContext<T>(
 ): Promise<T | undefined> {
   try {
     return await errorFnWrapper.fn()
-  } catch (err) {
+  } catch (err: any) {
     onError(err, errorFnWrapper)
   }
 }

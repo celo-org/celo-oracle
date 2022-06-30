@@ -552,7 +552,7 @@ export function fetchParseValidateEnvVar(envVar: EnvVar): any {
     for (const validationFn of handling.validationFns) {
       try {
         validationFn(parsed)
-      } catch (err) {
+      } catch (err: any) {
         throw new EnvVarValidationError(envVar, unparsed, err.message)
       }
     }
