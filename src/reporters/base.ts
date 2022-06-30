@@ -54,6 +54,11 @@ export interface BaseReporterConfig {
    */
   circuitBreakerPriceChangeThresholdTimeMultiplier: BigNumber
   /**
+   * How long the oracle will stop reporting for in case of market movements
+   * larger than the circuit breaker price threshold.
+   */
+  circuitBreakerDurationTimeMs: number
+  /**
    * The currency pair to report upon
    */
   readonly currencyPair: OracleApplicationConfig['currencyPair']
@@ -124,11 +129,6 @@ export abstract class BaseReporter {
    */
   private initializedBase: boolean
 
-  /**
-   * When circuitBreakerOpen is true, the circuit breaker has been triggered
-   * and no reports will occur.
-   */
-  protected _circuitBreakerOpen: boolean
   protected _lastReportedPrice: BigNumber | undefined
   protected _lastReportedTimeMs: number | undefined
 
@@ -147,7 +147,6 @@ export abstract class BaseReporter {
       reportStrategy: this.reportStrategy,
     })
     this.initializedBase = false
-    this._circuitBreakerOpen = false
     this.initialized = false
   }
 
@@ -345,30 +344,26 @@ export abstract class BaseReporter {
    */
   async priceToReport() {
     const getPrice = async (): Promise<BigNumber> => {
-      // If the circuit breaker is already open, complain loudly
-      if (this.circuitBreakerOpen) {
-        throw Error('Circuit breaker is open')
-      }
       // This can throw if there is an issue with trade data
       const price = await this.config.dataAggregator.currentPrice()
-      // lastReportedPrice is a BigNumber and therefore truthy even if zero.
-      // Determine if we should open the circuit breaker.
-      // TODO: consider lastReportedTime in circuit breaker calculation
 
-      this._circuitBreakerOpen =
-        (this.calculateCircuitBreakerPriceChangeThreshold() !== undefined &&
-          this.lastReportedPrice &&
-          isOutsideTolerance(
-            this.lastReportedPrice,
-            price,
-            this.calculateCircuitBreakerPriceChangeThreshold()
-          )) ||
-        false // false so that it can't be undefined
+      // Circuit breaker logic only applies if the oracle client has previously
+      // reported.
+      const haveReported =
+        this.lastReportedTimeMs !== undefined && this.lastReportedPrice !== undefined
+      if (haveReported) {
+        // Determine if we should open the circuit breaker.
+        const circuitBreakerThreshold = this.calculateCircuitBreakerPriceChangeThreshold()
+        const timeSinceLastReport = Date.now() - this.lastReportedTimeMs!
+        const circuitBreakerOpen =
+          isOutsideTolerance(this.lastReportedPrice!, price, circuitBreakerThreshold) &&
+          timeSinceLastReport < this.config.circuitBreakerDurationTimeMs
 
-      if (this._circuitBreakerOpen) {
-        throw Error(
-          `Opening circuit breaker, price to report is too different from the last reported price. Price: ${price} Last reported price: ${this.lastReportedPrice} Price change threshold: ${this.config.circuitBreakerPriceChangeThresholdMin}`
-        )
+        if (circuitBreakerOpen) {
+          throw Error(
+            `Circuit breaker is open, price to report is too different from the last reported price and not enough time has elapsed. Price: ${price} Last reported price: ${this.lastReportedPrice} Price change threshold: ${circuitBreakerThreshold} Last reported time: ${this.lastReportedTimeMs} Circuit breaker duration [ms]: ${this.config.circuitBreakerDurationTimeMs}`
+          )
+        }
       }
       return price
     }
@@ -502,10 +497,6 @@ export abstract class BaseReporter {
     return doWithDurationMetric(fn, (duration: number) => {
       this.config.metricCollector?.expiryDuration(action, this.config.currencyPair, duration)
     })
-  }
-
-  get circuitBreakerOpen(): boolean {
-    return this._circuitBreakerOpen
   }
 
   get lastReportedPrice(): BigNumber | undefined {
