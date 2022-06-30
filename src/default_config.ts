@@ -32,7 +32,7 @@ export const defaultDataAggregatorConfig: DataAggregatorConfigSubset = {
   maxPercentageDeviation: new BigNumber(0.2),
   minPriceSourceCount: 1,
   minAggregatedVolume: new BigNumber(0),
-  devMode: false
+  devMode: false,
 }
 
 export const defaultBaseReporterConfig: BaseReporterConfigSubset = {
@@ -45,7 +45,7 @@ export const defaultBaseReporterConfig: BaseReporterConfigSubset = {
   transactionRetryLimit: 3,
   transactionRetryGasPriceMultiplier: new BigNumber(0.1),
   unusedOracleAddresses: [],
-  devMode: false
+  devMode: false,
 }
 
 export const defaultBlockBasedReporterConfig: BlockBasedReporterConfigSubset = {
@@ -73,5 +73,5 @@ export const defaultApplicationConfig: OracleApplicationConfig = {
   walletType: WalletType.PRIVATE_KEY,
   wsRpcProviderUrl: 'ws://localhost:8546',
   devMode: false,
-  mockAccount: "0x243860e8216B4F6eC2478Ebd613F6F4bDE0704DE", // Just a valid address used for testing
+  mockAccount: '0x243860e8216B4F6eC2478Ebd613F6F4bDE0704DE', // Just a valid address used for testing
 }

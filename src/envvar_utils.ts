@@ -527,7 +527,7 @@ const envVarHandlingMap = new Map<EnvVar, EnvVarHandling>([
       parseFn: (unparsed: string): boolean => unparsed.toLowerCase() === 'true',
       validationFns: [],
     },
-  ]
+  ],
 ])
 
 /**
