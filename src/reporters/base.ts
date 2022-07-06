@@ -159,7 +159,6 @@ export abstract class BaseReporter {
    */
   async init() {
     this.requireUninitializedBase()
-    await this.requireAccountIsWhitelisted()
     await this.setOracleInfo()
     this.initializedBase = true
   }
@@ -396,22 +395,6 @@ export abstract class BaseReporter {
       logMsg: 'Error getting price to report',
       swallowError: false,
     })
-  }
-
-  /**
-   * Checks if the account is whitelisted as an oracle for the ccurency pair that this
-   * reporter instance is set to report upon.
-   */
-  private async requireAccountIsWhitelisted(): Promise<void> {
-    const sortedOracles = await this.config.kit.contracts.getSortedOracles()
-    if (
-      !(await sortedOracles.isOracle(this.config.reportTarget, this.config.oracleAccount)) &&
-      !this.config.devMode
-    ) {
-      throw Error(
-        `Account ${this.config.oracleAccount} is not whitelisted as an oracle for ${this.config.currencyPair}`
-      )
-    }
   }
 
   /**

@@ -90,9 +90,6 @@ export class BlockBasedReporter extends BaseReporter {
 
   private _blockHeaderSubscription: Subscription<BlockHeader> | undefined
 
-  private _fullCyclesPerExpiryPeriod: number | undefined
-  private _heartbeatCycleInExpiryPeriod: number | undefined
-
   private _highestObservedBlockNumber: number
 
   private _reportExpiryTimeMs: number | undefined
@@ -129,16 +126,6 @@ export class BlockBasedReporter extends BaseReporter {
     const sortedOracles = await this.config.kit.contracts.getSortedOracles()
     this._reportExpiryTimeMs = secondsToMs((await sortedOracles.reportExpirySeconds()).toNumber())
 
-    if (this.config.targetMaxHeartbeatPeriodMs === undefined) {
-      this.config.targetMaxHeartbeatPeriodMs = this._reportExpiryTimeMs
-    }
-    const expectedBlocksPerExpiryPeriod = Math.floor(
-      this.config.targetMaxHeartbeatPeriodMs / this.config.expectedBlockTimeMs
-    )
-    this._fullCyclesPerExpiryPeriod = Math.floor(
-      expectedBlocksPerExpiryPeriod / this.totalOracleCount
-    )
-    this._heartbeatCycleInExpiryPeriod = this.oracleIndex % this._fullCyclesPerExpiryPeriod
     this.initialized = true
   }
 
@@ -287,9 +274,18 @@ export class BlockBasedReporter extends BaseReporter {
   }
 
   private isHeartbeatCycle(blockNumber: number): boolean {
+    const targetMaxHeartbeatPeriodMs =
+      this.config.targetMaxHeartbeatPeriodMs ?? this.reportExpiryTimeMs
+    const expectedBlocksPerExpiryPeriod = Math.floor(
+      targetMaxHeartbeatPeriodMs / this.config.expectedBlockTimeMs
+    )
+    const fullCyclesPerExpiryPeriod = Math.floor(
+      expectedBlocksPerExpiryPeriod / this.totalOracleCount
+    )
+    const heartbeatCycleInExpiryPeriod = this.oracleIndex % fullCyclesPerExpiryPeriod
     const cycleInExpiryPeriod =
-      Math.floor(blockNumber / this.totalOracleCount) % this.fullCyclesPerExpiryPeriod
-    return cycleInExpiryPeriod === this.heartbeatCycleInExpiryPeriod
+      Math.floor(blockNumber / this.totalOracleCount) % fullCyclesPerExpiryPeriod
+    return cycleInExpiryPeriod === heartbeatCycleInExpiryPeriod
   }
 
   private setupProviderAndSubscriptions(): void {
@@ -338,16 +334,6 @@ export class BlockBasedReporter extends BaseReporter {
   get blockHeaderSubscription(): Subscription<BlockHeader> {
     this.requireInitialized()
     return this._blockHeaderSubscription!
-  }
-
-  get fullCyclesPerExpiryPeriod(): number {
-    this.requireInitialized()
-    return this._fullCyclesPerExpiryPeriod!
-  }
-
-  get heartbeatCycleInExpiryPeriod(): number {
-    this.requireInitialized()
-    return this._heartbeatCycleInExpiryPeriod!
   }
 
   get highestObservedBlockNumber(): number {
