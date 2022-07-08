@@ -140,7 +140,7 @@ workflows:
           registry-name: celoprod
           repo: oracle
           tag: $CIRCLE_SHA1
-          # filters:
-          #   branches:
-          #     # Only push to ACR when the commit is on the main branch.
-          #     only: main
+          filters:
+            branches:
+              # Only push to ACR when the commit is on the main branch.
+              only: main
