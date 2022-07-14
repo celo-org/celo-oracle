@@ -186,8 +186,7 @@ export class OracleApplication {
       'Initializing app'
     )
 
-    console.log("wallet type")
-    console.log(this.config.walletType)
+
     switch (this.config.walletType) {
       case WalletType.AWS_HSM:
         requireVariables({
@@ -237,8 +236,8 @@ export class OracleApplication {
           kit.addAccount(privateKey)
           this.config.address = privateKeyToAddress(privateKey)
         } else {
+          this.config.address = this.config.mockAccount
           this.logger.info(`DEVMODE enabled, used mock address ${this.config.mockAccount}`)
-          
         }
         break
       case WalletType.NODE_ACCOUNT:
@@ -246,6 +245,7 @@ export class OracleApplication {
           if (this.config.address){
             kit.defaultAccount = this.config.address
           } else {
+            // If not default address, use the first one of the account
             const account = (await kit.web3.eth.getAccounts())[0]
             kit.defaultAccount = account
             this.config.address = account
