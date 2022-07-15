@@ -106,11 +106,6 @@ This configurable threshold allows setting a cap on how much weight any one exch
 
 If the prices from different sources (i.e. exchanges) deviate too much, it suggests there is too much uncertainty in the current market conditions. When a set threshold is exceeded, the Oracle will avoid reporting a new value until the sources are in closer agreement.
 
-## Build checks
-
-We use Google CloudBuild to run continuous integration checks as part of the PR process. To run this locally, install `cloud-build-local`, start up Docker, and run the following from the root:
-`cloud-build-local --config=cloudbuild.yaml --dryrun=false .`
-
 ## Contributing
 
 Feel free to jump on the Celo 🚂🚋🚋🚋. Improvements and contributions are highly encouraged! 🙏👊
