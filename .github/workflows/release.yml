@@ -1,0 +1,28 @@
+name: Docker Image Build and Push
+
+on:
+  workflow_dispatch:
+    inputs:
+      version_tag:
+        description: 'Release version (used to tag)'     
+        required: true
+        type: string
+      repository:
+        description: 'Image repository'
+        required: true
+        type: string
+        default: us-west1-docker.pkg.dev/celo-testnet-production/celo-oracle/celo-oracle
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      SHA_HASH: ${{ github.sha }}
+      REPOSITORY: ${{ inputs.repository }}
+      VERSION: ${{ inputs.version_tag }}
+    steps:
+    - uses: actions/checkout@v3
+    - name: Build the Docker image
+      run: docker build . --file Dockerfile --tag $REPOSITORY:$SHA_HASH --tag $REPOSITORY:$VERSION
+    - name: Push the Docker image
+      run: docker push $REPOSITORY:$VERSION
