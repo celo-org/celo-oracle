@@ -235,13 +235,26 @@ export class OracleApplication {
           kit.addAccount(privateKey)
           this.config.address = privateKeyToAddress(privateKey)
         } else {
-          this.logger.info(`DEVMODE enabled, used mock address ${this.config.mockAccount}`)
           this.config.address = this.config.mockAccount
+          this.logger.info(`DEVMODE enabled, used mock address ${this.config.mockAccount}`)
+        }
+        break
+      case WalletType.NODE_ACCOUNT:
+        kit = newKit(httpRpcProviderUrl)
+        if (this.config.address) {
+          kit.defaultAccount = this.config.address
+        } else {
+          // If not default address, use the first one of the account
+          const account = (await kit.web3.eth.getAccounts())[0]
+          kit.defaultAccount = account
+          this.config.address = account
         }
         break
       default:
         throw Error(`Invalid wallet type: ${walletType}`)
     }
+
+    this.logger.info(`Using address ${this.config.address}`)
 
     const commonReporterConfig = {
       baseLogger: this.config.baseLogger,

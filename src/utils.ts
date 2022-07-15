@@ -90,6 +90,7 @@ export enum AggregationMethod {
 export enum WalletType {
   AWS_HSM = 'AWS_HSM',
   AZURE_HSM = 'AZURE_HSM',
+  NODE_ACCOUNT = 'NODE_ACCOUNT',
   PRIVATE_KEY = 'PRIVATE_KEY',
 }
 
