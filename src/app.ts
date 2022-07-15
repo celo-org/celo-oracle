@@ -186,7 +186,6 @@ export class OracleApplication {
       'Initializing app'
     )
 
-
     switch (this.config.walletType) {
       case WalletType.AWS_HSM:
         requireVariables({
@@ -241,15 +240,15 @@ export class OracleApplication {
         }
         break
       case WalletType.NODE_ACCOUNT:
-          kit = newKit(httpRpcProviderUrl)
-          if (this.config.address){
-            kit.defaultAccount = this.config.address
-          } else {
-            // If not default address, use the first one of the account
-            const account = (await kit.web3.eth.getAccounts())[0]
-            kit.defaultAccount = account
-            this.config.address = account
-          }
+        kit = newKit(httpRpcProviderUrl)
+        if (this.config.address) {
+          kit.defaultAccount = this.config.address
+        } else {
+          // If not default address, use the first one of the account
+          const account = (await kit.web3.eth.getAccounts())[0]
+          kit.defaultAccount = account
+          this.config.address = account
+        }
         break
       default:
         throw Error(`Invalid wallet type: ${walletType}`)
