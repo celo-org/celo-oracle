@@ -412,9 +412,9 @@ export abstract class BaseReporter {
       ? this.config.overrideIndex
       : oracleWhitelist.indexOf(normalizeAddressWith0x(this.config.oracleAccount))
 
-    // This should not happen, but handle the edge-case anyway
+    // This could happen if the address hasn't been whitelisted yet.
     if (oracleIndex === -1) {
-      throw Error(
+      this.logger.warn(
         `Account ${this.config.oracleAccount} is not whitelisted as an oracle for ${this.config.currencyPair}`
       )
     }
