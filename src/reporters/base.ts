@@ -419,9 +419,7 @@ export abstract class BaseReporter {
       )
     }
 
-    this.logger.info(
-      `Starting oracle with index #${oracleIndex} ${indexOverrided ? '(mocked)' : ''}`
-    )
+    this.logger.info(`Setting oracle index to ${oracleIndex} ${indexOverrided ? '(mocked)' : ''}`)
 
     this._oracleIndex = oracleIndex
 
@@ -432,7 +430,7 @@ export abstract class BaseReporter {
       : oracleWhitelist.length
 
     this.logger.info(
-      `Found a total of #${this._totalOracleCount} ${oracleCountOverrided ? '(mocked)' : ''}`
+      `Found a total of ${this._totalOracleCount}${oracleCountOverrided ? ' (mocked)' : ''} oracles`
     )
   }
 
