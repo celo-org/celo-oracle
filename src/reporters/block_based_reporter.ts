@@ -148,6 +148,18 @@ export class BlockBasedReporter extends BaseReporter {
    */
   async onBlockHeader(blockHeader: BlockHeader) {
     const blockNumber = blockHeader.number
+
+    // If the oracle is not authorised (index == -1), assume the index is 0 for the purpose of
+    // updating the list of authorised oracles.
+    const shouldUpdateInfo = this.oracleIndex === -1 && blockNumber % this.totalOracleCount === 0
+    // If it's an assigned block, or if the oracle info should be updated.
+    if (this.isAssignedBlock(blockNumber) || shouldUpdateInfo) {
+      // Update the oracle index / count information.
+      // The next isAssignedBlock call may return a different result than the
+      // one above if the index / count have changed.
+      await this.setOracleInfo()
+    }
+
     const isAssignedBlock = this.isAssignedBlock(blockNumber)
     this.logger.debug(
       {
@@ -204,15 +216,8 @@ export class BlockBasedReporter extends BaseReporter {
   async maybeReport(blockNumber: number) {
     const price = await this.priceToReport()
     this.config.metricCollector?.potentialReport(this.config.currencyPair, price)
-    // If it's a heartbeat block.
-    if (this.isHeartbeatCycle(blockNumber)) {
-      // Update the oracle index / count information.
-      // The next isHeartbeatCycle call may return a different result than the
-      // one above if the index / count have changed.
-      await this.setOracleInfo()
-    }
-    const heartbeat = this.isHeartbeatCycle(blockNumber) || this.lastReportHasExpired()
 
+    const heartbeat = this.isHeartbeatCycle(blockNumber) || this.lastReportHasExpired()
     const shouldReport =
       heartbeat ||
       this.lastReportedPrice === undefined ||

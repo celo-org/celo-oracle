@@ -126,10 +126,8 @@ describe('BaseReporter', () => {
         ]
       })
 
-      it('throws an error', async () => {
-        await expect(async () => createAndInitializeReporter(defaultConfig)).rejects.toThrow(
-          `Account ${mockOracleAccount} is not whitelisted as an oracle for CELOUSD`
-        )
+      it('does not throw an error', async () => {
+        await expect(createAndInitializeReporter(defaultConfig)).resolves.not.toThrow()
       })
     })
 

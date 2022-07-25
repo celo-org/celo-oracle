@@ -412,16 +412,14 @@ export abstract class BaseReporter {
       ? this.config.overrideIndex
       : oracleWhitelist.indexOf(normalizeAddressWith0x(this.config.oracleAccount))
 
-    // This should not happen, but handle the edge-case anyway
+    // This could happen if the address hasn't been whitelisted yet.
     if (oracleIndex === -1) {
-      throw Error(
+      this.logger.warn(
         `Account ${this.config.oracleAccount} is not whitelisted as an oracle for ${this.config.currencyPair}`
       )
     }
 
-    this.logger.info(
-      `Starting oracle with index #${oracleIndex} ${indexOverrided ? '(mocked)' : ''}`
-    )
+    this.logger.info(`Setting oracle index to ${oracleIndex} ${indexOverrided ? '(mocked)' : ''}`)
 
     this._oracleIndex = oracleIndex
 
@@ -432,7 +430,7 @@ export abstract class BaseReporter {
       : oracleWhitelist.length
 
     this.logger.info(
-      `Found a total of #${this._totalOracleCount} ${oracleCountOverrided ? '(mocked)' : ''}`
+      `Found a total of ${this._totalOracleCount}${oracleCountOverrided ? ' (mocked)' : ''} oracles`
     )
   }
 
