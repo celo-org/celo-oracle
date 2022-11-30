@@ -60,7 +60,7 @@ export enum OracleCurrencyPair {
   BUSDBRL = 'BUSDBRL',
   BUSDUSD = 'BUSDUSD',
   USDBRL = 'USDBRL',
-} 
+}
 
 export const CoreCurrencyPair: OracleCurrencyPair[] = [
   OracleCurrencyPair.CELOEUR,
