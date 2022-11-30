@@ -24,6 +24,7 @@ export enum ReportStrategy {
 
 export enum Exchange {
   BINANCE = 'BINANCE',
+  BINANCEUS = 'BINANCEUS',
   BITTREX = 'BITTREX',
   COINBASE = 'COINBASE',
   OKCOIN = 'OKCOIN',
