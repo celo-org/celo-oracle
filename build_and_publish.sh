@@ -31,7 +31,7 @@ echo "Tagging and pushing"
 docker tag $PACKAGE_NAME $REPOSITORY/$PACKAGE_NAME:$COMMIT_HASH
 docker push $REPOSITORY/$PACKAGE_NAME:$COMMIT_HASH
 
-if [[ $BUILD_ENV -eq "production" ]]; then 
+if [[ $BUILD_ENV == "production" ]]; then 
   docker tag $PACKAGE_NAME $REPOSITORY/$PACKAGE_NAME:$PACKAGE_VERSION
   docker push $REPOSITORY/$PACKAGE_NAME:$PACKAGE_VERSION
 else
