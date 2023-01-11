@@ -1,0 +1,35 @@
+---
+name: Build and Push Image
+on: 
+  workflow_dispatch:
+    inputs:
+      build_env:
+        description: 'Build environment (staging|production)'     
+        required: true
+        default: 'staging'
+        type: string
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      BUILD_ENV: ${{ inputs.build_env }}
+    steps:
+
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: 'Authenticate to Google Cloud'
+      uses: 'google-github-actions/auth@v1'
+      with: 
+        credentials_json: '${{ secrets.GCP_SERVICE_ACCOUNT }}'
+
+    - name: 'Set up Cloud SDK'
+      uses: 'google-github-actions/setup-gcloud@v1'
+
+    - name: Configure Docker Client 
+      run: |-
+        gcloud auth configure-docker us-west1-docker.pkg.dev --quiet
+
+    - name: Build and publish docker image
+      run: |-
+        ./build_and_publish.sh
