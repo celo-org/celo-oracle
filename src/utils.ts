@@ -40,6 +40,7 @@ export enum ExternalCurrency {
   USDT = 'USDT',
   BRL = 'BRL',
   BUSD = 'BUSD',
+  USDC = 'USDC',
 }
 
 export type Currency = ExternalCurrency | CeloToken

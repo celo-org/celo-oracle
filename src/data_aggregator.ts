@@ -28,6 +28,7 @@ import {
   PromiseStatus,
   SettledPromise,
 } from './utils'
+import { KrakenAdapter } from './exchange_adapters/kraken'
 
 function adapterFromExchangeName(name: Exchange, config: ExchangeAdapterConfig): ExchangeAdapter {
   switch (name) {
@@ -45,6 +46,8 @@ function adapterFromExchangeName(name: Exchange, config: ExchangeAdapterConfig):
       return new BitsoAdapter(config)
     case Exchange.NOVADAX:
       return new NovaDaxAdapter(config)
+    case Exchange.KRAKEN:
+      return new KrakenAdapter(config)
   }
 }
 

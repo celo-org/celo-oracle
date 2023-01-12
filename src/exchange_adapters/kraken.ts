@@ -2,78 +2,83 @@ import { Exchange } from '../utils'
 import { BaseExchangeAdapter, ExchangeAdapter, ExchangeDataType, Ticker, Trade } from './base'
 
 export class KrakenAdapter extends BaseExchangeAdapter implements ExchangeAdapter {
-  baseApiUrl = 'https://api.kraken.com'
-  readonly _exchangeName = Exchange.KRAKEN
+         baseApiUrl = 'https://api.kraken.com'
+         readonly _exchangeName = Exchange.KRAKEN
 
-  private static readonly tokenSymbolMap = KrakenAdapter.standardTokenSymbolMap
+         private static readonly tokenSymbolMap = KrakenAdapter.standardTokenSymbolMap
 
-  // Krakens's GTS CA 1P5 fingerprint.
-  readonly _certFingerprint256 =
-    '97:D4:20:03:E1:32:55:29:46:09:7F:20:EF:95:5F:5B:1C:D5:70:AA:43:72:D7:80:03:3A:65:EF:BE:69:75:8D'
+         // Krakens's GTS CA 1P5 fingerprint.
+         readonly _certFingerprint256 =
+           '97:D4:20:03:E1:32:55:29:46:09:7F:20:EF:95:5F:5B:1C:D5:70:AA:43:72:D7:80:03:3A:65:EF:BE:69:75:8D'
 
-  protected generatePairSymbol(): string {
-    const base = KrakenAdapter.tokenSymbolMap.get(this.config.baseCurrency)
-    const quote = KrakenAdapter.tokenSymbolMap.get(this.config.quoteCurrency)
-    return `${base}_${quote}`
-  }
+         protected generatePairSymbol(): string {
+           const base = KrakenAdapter.tokenSymbolMap.get(this.config.baseCurrency)
+           const quote = KrakenAdapter.tokenSymbolMap.get(this.config.quoteCurrency)
+           return `${base}_${quote}`
+         }
 
-  async fetchTicker(): Promise<Ticker> {
-    const json = await this.fetchFromApi(
-      ExchangeDataType.TICKER,
-      `0/public/Ticker?pair=${this.pairSymbol}`
-    )
-    return this.parseTicker(json)
-  }
+         async fetchTicker(): Promise<Ticker> {
+           const json = await this.fetchFromApi(
+             ExchangeDataType.TICKER,
+             `0/public/Ticker?pair=${this.pairSymbol}`
+           )
+           return this.parseTicker(json)
+         }
 
-  async fetchTrades(): Promise<Trade[]> {
-    const tradesJson = await this.fetchFromApi(
-      ExchangeDataType.TRADE,
-      `0/public/Trades?pair=${this.pairSymbol}`
-    )
-    return this.parseTrades(tradesJson).sort((a, b) => a.timestamp - b.timestamp)
-  }
+         async fetchTrades(): Promise<Trade[]> {
+           // Trade data is not needed by oracle but is required by the parent class.
+           // This function along with all other functions that are not needed by the oracle will
+           // be removed in a future PR. 
+           // -- @bayological ;) --
+           return []
+         }
 
-    /**
-   *
-   * @param json response from Krakens's trades endpoint
-   *
-   *  {
-   *      "code": "A10000",
-   *      "data": [
-   *          {
-   *              "price": "43657.57",
-   *              "amount": "1",
-   *              "side": "SELL",
-   *              "timestamp": 1565007823401
-   *          },
-   *          {
-   *              "price": "43687.16",
-   *              "amount": "0.071",
-   *              "side": "BUY",
-   *              "timestamp": 1565007198261
-   *          }
-   *      ],
-   *      "message": "Success"
-   *  }
-   *
-   */
+         /**
+          * @param json a json object representing the ticker from Kraken's API
+          * Expected format can be seen in the public docs": https://docs.kraken.com/rest/#tag/Market-Data/operation/getTickerInformation
+          *
+          */
+         parseTicker(json: any): Ticker {  
+          const data = json.result[Object.keys(json.result)[0]] 
+          
+          const baseVolume = this.safeBigNumberParse(data.v[1])!
+          const lastPrice = this.safeBigNumberParse(data.p[1])! 
+          
+          const quoteVolume = baseVolume?.multipliedBy(lastPrice) 
 
-  // parse the json object we get from the api
-  parseTicker(json: any): Ticker {
-    const ticker = {}
-    this.verifyTicker(ticker)
-    return ticker
-  }
+          const ticker = {
+            ...this.priceObjectMetadata,
+            ask: this.safeBigNumberParse(data.a[0])!,
+            baseVolume: baseVolume,
+            bid: this.safeBigNumberParse(data.b[0])!,
+            lastPrice: lastPrice,
+            low: this.safeBigNumberParse(data.l[1]),
+            quoteVolume: quoteVolume!,
+            timestamp: 0, // Timestamp is not provided by Kraken and is not used by the oracle
+          }
+          this.verifyTicker(ticker)
+          return ticker
+         }
 
-  parseTrades(json: any): Trade[] {
-
-  }
-
-  /**
-   * No kraken endpoint available to check for order book liveness.
-   * @returns bool
-   */
-  async isOrderbookLive(): Promise<boolean> {
-    return true
-  }
-}
+         /**
+          * Checks status of orderbook
+          * https://api.kraken.com/0/public/SystemStatus"
+          *
+          *  {
+          *    "error": [],
+          *    "result": {
+          *      "status": "string ("online"|"maintenance"|"cancel_only"|"post_only")",
+          *      "timestamp": "timestamp"
+          *    }
+          *  }
+          *
+          * @returns bool
+          */
+         async isOrderbookLive(): Promise<boolean> {
+           const response = await this.fetchFromApi(
+             ExchangeDataType.ORDERBOOK_STATUS,
+             `0/public/SystemStatus`
+           )
+           return response.result.status === 'online'
+         }
+       }
