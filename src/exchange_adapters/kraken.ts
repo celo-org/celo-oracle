@@ -14,7 +14,7 @@ export class KrakenAdapter extends BaseExchangeAdapter implements ExchangeAdapte
          protected generatePairSymbol(): string {
            const base = KrakenAdapter.tokenSymbolMap.get(this.config.baseCurrency)
            const quote = KrakenAdapter.tokenSymbolMap.get(this.config.quoteCurrency)
-           return `${base}_${quote}`
+           return `${base}${quote}`
          }
 
          async fetchTicker(): Promise<Ticker> {
