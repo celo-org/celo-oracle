@@ -1,5 +1,0 @@
-[ 
-  [ 
-    { exchange: 'KRAKEN', symbol: 'USDCUSD', toInvert: false }, 
-  ],
-]
