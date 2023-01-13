@@ -31,6 +31,7 @@ export enum Exchange {
   BITSO = 'BITSO',
   NOVADAX = 'NOVADAX',
   KRAKEN = 'KRAKEN',
+  BITSTAMP = 'BITSTAMP',
 }
 
 export enum ExternalCurrency {
@@ -40,7 +41,11 @@ export enum ExternalCurrency {
   USDT = 'USDT',
   BRL = 'BRL',
   BUSD = 'BUSD',
+<<<<<<< HEAD
   USDC = 'USDC',
+=======
+  USDC = 'USDC'
+>>>>>>> stuff
 }
 
 export type Currency = ExternalCurrency | CeloToken
@@ -92,6 +97,10 @@ export const CurrencyPairBaseQuote: Record<
   [OracleCurrencyPair.BUSDUSD]: { base: ExternalCurrency.BUSD, quote: ExternalCurrency.USD },
   [OracleCurrencyPair.USDBRL]: { base: ExternalCurrency.USD, quote: ExternalCurrency.BRL },
   [OracleCurrencyPair.USDCUSD]: { base: ExternalCurrency.USDC, quote: ExternalCurrency.USD },
+<<<<<<< HEAD
+=======
+
+>>>>>>> stuff
 }
 
 export enum AggregationMethod {
