@@ -71,7 +71,10 @@ export const CoreCurrencyPair: OracleCurrencyPair[] = [
   OracleCurrencyPair.CELOBRL,
 ]
 
-export const CurrencyPairBaseQuote: Record<OracleCurrencyPair, { base: Currency; quote: Currency }> = {
+export const CurrencyPairBaseQuote: Record<
+  OracleCurrencyPair,
+  { base: Currency; quote: Currency }
+> = {
   [OracleCurrencyPair.CELOUSD]: { base: CeloContract.GoldToken, quote: ExternalCurrency.USD },
   [OracleCurrencyPair.CELOBTC]: { base: CeloContract.GoldToken, quote: ExternalCurrency.BTC },
   [OracleCurrencyPair.CELOEUR]: { base: CeloContract.GoldToken, quote: ExternalCurrency.EUR },
@@ -87,7 +90,7 @@ export const CurrencyPairBaseQuote: Record<OracleCurrencyPair, { base: Currency;
   [OracleCurrencyPair.USDTBRL]: { base: ExternalCurrency.USDT, quote: ExternalCurrency.BRL },
   [OracleCurrencyPair.BUSDBRL]: { base: ExternalCurrency.BUSD, quote: ExternalCurrency.BRL },
   [OracleCurrencyPair.BUSDUSD]: { base: ExternalCurrency.BUSD, quote: ExternalCurrency.USD },
-  [OracleCurrencyPair.USDBRL]: { base: ExternalCurrency.USD, quote: ExternalCurrency.BRL }, 
+  [OracleCurrencyPair.USDBRL]: { base: ExternalCurrency.USD, quote: ExternalCurrency.BRL },
   [OracleCurrencyPair.USDCUSD]: { base: ExternalCurrency.USDC, quote: ExternalCurrency.USD },
 }
 

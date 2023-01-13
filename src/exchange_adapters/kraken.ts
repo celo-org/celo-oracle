@@ -39,8 +39,10 @@ export class KrakenAdapter extends BaseExchangeAdapter implements ExchangeAdapte
    *
    */
   parseTicker(json: any): Ticker {
-    if(Object.keys(json.result).length != 1){
-      throw new Error(`Unexpected number of pairs in ticker response: ${Object.keys(json.result).length}`)
+    if (Object.keys(json.result).length != 1) {
+      throw new Error(
+        `Unexpected number of pairs in ticker response: ${Object.keys(json.result).length}`
+      )
     }
 
     const data = json.result[Object.keys(json.result)[0]]

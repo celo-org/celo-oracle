@@ -63,7 +63,7 @@ describe('kraken adapter', () => {
         l: [],
         h: [],
         o: '',
-      }
+      },
     },
   }
 
@@ -110,9 +110,7 @@ describe('kraken adapter', () => {
     it('throws an error when ticker repsonse contains more than one pair', () => {
       expect(() => {
         krakenAdapter.parseTicker(inValidMockMultipleTickerJson)
-      }).toThrowError(
-        'Unexpected number of pairs in ticker response: 2'
-      )
+      }).toThrowError('Unexpected number of pairs in ticker response: 2')
     })
 
     it('throws an error when a json field mapped to a required ticker field is missing', () => {
@@ -122,21 +120,18 @@ describe('kraken adapter', () => {
     })
   })
 
-  describe('isOrderbookLive', () => { 
-
+  describe('isOrderbookLive', () => {
     it("returns false when status isn't online", async () => {
-       
-        const response = {
-          error: [],
-          result: {
-            status: 'maintainance',
-            timestamp: '2023-01-12T14:10:47Z',
-          },
-        }
+      const response = {
+        error: [],
+        result: {
+          status: 'maintainance',
+          timestamp: '2023-01-12T14:10:47Z',
+        },
+      }
 
-        jest.spyOn(krakenAdapter, 'fetchFromApi').mockReturnValue(Promise.resolve(response))
-        expect(await krakenAdapter.isOrderbookLive()).toEqual(false)
-     
+      jest.spyOn(krakenAdapter, 'fetchFromApi').mockReturnValue(Promise.resolve(response))
+      expect(await krakenAdapter.isOrderbookLive()).toEqual(false)
     })
     it("returns true when status is 'online'", async () => {
       jest.spyOn(krakenAdapter, 'fetchFromApi').mockReturnValue(Promise.resolve(mockStatusJson))

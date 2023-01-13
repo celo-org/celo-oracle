@@ -30,7 +30,6 @@ import {
   SettledPromise,
 } from './utils'
 
-
 function adapterFromExchangeName(name: Exchange, config: ExchangeAdapterConfig): ExchangeAdapter {
   switch (name) {
     case Exchange.BINANCE:
