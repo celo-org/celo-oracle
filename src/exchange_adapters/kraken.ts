@@ -39,7 +39,7 @@ export class KrakenAdapter extends BaseExchangeAdapter implements ExchangeAdapte
    *
    */
   parseTicker(json: any): Ticker {
-    if (Object.keys(json.result).length != 1) {
+    if (Object.keys(json.result).length !== 1) {
       throw new Error(
         `Unexpected number of pairs in ticker response: ${Object.keys(json.result).length}`
       )
@@ -55,9 +55,9 @@ export class KrakenAdapter extends BaseExchangeAdapter implements ExchangeAdapte
     const ticker = {
       ...this.priceObjectMetadata,
       ask: this.safeBigNumberParse(data.a[0])!,
-      baseVolume: baseVolume,
+      baseVolume,
       bid: this.safeBigNumberParse(data.b[0])!,
-      lastPrice: lastPrice,
+      lastPrice,
       quoteVolume: quoteVolume!,
       timestamp: 0, // Timestamp is not provided by Kraken and is not used by the oracle
     }
