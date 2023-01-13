@@ -39,6 +39,34 @@ describe('kraken adapter', () => {
     },
   }
 
+  const inValidMockMultipleTickerJson = {
+    error: [],
+    result: {
+      USDCUSD: {
+        a: [],
+        b: [],
+        c: [],
+        v: [],
+        p: [],
+        t: [],
+        l: [],
+        h: [],
+        o: '',
+      },
+      FARTBUXUSD: {
+        a: [],
+        b: [],
+        c: [],
+        v: [],
+        p: [],
+        t: [],
+        l: [],
+        h: [],
+        o: '',
+      }
+    },
+  }
+
   const inValidMockTickerJson = {
     error: [],
     result: {
@@ -74,10 +102,17 @@ describe('kraken adapter', () => {
         baseVolume: new BigNumber(22093459.42678782),
         bid: new BigNumber(0.9999),
         lastPrice: new BigNumber(0.9999419),
-        low: new BigNumber(0.9999),
         quoteVolume: new BigNumber('22092175.796795123627658'),
         timestamp: 0,
       })
+    })
+
+    it('throws an error when ticker repsonse contains more than one pair', () => {
+      expect(() => {
+        krakenAdapter.parseTicker(inValidMockMultipleTickerJson)
+      }).toThrowError(
+        'Unexpected number of pairs in ticker response: 2'
+      )
     })
 
     it('throws an error when a json field mapped to a required ticker field is missing', () => {

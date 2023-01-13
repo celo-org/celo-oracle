@@ -11,6 +11,7 @@ import { BittrexAdapter } from './exchange_adapters/bittrex'
 import { CoinbaseAdapter } from './exchange_adapters/coinbase'
 import { OKCoinAdapter } from './exchange_adapters/okcoin'
 import { NovaDaxAdapter } from './exchange_adapters/novadax'
+import { KrakenAdapter } from './exchange_adapters/kraken'
 import { MetricCollector } from './metric_collector'
 import { PriceSource, WeightedPrice } from './price_source'
 import {
@@ -28,7 +29,7 @@ import {
   PromiseStatus,
   SettledPromise,
 } from './utils'
-import { KrakenAdapter } from './exchange_adapters/kraken'
+
 
 function adapterFromExchangeName(name: Exchange, config: ExchangeAdapterConfig): ExchangeAdapter {
   switch (name) {
