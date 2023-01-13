@@ -11,3 +11,7 @@ tsconfig.tsbuildinfo
 
 # IDEs
 .idea/
+
+# User specific
+.env.dev
+devPriceSourcesConfig.txt
