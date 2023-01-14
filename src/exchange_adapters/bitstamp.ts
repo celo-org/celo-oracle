@@ -1,13 +1,13 @@
-import { Exchange } from "../utils";
-import { BaseExchangeAdapter, ExchangeAdapter, ExchangeDataType,  Ticker, Trade } from './base'
+import { Exchange } from '../utils'
+import { BaseExchangeAdapter, ExchangeAdapter, ExchangeDataType, Ticker, Trade } from './base'
 
-export class BitstampAdapter extends BaseExchangeAdapter implements ExchangeAdapter{
+export class BitstampAdapter extends BaseExchangeAdapter implements ExchangeAdapter {
   baseApiUrl = 'https://www.bitstamp.net/api/v2/'
   readonly _exchangeName = Exchange.BITSTAMP
-  readonly _certFingerprint256 = 
+  readonly _certFingerprint256 =
     '40:3E:06:2A:26:53:05:91:13:28:5B:AF:80:A0:D4:AE:42:2C:84:8C:9F:78:FA:D0:1F:C9:4B:C5:B8:7F:EF:1A'
 
-   private static readonly tokenSymbolMap = BitstampAdapter.standardTokenSymbolMap
+  private static readonly tokenSymbolMap = BitstampAdapter.standardTokenSymbolMap
 
   protected generatePairSymbol(): string {
     const base = BitstampAdapter.tokenSymbolMap.get(this.config.baseCurrency)
@@ -30,7 +30,6 @@ export class BitstampAdapter extends BaseExchangeAdapter implements ExchangeAdap
     // -- @bayological ;) --
     return []
   }
-
 
   /**
    *
@@ -56,7 +55,7 @@ export class BitstampAdapter extends BaseExchangeAdapter implements ExchangeAdap
     const lastPrice = this.safeBigNumberParse(json.last)!
     const baseVolume = this.safeBigNumberParse(json.volume)!
     const vwap = this.safeBigNumberParse(json.vwap)!
-    const quoteVolume =  baseVolume?.multipliedBy(vwap)
+    const quoteVolume = baseVolume?.multipliedBy(vwap)
     const ticker = {
       ...this.priceObjectMetadata,
       ask: this.safeBigNumberParse(json.ask)!,
@@ -80,6 +79,4 @@ export class BitstampAdapter extends BaseExchangeAdapter implements ExchangeAdap
   async isOrderbookLive(): Promise<boolean> {
     return true
   }
-
-
 }
