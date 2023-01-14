@@ -47,13 +47,10 @@ function adapterFromExchangeName(name: Exchange, config: ExchangeAdapterConfig):
       return new BitsoAdapter(config)
     case Exchange.NOVADAX:
       return new NovaDaxAdapter(config)
-<<<<<<< HEAD
     case Exchange.KRAKEN:
       return new KrakenAdapter(config)
-=======
     case Exchange.BITSTAMP:
       return new BitstampAdapter(config)
->>>>>>> stuff
   }
 }
 

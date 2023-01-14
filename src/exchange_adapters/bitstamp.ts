@@ -1,5 +1,4 @@
-import { Currency, Exchange,ExternalCurrency } from "../utils";
-import { CeloContract } from '@celo/contractkit'
+import { Exchange } from "../utils";
 import { BaseExchangeAdapter, ExchangeAdapter, ExchangeDataType,  Ticker, Trade } from './base'
 
 export class BitstampAdapter extends BaseExchangeAdapter implements ExchangeAdapter{
@@ -8,14 +7,7 @@ export class BitstampAdapter extends BaseExchangeAdapter implements ExchangeAdap
   readonly _certFingerprint256 = 
     '40:3E:06:2A:26:53:05:91:13:28:5B:AF:80:A0:D4:AE:42:2C:84:8C:9F:78:FA:D0:1F:C9:4B:C5:B8:7F:EF:1A'
 
-   private static readonly tokenSymbolMap = new Map<Currency, string>([
-            ...BitstampAdapter.standardTokenSymbolMap,
-            [CeloContract.StableToken, 'cusd'],
-            [ExternalCurrency.USD, 'usd'],
-            [ExternalCurrency.EUR, 'eur'],
-            [ExternalCurrency.BTC, 'btc'],
-            [ExternalCurrency.USDT, 'usdt'],
-        ])
+   private static readonly tokenSymbolMap = BitstampAdapter.standardTokenSymbolMap
 
   protected generatePairSymbol(): string {
     const base = BitstampAdapter.tokenSymbolMap.get(this.config.baseCurrency)
@@ -26,7 +18,7 @@ export class BitstampAdapter extends BaseExchangeAdapter implements ExchangeAdap
   async fetchTicker(): Promise<Ticker> {
     const tickerJson = await this.fetchFromApi(
       ExchangeDataType.TICKER,
-      `ticker/${this.pairSymbol}`
+      `ticker/${this.pairSymbol.toLowerCase()}`
     )
     return this.parseTicker(tickerJson)
   }
