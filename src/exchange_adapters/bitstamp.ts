@@ -48,7 +48,7 @@ export class BitstampAdapter extends BaseExchangeAdapter implements ExchangeAdap
    *    "ask": "1.00031",
    *    "open_24": "0.99961",
    *    "percent_change_24": "0.07"
-    }
+   * }
    *
    */
 
