@@ -16,10 +16,7 @@ export class BitstampAdapter extends BaseExchangeAdapter implements ExchangeAdap
   }
 
   async fetchTicker(): Promise<Ticker> {
-    const tickerJson = await this.fetchFromApi(
-      ExchangeDataType.TICKER,
-      `ticker/${this.pairSymbol}`
-    )
+    const tickerJson = await this.fetchFromApi(ExchangeDataType.TICKER, `ticker/${this.pairSymbol}`)
     return this.parseTicker(tickerJson)
   }
 
@@ -72,7 +69,7 @@ export class BitstampAdapter extends BaseExchangeAdapter implements ExchangeAdap
    * Checks status of orderbook
    * https://www.bitstamp.net/api/v2/trading-pairs-info/
    * https://www.bitstamp.net/api/#trading-pairs-info
-   * 
+   *
    * {
    *  "name": "USDC/USD",
    *  "url_symbol": "usdcusd",
@@ -84,7 +81,7 @@ export class BitstampAdapter extends BaseExchangeAdapter implements ExchangeAdap
    *  "instant_and_market_orders": "Enabled",
    *  "description": "USD Coin / U.S. dollar"
    * }
-   * 
+   *
    * @returns bool
    */
   async isOrderbookLive(): Promise<boolean> {

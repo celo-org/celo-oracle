@@ -50,55 +50,53 @@ describe('Bitstamp adapter', () => {
 
   const mockStatusJson = [
     {
-      "name": "USDC/USD",
-      "url_symbol": "usdcusd",
-      "base_decimals": 5,
-      "counter_decimals": 5,
-      "instant_order_counter_decimals": 5,
-      "minimum_order": "10.00000 USD",
-      "trading": "Enabled",
-      "instant_and_market_orders": "Enabled",
-      "description": "USD Coin / U.S. dollar"
+      name: 'USDC/USD',
+      url_symbol: 'usdcusd',
+      base_decimals: 5,
+      counter_decimals: 5,
+      instant_order_counter_decimals: 5,
+      minimum_order: '10.00000 USD',
+      trading: 'Enabled',
+      instant_and_market_orders: 'Enabled',
+      description: 'USD Coin / U.S. dollar',
     },
     {
-      "name": "USDC/EUR",
-      "url_symbol": "usdceur",
-      "base_decimals": 5,
-      "counter_decimals": 5,
-      "instant_order_counter_decimals": 5,
-      "minimum_order": "10.00000 EUR",
-      "trading": "Enabled",
-      "instant_and_market_orders": "Enabled",
-      "description": "USD Coin / Euro"
-    }
+      name: 'USDC/EUR',
+      url_symbol: 'usdceur',
+      base_decimals: 5,
+      counter_decimals: 5,
+      instant_order_counter_decimals: 5,
+      minimum_order: '10.00000 EUR',
+      trading: 'Enabled',
+      instant_and_market_orders: 'Enabled',
+      description: 'USD Coin / Euro',
+    },
   ]
 
   const mockWrongStatusJson = [
     {
-      "name": "USDC/USD",
-      "url_symbol": "usdcusd",
-      "base_decimals": 5,
-      "counter_decimals": 5,
-      "instant_order_counter_decimals": 5,
-      "minimum_order": "10.00000 USD",
-      "trading": "Enable",
-      "instant_and_market_orders": "Disabled",
-      "description": "USD Coin / U.S. dollar"
+      name: 'USDC/USD',
+      url_symbol: 'usdcusd',
+      base_decimals: 5,
+      counter_decimals: 5,
+      instant_order_counter_decimals: 5,
+      minimum_order: '10.00000 USD',
+      trading: 'Enable',
+      instant_and_market_orders: 'Disabled',
+      description: 'USD Coin / U.S. dollar',
     },
     {
-      "name": "USDC/EUR",
-      "url_symbol": "usdceur",
-      "base_decimals": 5,
-      "counter_decimals": 5,
-      "instant_order_counter_decimals": 5,
-      "minimum_order": "10.00000 EUR",
-      "trading": "Enabled",
-      "instant_and_market_orders": "Enabled",
-      "description": "USD Coin / Euro"
-    }
+      name: 'USDC/EUR',
+      url_symbol: 'usdceur',
+      base_decimals: 5,
+      counter_decimals: 5,
+      instant_order_counter_decimals: 5,
+      minimum_order: '10.00000 EUR',
+      trading: 'Enabled',
+      instant_and_market_orders: 'Enabled',
+      description: 'USD Coin / Euro',
+    },
   ]
-
-  
 
   describe('parseTicker', () => {
     it('handles a response that matches the documentation', () => {
@@ -129,15 +127,17 @@ describe('Bitstamp adapter', () => {
   })
 
   describe('isOrderbookLive', () => {
-    it("returns true", async () => {
+    it('returns true', async () => {
       jest.spyOn(bitstampAdapter, 'fetchFromApi').mockReturnValue(Promise.resolve(mockStatusJson))
       expect(await bitstampAdapter.isOrderbookLive()).toEqual(true)
     })
   })
 
   describe('isOrderbookLive', () => {
-    it("returns false when Orderbook is not live", async () => {
-      jest.spyOn(bitstampAdapter, 'fetchFromApi').mockReturnValue(Promise.resolve(mockWrongStatusJson))
+    it('returns false when Orderbook is not live', async () => {
+      jest
+        .spyOn(bitstampAdapter, 'fetchFromApi')
+        .mockReturnValue(Promise.resolve(mockWrongStatusJson))
       expect(await bitstampAdapter.isOrderbookLive()).toEqual(false)
     })
   })
