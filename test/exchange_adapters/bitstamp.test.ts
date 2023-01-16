@@ -37,14 +37,12 @@ describe('Bitstamp adapter', () => {
   }
 
   const inValidMockTickerJson = {
-    timestamp: '',
     open: '',
     high: '',
     low: '',
     last: '',
     volume: '',
     vwap: '',
-    bid: '',
     ask: '',
     open_24: '',
     percent_change_24: '',
@@ -68,7 +66,7 @@ describe('Bitstamp adapter', () => {
       })
     })
 
-    it('throws an error when a json field mapped to a required ticker field is missing', () => {
+    it('throws an error when a json field mapped to a required ticker field is missing or empty', () => {
       expect(() => {
         bitstampAdapter.parseTicker(inValidMockTickerJson)
       }).toThrowError('bid, ask, lastPrice, baseVolume not defined')
