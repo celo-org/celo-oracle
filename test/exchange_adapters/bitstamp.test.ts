@@ -48,6 +48,58 @@ describe('Bitstamp adapter', () => {
     percent_change_24: '',
   }
 
+  const mockStatusJson = [
+    {
+      "name": "USDC/USD",
+      "url_symbol": "usdcusd",
+      "base_decimals": 5,
+      "counter_decimals": 5,
+      "instant_order_counter_decimals": 5,
+      "minimum_order": "10.00000 USD",
+      "trading": "Enabled",
+      "instant_and_market_orders": "Enabled",
+      "description": "USD Coin / U.S. dollar"
+    },
+    {
+      "name": "USDC/EUR",
+      "url_symbol": "usdceur",
+      "base_decimals": 5,
+      "counter_decimals": 5,
+      "instant_order_counter_decimals": 5,
+      "minimum_order": "10.00000 EUR",
+      "trading": "Enabled",
+      "instant_and_market_orders": "Enabled",
+      "description": "USD Coin / Euro"
+    }
+  ]
+
+  const mockWrongStatusJson = [
+    {
+      "name": "USDC/USD",
+      "url_symbol": "usdcusd",
+      "base_decimals": 5,
+      "counter_decimals": 5,
+      "instant_order_counter_decimals": 5,
+      "minimum_order": "10.00000 USD",
+      "trading": "Enable",
+      "instant_and_market_orders": "Disabled",
+      "description": "USD Coin / U.S. dollar"
+    },
+    {
+      "name": "USDC/EUR",
+      "url_symbol": "usdceur",
+      "base_decimals": 5,
+      "counter_decimals": 5,
+      "instant_order_counter_decimals": 5,
+      "minimum_order": "10.00000 EUR",
+      "trading": "Enabled",
+      "instant_and_market_orders": "Enabled",
+      "description": "USD Coin / Euro"
+    }
+  ]
+
+  
+
   describe('parseTicker', () => {
     it('handles a response that matches the documentation', () => {
       const ticker = bitstampAdapter.parseTicker(validMockTickerJson)
@@ -57,10 +109,7 @@ describe('Bitstamp adapter', () => {
         ask: new BigNumber(1.00031),
         baseVolume: new BigNumber(949324.40769),
         bid: new BigNumber(1.00005),
-        high: new BigNumber(1.001),
         lastPrice: new BigNumber(1.00031),
-        low: new BigNumber(0.99865),
-        open: new BigNumber(0.99961),
         quoteVolume: new BigNumber(949324.40769).multipliedBy(new BigNumber(1.00013)),
         timestamp: 0,
       })
@@ -80,8 +129,16 @@ describe('Bitstamp adapter', () => {
   })
 
   describe('isOrderbookLive', () => {
-    it("returns true'", async () => {
+    it("returns true", async () => {
+      jest.spyOn(bitstampAdapter, 'fetchFromApi').mockReturnValue(Promise.resolve(mockStatusJson))
       expect(await bitstampAdapter.isOrderbookLive()).toEqual(true)
+    })
+  })
+
+  describe('isOrderbookLive', () => {
+    it("returns false when Orderbook is not live", async () => {
+      jest.spyOn(bitstampAdapter, 'fetchFromApi').mockReturnValue(Promise.resolve(mockWrongStatusJson))
+      expect(await bitstampAdapter.isOrderbookLive()).toEqual(false)
     })
   })
 })

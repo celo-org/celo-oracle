@@ -12,13 +12,13 @@ export class BitstampAdapter extends BaseExchangeAdapter implements ExchangeAdap
   protected generatePairSymbol(): string {
     const base = BitstampAdapter.tokenSymbolMap.get(this.config.baseCurrency)
     const quote = BitstampAdapter.tokenSymbolMap.get(this.config.quoteCurrency)
-    return `${base}${quote}`
+    return `${base}${quote}`.toLowerCase()
   }
 
   async fetchTicker(): Promise<Ticker> {
     const tickerJson = await this.fetchFromApi(
       ExchangeDataType.TICKER,
-      `ticker/${this.pairSymbol.toLowerCase()}`
+      `ticker/${this.pairSymbol}`
     )
     return this.parseTicker(tickerJson)
   }
@@ -34,7 +34,7 @@ export class BitstampAdapter extends BaseExchangeAdapter implements ExchangeAdap
   /**
    *
    * @param json parsed response from bitstamps's ticker endpoint
-   *
+   * https://www.bitstamp.net/api/v2/ticker/usdcusd
    * {
    *    "timestamp": "1673617671",
    *    "open": "1.00083",
@@ -52,7 +52,6 @@ export class BitstampAdapter extends BaseExchangeAdapter implements ExchangeAdap
    */
 
   parseTicker(json: any): Ticker {
-    const lastPrice = this.safeBigNumberParse(json.last)!
     const baseVolume = this.safeBigNumberParse(json.volume)!
     const vwap = this.safeBigNumberParse(json.vwap)!
     const quoteVolume = baseVolume?.multipliedBy(vwap)
@@ -61,10 +60,7 @@ export class BitstampAdapter extends BaseExchangeAdapter implements ExchangeAdap
       ask: this.safeBigNumberParse(json.ask)!,
       baseVolume,
       bid: this.safeBigNumberParse(json.bid)!,
-      high: this.safeBigNumberParse(json.high),
-      lastPrice,
-      low: this.safeBigNumberParse(json.low),
-      open: this.safeBigNumberParse(json.open_24),
+      lastPrice: this.safeBigNumberParse(json.last)!,
       quoteVolume,
       timestamp: this.safeBigNumberParse(json.timestamp)?.toNumber()!,
     }
@@ -73,10 +69,45 @@ export class BitstampAdapter extends BaseExchangeAdapter implements ExchangeAdap
   }
 
   /**
-   * No Bitstamps endpoint available to check for order book liveness.
+   * Checks status of orderbook
+   * https://www.bitstamp.net/api/v2/trading-pairs-info/
+   * https://www.bitstamp.net/api/#trading-pairs-info
+   * 
+   * {
+   *  "name": "USDC/USD",
+   *  "url_symbol": "usdcusd",
+   *  "base_decimals": 5,
+   *  "counter_decimals": 5,
+   *  "instant_order_counter_decimals": 5,
+   *  "minimum_order": "10.00000 USD",
+   *  "trading": "Enabled",
+   *  "instant_and_market_orders": "Enabled",
+   *  "description": "USD Coin / U.S. dollar"
+   * }
+   * 
    * @returns bool
    */
   async isOrderbookLive(): Promise<boolean> {
-    return true
+    const response = await this.fetchFromApi(
+      ExchangeDataType.ORDERBOOK_STATUS,
+      `trading-pairs-info/`
+    )
+    const marketInfo = (response as {
+      name: string
+      url_symbol: string
+      base_decimals: number
+      counter_decimals: number
+      instant_order_counter_decimals: number
+      minimum_order: string
+      trading: string
+      instant_and_market_orders: string
+      description: string
+    }[])?.find((pair) => pair?.url_symbol === this.pairSymbol)
+
+    return (
+      !!marketInfo &&
+      marketInfo.trading === 'Enabled' &&
+      marketInfo.instant_and_market_orders === 'Enabled'
+    )
   }
 }
