@@ -7,7 +7,7 @@ export class GeminiAdapter extends BaseExchangeAdapter {
   readonly _exchangeName = Exchange.GEMINI
   // Amazon cert
   readonly _certFingerprint256 =
-    'F5:5F:9F:FC:B8:3C:73:45:32:61:60:1C:7E:04:4D:B1:5A:0F:03:4B:93:C0:58:30:F2:86:35:EF:88:9C:F6:70';
+    'F5:5F:9F:FC:B8:3C:73:45:32:61:60:1C:7E:04:4D:B1:5A:0F:03:4B:93:C0:58:30:F2:86:35:EF:88:9C:F6:70'
 
   async fetchTicker(): Promise<Ticker> {
     return this.parseTicker(
@@ -26,7 +26,9 @@ export class GeminiAdapter extends BaseExchangeAdapter {
   protected generatePairSymbol(): string {
     return `${BaseExchangeAdapter.standardTokenSymbolMap.get(
       this.config.baseCurrency
-    )}${BaseExchangeAdapter.standardTokenSymbolMap.get(this.config.quoteCurrency)}`.toLocaleLowerCase()
+    )}${BaseExchangeAdapter.standardTokenSymbolMap.get(
+      this.config.quoteCurrency
+    )}`.toLocaleLowerCase()
   }
 
   /**
@@ -50,7 +52,7 @@ export class GeminiAdapter extends BaseExchangeAdapter {
    *   }
    */
   parseTicker(pubtickerJson: any): Ticker {
-    const volume = pubtickerJson.volume || {};
+    const volume = pubtickerJson.volume || {}
     const ticker = {
       ...this.priceObjectMetadata,
       timestamp: volume.timestamp,
