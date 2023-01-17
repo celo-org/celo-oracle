@@ -66,7 +66,25 @@ describe('GeminiAdapter', () => {
   })
 
   describe('isOrderbookLive', () => {
-    it('returns true', async () => {
+    const mockStatusJson = {
+      "symbol": "BTCUSD",
+      "base_currency": "BTC",
+      "quote_currency": "USD",
+      "tick_size": 1E-8,
+      "quote_increment": 0.01,
+      "min_order_size": "0.00001",
+      "status": "open",
+      "wrap_enabled": false
+    }
+
+    it("returns false when status isn't 'open'", async () => {
+      const response = { ...mockStatusJson, status: 'closed' }
+      jest.spyOn(geminiAdapter, 'fetchFromApi').mockReturnValue(Promise.resolve(response))
+      expect(await geminiAdapter.isOrderbookLive()).toEqual(false)
+    })
+
+    it("returns true when status is 'open'", async () => {
+      jest.spyOn(geminiAdapter, 'fetchFromApi').mockReturnValue(Promise.resolve(mockStatusJson))
       expect(await geminiAdapter.isOrderbookLive()).toEqual(true)
     })
   })

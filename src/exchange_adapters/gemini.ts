@@ -24,11 +24,14 @@ export class GeminiAdapter extends BaseExchangeAdapter {
   }
 
   protected generatePairSymbol(): string {
-    return `${BaseExchangeAdapter.standardTokenSymbolMap.get(
+    const base = BaseExchangeAdapter.standardTokenSymbolMap.get(
       this.config.baseCurrency
-    )}${BaseExchangeAdapter.standardTokenSymbolMap.get(
+    )
+    const quote = BaseExchangeAdapter.standardTokenSymbolMap.get(
       this.config.quoteCurrency
-    )}`.toLocaleLowerCase()
+    )
+
+    return `${base}${quote}`.toLocaleLowerCase()
   }
 
   /**
@@ -66,11 +69,31 @@ export class GeminiAdapter extends BaseExchangeAdapter {
     this.verifyTicker(ticker)
     return ticker
   }
+
   /**
-   * No Gemini endpoint available to check for order book liveness.
+   * Checks if the orderbook for the relevant pair is live. If it's not, the price
+   * data from Ticker + Trade endpoints may be inaccurate.
+   * 
+   * API response example:
+   * {
+   *   "symbol": "BTCUSD",
+   *   "base_currency": "BTC",
+   *   "quote_currency": "USD",
+   *   "tick_size": 1E-8,
+   *   "quote_increment": 0.01,
+   *   "min_order_size": "0.00001",
+   *   "status": "open",
+   *   "wrap_enabled": false
+   * }
+   * 
    * @returns bool
    */
   async isOrderbookLive(): Promise<boolean> {
-    return true
+    const res = await this.fetchFromApi(
+      ExchangeDataType.ORDERBOOK_STATUS,
+      `symbols/details/${this.pairSymbol}`
+    )
+
+    return res.status === 'open'
   }
 }
