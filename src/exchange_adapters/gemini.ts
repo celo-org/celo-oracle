@@ -24,12 +24,8 @@ export class GeminiAdapter extends BaseExchangeAdapter {
   }
 
   protected generatePairSymbol(): string {
-    const base = BaseExchangeAdapter.standardTokenSymbolMap.get(
-      this.config.baseCurrency
-    )
-    const quote = BaseExchangeAdapter.standardTokenSymbolMap.get(
-      this.config.quoteCurrency
-    )
+    const base = BaseExchangeAdapter.standardTokenSymbolMap.get(this.config.baseCurrency)
+    const quote = BaseExchangeAdapter.standardTokenSymbolMap.get(this.config.quoteCurrency)
 
     return `${base}${quote}`.toLocaleLowerCase()
   }
@@ -73,7 +69,7 @@ export class GeminiAdapter extends BaseExchangeAdapter {
   /**
    * Checks if the orderbook for the relevant pair is live. If it's not, the price
    * data from Ticker + Trade endpoints may be inaccurate.
-   * 
+   *
    * API response example:
    * {
    *   "symbol": "BTCUSD",
@@ -85,7 +81,7 @@ export class GeminiAdapter extends BaseExchangeAdapter {
    *   "status": "open",
    *   "wrap_enabled": false
    * }
-   * 
+   *
    * @returns bool
    */
   async isOrderbookLive(): Promise<boolean> {
