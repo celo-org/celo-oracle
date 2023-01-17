@@ -5,9 +5,13 @@ import * as aggregators from './aggregator_functions'
 import { OracleApplicationConfig } from './app'
 import { ExchangeAdapter, ExchangeAdapterConfig } from './exchange_adapters/base'
 import { BinanceAdapter } from './exchange_adapters/binance'
+import { BinanceUSAdapter } from './exchange_adapters/binance_us'
+import { BitsoAdapter } from './exchange_adapters/bitso'
 import { BittrexAdapter } from './exchange_adapters/bittrex'
 import { CoinbaseAdapter } from './exchange_adapters/coinbase'
 import { OKCoinAdapter } from './exchange_adapters/okcoin'
+import { NovaDaxAdapter } from './exchange_adapters/novadax'
+import { KrakenAdapter } from './exchange_adapters/kraken'
 import { MetricCollector } from './metric_collector'
 import { PriceSource, WeightedPrice } from './price_source'
 import {
@@ -30,12 +34,20 @@ function adapterFromExchangeName(name: Exchange, config: ExchangeAdapterConfig):
   switch (name) {
     case Exchange.BINANCE:
       return new BinanceAdapter(config)
+    case Exchange.BINANCEUS:
+      return new BinanceUSAdapter(config)
     case Exchange.BITTREX:
       return new BittrexAdapter(config)
     case Exchange.COINBASE:
       return new CoinbaseAdapter(config)
     case Exchange.OKCOIN:
       return new OKCoinAdapter(config)
+    case Exchange.BITSO:
+      return new BitsoAdapter(config)
+    case Exchange.NOVADAX:
+      return new NovaDaxAdapter(config)
+    case Exchange.KRAKEN:
+      return new KrakenAdapter(config)
   }
 }
 
@@ -75,6 +87,10 @@ export interface DataAggregatorConfig {
    */
   baseLogger: Logger
   /**
+   * If the oracles should be in development mode, which doesn't require a node nor account key
+   */
+  devMode: boolean
+  /**
    * Currency pair to get the price of in centralized exchanges
    */
   currencyPair: OracleApplicationConfig['currencyPair']
@@ -86,10 +102,6 @@ export interface DataAggregatorConfig {
    * Max weight share of a single source
    */
   maxSourceWeightShare: BigNumber
-  /**
-   * Maximum duration in ms between the most recent trade and the fetch time
-   */
-  maxNoTradeDuration: number
   /**
    * Max percentage bid ask spread
    */
@@ -151,7 +163,6 @@ export class DataAggregator {
 
     const priceSourceConfigs = this.config.priceSourceConfigs ?? ([] as ExchangePriceSourceConfig[])
     this.logger.info({ priceSources: priceSourceConfigs }, 'Setting up price sources')
-
     return priceSourceConfigs.map((sourceConfig) => {
       const source = priceSourceFromConfig(
         adapterFactory,
@@ -187,7 +198,7 @@ export class DataAggregator {
         const source = this.priceSources[i]
         this.logger.warn(
           {
-            source,
+            source: source.name(),
             err: allPrices[i].value,
           },
           'Fetching price failed'

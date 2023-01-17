@@ -19,6 +19,7 @@ export const baseLogger = Logger.createLogger({
   name: 'oracle',
   serializers: Logger.stdSerializers,
   level: 'debug',
+  src: true,
 })
 
 export const defaultDataAggregatorConfig: DataAggregatorConfigSubset = {
@@ -29,9 +30,9 @@ export const defaultDataAggregatorConfig: DataAggregatorConfigSubset = {
   maxSourceWeightShare: new BigNumber(0.99),
   maxPercentageBidAskSpread: new BigNumber(0.1),
   maxPercentageDeviation: new BigNumber(0.2),
-  maxNoTradeDuration: secondsToMs(20), // with ETH on Coinbase it's common to see a no trade duration of 10s
   minPriceSourceCount: 1,
   minAggregatedVolume: new BigNumber(0),
+  devMode: false,
 }
 
 export const defaultBaseReporterConfig: BaseReporterConfigSubset = {
@@ -39,10 +40,12 @@ export const defaultBaseReporterConfig: BaseReporterConfigSubset = {
   circuitBreakerPriceChangeThresholdMax: new BigNumber(0.25), // 25%
   circuitBreakerPriceChangeThresholdMin: new BigNumber(0.15), // 15%
   circuitBreakerPriceChangeThresholdTimeMultiplier: new BigNumber(0.0075),
+  circuitBreakerDurationTimeMs: 20 * 60 * 1000, // 20 minutes.
   gasPriceMultiplier: new BigNumber(5),
   transactionRetryLimit: 3,
   transactionRetryGasPriceMultiplier: new BigNumber(0.1),
   unusedOracleAddresses: [],
+  devMode: false,
 }
 
 export const defaultBlockBasedReporterConfig: BlockBasedReporterConfigSubset = {
@@ -69,4 +72,6 @@ export const defaultApplicationConfig: OracleApplicationConfig = {
   reportTargetOverride: undefined,
   walletType: WalletType.PRIVATE_KEY,
   wsRpcProviderUrl: 'ws://localhost:8546',
+  devMode: false,
+  mockAccount: '0x243860e8216B4F6eC2478Ebd613F6F4bDE0704DE', // Just a valid address used for testing
 }

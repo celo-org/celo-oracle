@@ -24,9 +24,13 @@ export enum ReportStrategy {
 
 export enum Exchange {
   BINANCE = 'BINANCE',
+  BINANCEUS = 'BINANCEUS',
   BITTREX = 'BITTREX',
   COINBASE = 'COINBASE',
   OKCOIN = 'OKCOIN',
+  BITSO = 'BITSO',
+  NOVADAX = 'NOVADAX',
+  KRAKEN = 'KRAKEN',
 }
 
 export enum ExternalCurrency {
@@ -34,6 +38,9 @@ export enum ExternalCurrency {
   BTC = 'BTC',
   EUR = 'EUR',
   USDT = 'USDT',
+  BRL = 'BRL',
+  BUSD = 'BUSD',
+  USDC = 'USDC',
 }
 
 export type Currency = ExternalCurrency | CeloToken
@@ -42,14 +49,26 @@ export enum OracleCurrencyPair {
   CELOUSD = 'CELOUSD',
   CELOEUR = 'CELOEUR',
   CELOBTC = 'CELOBTC',
+  CELOBRL = 'CELOBRL',
   BTCEUR = 'BTCEUR',
   CELOUSDT = 'CELOUSDT',
+  CELOBUSD = 'CELOBUSD',
   EURUSDT = 'EURUSDT',
+  BTCUSD = 'BTCUSD',
+  BTCBRL = 'BTCBRL',
+  USDTUSD = 'USDTUSD',
+  USDTEUR = 'USDTEUR',
+  USDTBRL = 'USDTBRL',
+  BUSDBRL = 'BUSDBRL',
+  BUSDUSD = 'BUSDUSD',
+  USDBRL = 'USDBRL',
+  USDCUSD = 'USDCUSD',
 }
 
 export const CoreCurrencyPair: OracleCurrencyPair[] = [
   OracleCurrencyPair.CELOEUR,
   OracleCurrencyPair.CELOUSD,
+  OracleCurrencyPair.CELOBRL,
 ]
 
 export const CurrencyPairBaseQuote: Record<
@@ -59,9 +78,20 @@ export const CurrencyPairBaseQuote: Record<
   [OracleCurrencyPair.CELOUSD]: { base: CeloContract.GoldToken, quote: ExternalCurrency.USD },
   [OracleCurrencyPair.CELOBTC]: { base: CeloContract.GoldToken, quote: ExternalCurrency.BTC },
   [OracleCurrencyPair.CELOEUR]: { base: CeloContract.GoldToken, quote: ExternalCurrency.EUR },
+  [OracleCurrencyPair.CELOBRL]: { base: CeloContract.GoldToken, quote: ExternalCurrency.BRL },
   [OracleCurrencyPair.BTCEUR]: { base: ExternalCurrency.BTC, quote: ExternalCurrency.EUR },
   [OracleCurrencyPair.CELOUSDT]: { base: CeloContract.GoldToken, quote: ExternalCurrency.USDT },
+  [OracleCurrencyPair.CELOBUSD]: { base: CeloContract.GoldToken, quote: ExternalCurrency.BUSD },
   [OracleCurrencyPair.EURUSDT]: { base: ExternalCurrency.EUR, quote: ExternalCurrency.USDT },
+  [OracleCurrencyPair.USDTUSD]: { base: ExternalCurrency.USDT, quote: ExternalCurrency.USD },
+  [OracleCurrencyPair.USDTEUR]: { base: ExternalCurrency.USDT, quote: ExternalCurrency.EUR },
+  [OracleCurrencyPair.BTCUSD]: { base: ExternalCurrency.BTC, quote: ExternalCurrency.USD },
+  [OracleCurrencyPair.BTCBRL]: { base: ExternalCurrency.BTC, quote: ExternalCurrency.BRL },
+  [OracleCurrencyPair.USDTBRL]: { base: ExternalCurrency.USDT, quote: ExternalCurrency.BRL },
+  [OracleCurrencyPair.BUSDBRL]: { base: ExternalCurrency.BUSD, quote: ExternalCurrency.BRL },
+  [OracleCurrencyPair.BUSDUSD]: { base: ExternalCurrency.BUSD, quote: ExternalCurrency.USD },
+  [OracleCurrencyPair.USDBRL]: { base: ExternalCurrency.USD, quote: ExternalCurrency.BRL },
+  [OracleCurrencyPair.USDCUSD]: { base: ExternalCurrency.USDC, quote: ExternalCurrency.USD },
 }
 
 export enum AggregationMethod {
@@ -71,6 +101,7 @@ export enum AggregationMethod {
 export enum WalletType {
   AWS_HSM = 'AWS_HSM',
   AZURE_HSM = 'AZURE_HSM',
+  NODE_ACCOUNT = 'NODE_ACCOUNT',
   PRIVATE_KEY = 'PRIVATE_KEY',
 }
 
@@ -98,6 +129,9 @@ export async function reportTargetForCurrencyPair(
   } else if (pair === OracleCurrencyPair.CELOEUR) {
     // XXX: Workaround until StableTokenEUR makes it fully to ContractKit
     return kit.registry.addressFor('StableTokenEUR' as CeloContract)
+  } else if (pair === OracleCurrencyPair.CELOBRL) {
+    // Workaround until StableTokenBRL makes it fully to ContractKit.
+    return kit.registry.addressFor('StableTokenBRL' as CeloContract)
   } else {
     throw new Error(`${pair} can not be converted to a ReportTarget`)
   }
@@ -227,20 +261,20 @@ export async function tryExponentialBackoff<T>(
   if (maxTries < 1) {
     throw Error(`maxTries must be >= 1`)
   }
-  let err: Error
+  let e: Error
   for (let i = 0; i < maxTries; i++) {
     try {
       const returnValue = await fn()
       return returnValue
-    } catch (e) {
+    } catch (err: any) {
       if (i < maxTries - 1) {
         const backoff = min(2 ** i * baseBackoffMs, maxBackoffMs)
         await sleep(backoff, () => (onBackoff ? onBackoff(e, backoff) : undefined))
       }
-      err = e
+      e = err
     }
   }
-  throw err!
+  throw e!
 }
 
 /**
@@ -389,7 +423,7 @@ export function doFnWithErrorContext<T>(
 export function doFnWithErrorContext<T>(errorFnWrapper: ErrorFnWrapper<T>): T | undefined {
   try {
     return errorFnWrapper.fn()
-  } catch (err) {
+  } catch (err: any) {
     onError(err, errorFnWrapper)
   }
 }
@@ -409,7 +443,7 @@ export async function doAsyncFnWithErrorContext<T>(
 ): Promise<T | undefined> {
   try {
     return await errorFnWrapper.fn()
-  } catch (err) {
+  } catch (err: any) {
     onError(err, errorFnWrapper)
   }
 }

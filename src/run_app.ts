@@ -27,6 +27,7 @@ export const applicationConfigEnvVars: EnvVarMap<OracleApplicationConfig> = {
   azureHsmInitTryCount: EnvVar.AZURE_HSM_INIT_TRY_COUNT,
   azureKeyVaultName: EnvVar.AZURE_KEY_VAULT_NAME,
   currencyPair: EnvVar.CURRENCY_PAIR,
+  devMode: EnvVar.DEVMODE,
   httpRpcProviderUrl: EnvVar.HTTP_RPC_PROVIDER_URL,
   metrics: EnvVar.METRICS,
   privateKeyPath: EnvVar.PRIVATE_KEY_PATH,
@@ -53,6 +54,8 @@ const baseReporterConfigEnvVars: EnvVarMap<BaseReporterConfigSubset> = {
   circuitBreakerPriceChangeThresholdTimeMultiplier:
     EnvVar.CIRCUIT_BREAKER_PRICE_CHANGE_THRESHOLD_TIME_MULTIPLIER,
   circuitBreakerPriceChangeThresholdMax: EnvVar.CIRCUIT_BREAKER_PRICE_CHANGE_THRESHOLD_MAX,
+  devMode: EnvVar.DEVMODE,
+  circuitBreakerDurationTimeMs: EnvVar.CIRCUIT_BREAKER_DURATION_MS,
   gasPriceMultiplier: EnvVar.GAS_PRICE_MULTIPLIER,
   transactionRetryGasPriceMultiplier: EnvVar.TRANSACTION_RETRY_GAS_PRICE_MULTIPLIER,
   transactionRetryLimit: EnvVar.TRANSACTION_RETRY_LIMIT,
@@ -79,7 +82,7 @@ export function getComponentConfig<T>(defaultConfig: T, envVarMap: EnvVarMap<T>)
       if (override !== undefined) {
         overrides[key as string] = override
       }
-    } catch (err) {
+    } catch (err: any) {
       invalidEnvVars.push(err.message)
     }
   }

@@ -109,6 +109,25 @@ Example labels:
 {token="StableToken"}
 ```
 
+### `oracle_price_source`
+
+This is a gauge that shows price and weight for a configured PriceSource.
+
+Labels:
+```
+['pair', 'source', 'property']
+```
+
+Example labels:
+```
+{pair="CELOEUR",source="COINBASE:CGLD-EUR:false",property="price"}
+```
+
+Valid property values:
+```
+price, weight
+```
+
 ### `oracle_report_count`
 
 This is a counter that counts the number of reports by trigger.
@@ -173,72 +192,6 @@ Example labels:
 Valid property values:
 ```
 ask, baseVolume, bid, lastPrice, timestamp
-```
-
-### `oracle_trades_count`
-
-This is a gauge that shows the number of in-memory trades for each exchange and pair.
-
-Labels:
-```
-['exchange', 'pair']
-```
-
-Example labels:
-```
-{exchange="BITTREX",pair="CELO/USD"}
-```
-
-### `oracle_trades_price_stats`
-
-This is a gauge that provides various statistics on in-memory trade prices for each exchange and pair.
-
-Labels:
-```
-['exchange', 'pair', 'stat']
-```
-
-Example labels:
-```
-{exchange="BITTREX",pair="CELO/USD",stat="mean"}
-```
-
-Valid stats:
-```
-max, mean, median, min, std (std deviation)
-```
-
-### `oracle_trades_timestamp`
-
-This is a gauge that shows basic information on the timestamps of in-memory trades for each exchange and pair.
-
-Labels:
-```
-['exchange', 'pair', 'stat']
-```
-
-Example labels:
-```
-{exchange="BITTREX",pair="CELO/USD",stat="max"}
-```
-
-Valid stats:
-```
-max, min
-```
-
-### `oracle_trades_volume_total`
-
-This is a gauge that gives the sum of volume across all in-memory trades for each exchange and pair.
-
-Labels:
-```
-['exchange', 'pair']
-```
-
-Example labels:
-```
-{exchange="BITTREX",pair="CELO/USD"}
 ```
 
 ### `oracle_transaction_block_number`

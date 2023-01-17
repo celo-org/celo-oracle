@@ -146,8 +146,11 @@ export abstract class BaseExchangeAdapter {
     [CeloContract.StableToken, 'CUSD'],
     [ExternalCurrency.USD, 'USD'],
     [ExternalCurrency.EUR, 'EUR'],
+    [ExternalCurrency.BRL, 'BRL'],
     [ExternalCurrency.BTC, 'BTC'],
     [ExternalCurrency.USDT, 'USDT'],
+    [ExternalCurrency.BUSD, 'BUSD'],
+    [ExternalCurrency.USDC, 'USDC'],
   ])
 
   protected readonly logger: Logger
@@ -389,7 +392,7 @@ export abstract class BaseExchangeAdapter {
               currentCert = issuerCertificate !== currentCert ? issuerCertificate : undefined
             }
           }
-          throw new Error('Pinned fingerprint not found in certificate chain')
+          return Error('Pinned fingerprint not found in certificate chain')
         }
       },
     })

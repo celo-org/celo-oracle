@@ -45,13 +45,13 @@ describe('OracleApplication', () => {
   const circuitBreakerPriceChangeThresholdMax = new BigNumber(0.1)
   const circuitBreakerPriceChangeThresholdMin = new BigNumber(0.1)
   const circuitBreakerPriceChangeThresholdTimeMultiplier = new BigNumber(0.0075)
+  const circuitBreakerDurationTimeMs = 20 * 60 * 1000 // 20 minutes.
   const currencyPair = OracleCurrencyPair.CELOUSD
   const expectedBlockTimeMs = secondsToMs(5)
   const httpRpcProviderUrl = 'http://test.foo'
   const metrics = true
   const maxBlockTimestampAgeMs = secondsToMs(30)
   const maxSourceWeightShare = new BigNumber(0.99)
-  const maxNoTradeDuration = minutesToMs(1)
   const maxPercentageBidAskSpread = new BigNumber(0.1)
   const maxPercentageDeviation = new BigNumber(0.2)
   const minPriceSourceCount = 1
@@ -68,6 +68,8 @@ describe('OracleApplication', () => {
     circuitBreakerPriceChangeThresholdMax,
     circuitBreakerPriceChangeThresholdMin,
     circuitBreakerPriceChangeThresholdTimeMultiplier,
+    circuitBreakerDurationTimeMs,
+    devMode: false,
     gasPriceMultiplier: new BigNumber(5.0),
     transactionRetryLimit: 0,
     transactionRetryGasPriceMultiplier: new BigNumber(0),
@@ -86,7 +88,7 @@ describe('OracleApplication', () => {
     aggregationMethod,
     aggregationWindowDuration,
     baseLogger,
-    maxNoTradeDuration,
+    devMode: false,
     minPriceSourceCount,
     maxSourceWeightShare,
     maxPercentageBidAskSpread,
@@ -103,8 +105,10 @@ describe('OracleApplication', () => {
     baseLogger,
     currencyPair,
     dataAggregatorConfig,
+    devMode: false,
     httpRpcProviderUrl,
     metrics,
+    mockAccount: '', // It is not relevant as devMode is disabled
     privateKeyPath,
     prometheusPort,
     reporterConfig: blockBasedReporterConfig,
@@ -145,6 +149,7 @@ describe('OracleApplication', () => {
         baseLogger: expect.anything(),
         currencyPair,
         dataAggregator: expect.any(DataAggregator),
+        devMode: false,
         expectedBlockTimeMs,
         gasPriceMultiplier: new BigNumber(5),
         transactionRetryLimit: 0,
@@ -153,6 +158,7 @@ describe('OracleApplication', () => {
         circuitBreakerPriceChangeThresholdMax,
         circuitBreakerPriceChangeThresholdMin,
         circuitBreakerPriceChangeThresholdTimeMultiplier,
+        circuitBreakerDurationTimeMs,
         maxBlockTimestampAgeMs,
         minReportPriceChangeThreshold,
         metricCollector: expect.any(MetricCollector),

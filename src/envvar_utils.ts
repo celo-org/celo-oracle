@@ -23,7 +23,6 @@ export enum EnvVar {
   ADDRESS = 'ADDRESS',
   AGGREGATION_METHOD = 'AGGREGATION_METHOD',
   AGGREGATION_PERIOD = 'AGGREGATION_PERIOD',
-  AGGREGATION_SCALING_RATE = 'AGGREGATION_SCALING_RATE',
   API_REQUEST_TIMEOUT = 'API_REQUEST_TIMEOUT',
   AWS_KEY_REGION = 'AWS_KEY_REGION',
   AZURE_HSM_INIT_MAX_RETRY_BACKOFF_MS = 'AZURE_HSM_INIT_MAX_RETRY_BACKOFF_MS',
@@ -32,6 +31,7 @@ export enum EnvVar {
   CIRCUIT_BREAKER_PRICE_CHANGE_THRESHOLD_MAX = 'CIRCUIT_BREAKER_PRICE_CHANGE_THRESHOLD_MAX',
   CIRCUIT_BREAKER_PRICE_CHANGE_THRESHOLD_MIN = 'CIRCUIT_BREAKER_PRICE_CHANGE_THRESHOLD_MIN',
   CIRCUIT_BREAKER_PRICE_CHANGE_THRESHOLD_TIME_MULTIPLIER = 'CIRCUIT_BREAKER_PRICE_CHANGE_THRESHOLD_TIME_MULTIPLIER',
+  CIRCUIT_BREAKER_DURATION_MS = 'CIRCUIT_BREAKER_DURATION_MS',
   CURRENCY_PAIR = 'CURRENCY_PAIR',
   DATA_FETCH_FREQUENCY = 'DATA_FETCH_FREQUENCY',
   GAS_PRICE_MULTIPLIER = 'GAS_PRICE_MULTIPLIER',
@@ -42,7 +42,6 @@ export enum EnvVar {
   MID_AGGREGATION_MAX_EXCHANGE_VOLUME_SHARE = 'MID_AGGREGATION_MAX_EXCHANGE_VOLUME_SHARE',
   MID_AGGREGATION_MAX_PERCENTAGE_BID_ASK_SPREAD = 'MID_AGGREGATION_MAX_PERCENTAGE_BID_ASK_SPREAD',
   MIN_REPORT_PRICE_CHANGE_THRESHOLD = 'MIN_REPORT_PRICE_CHANGE_THRESHOLD',
-  MINIMUM_DATA = 'MINIMUM_DATA',
   MINIMUM_PRICE_SOURCES = 'MINIMUM_PRICE_SOURCES',
   OVERRIDE_INDEX = 'OVERRIDE_INDEX',
   OVERRIDE_ORACLE_COUNT = 'OVERRIDE_ORACLE_COUNT',
@@ -61,6 +60,7 @@ export enum EnvVar {
   UNUSED_ORACLE_ADDRESSES = 'UNUSED_ORACLE_ADDRESSES',
   WALLET_TYPE = 'WALLET_TYPE',
   WS_RPC_PROVIDER_URL = 'WS_RPC_PROVIDER_URL',
+  DEVMODE = 'DEVMODE',
 }
 
 interface OrientedExchangePairConfig {
@@ -221,17 +221,6 @@ const envVarHandlingMap = new Map<EnvVar, EnvVarHandling>([
     },
   ],
   [
-    EnvVar.AGGREGATION_SCALING_RATE,
-    {
-      ...numberEnvVarHandling,
-      validationFns: [
-        envVarValidations.isFinite,
-        (value: BigNumber) => envVarValidations.isGreaterThan(value, 0, true),
-        (value: BigNumber) => envVarValidations.isLessThan(value, 1, false),
-      ],
-    },
-  ],
-  [
     EnvVar.AWS_KEY_REGION,
     {
       validationFns: [
@@ -294,6 +283,13 @@ const envVarHandlingMap = new Map<EnvVar, EnvVarHandling>([
     {
       ...numberEnvVarHandling,
       validationFns: [envVarValidations.isFinite, envVarValidations.isGreaterThanZero],
+    },
+  ],
+  [
+    EnvVar.CIRCUIT_BREAKER_DURATION_MS,
+    {
+      ...integerEnvVarHandling,
+      validationFns: [envVarValidations.isInteger, envVarValidations.isGreaterThanZero],
     },
   ],
   [
@@ -392,13 +388,6 @@ const envVarHandlingMap = new Map<EnvVar, EnvVarHandling>([
     {
       ...numberEnvVarHandling,
       validationFns: [envVarValidations.isFinite, envVarValidations.isGreaterThanZero],
-    },
-  ],
-  [
-    EnvVar.MINIMUM_DATA,
-    {
-      ...integerEnvVarHandling,
-      validationFns: [envVarValidations.isInteger, envVarValidations.isGreaterThanZero],
     },
   ],
   [
@@ -532,6 +521,13 @@ const envVarHandlingMap = new Map<EnvVar, EnvVarHandling>([
       validationFns: [(value: string) => envVarValidations.isValidUrl(value, 'ws')],
     },
   ],
+  [
+    EnvVar.DEVMODE,
+    {
+      parseFn: (unparsed: string): boolean => unparsed.toLowerCase() === 'true',
+      validationFns: [],
+    },
+  ],
 ])
 
 /**
@@ -556,7 +552,7 @@ export function fetchParseValidateEnvVar(envVar: EnvVar): any {
     for (const validationFn of handling.validationFns) {
       try {
         validationFn(parsed)
-      } catch (err) {
+      } catch (err: any) {
         throw new EnvVarValidationError(envVar, unparsed, err.message)
       }
     }

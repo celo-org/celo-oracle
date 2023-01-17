@@ -65,6 +65,20 @@ describe('impliedPair()', () => {
     quoteVolume: new BigNumber(12100),
   }
 
+  const testCELOBTC: PairData = {
+    bid: new BigNumber(0.00009877),
+    ask: new BigNumber(0.00009896),
+    baseVolume: new BigNumber(626670.7),
+    quoteVolume: new BigNumber(62.5492893),
+  }
+
+  const testBTCUSD: PairData = {
+    bid: new BigNumber(35454.22),
+    ask: new BigNumber(35491.83),
+    baseVolume: new BigNumber(9.90406756),
+    quoteVolume: new BigNumber(343601.1800347895),
+  }
+
   describe('single pair', () => {
     it('calculates implied pair', () => {
       const implied = impliedPair([testPair1])
@@ -94,6 +108,17 @@ describe('impliedPair()', () => {
         expect(implied.ask.precision(5)).toEqual(new BigNumber(5.1362))
         expect(implied.baseVolume.precision(9)).toEqual(new BigNumber(2380.95238))
         expect(implied.quoteVolume.precision(9)).toEqual(new BigNumber(12100))
+      })
+    })
+
+    describe('CELO/USD via BTC', () => {
+      const pairs: PairData[] = [testCELOBTC, testBTCUSD]
+      it('calculates implied pair', () => {
+        const implied = impliedPair(pairs)
+        expect(implied.bid.precision(5)).toEqual(new BigNumber(3.5018))
+        expect(implied.ask.precision(5)).toEqual(new BigNumber(3.5123))
+        expect(implied.baseVolume.precision(9)).toEqual(new BigNumber(99227.1698))
+        expect(implied.quoteVolume.precision(9)).toEqual(new BigNumber(343601.18))
       })
     })
   })

@@ -84,9 +84,7 @@ The MetricCollector collects information from a running oracle application insta
 ### **Circuit Breaker**
 
 <!-- TODO: resolve feedback from Brynly in this section -->
-If extreme market volatility is detected, the “circuit breaker” will shut down the Oracle. As of now, when this happens, the Oracle application must be restarted manually. In instances when the circuit breaker is activated, the manual restart is expected to be a coordinated investigation and discussion between those running Oracles, collectively determining when to restart them.
-
-The current implementation assumes that all participating Oracles are operating with a circuit breaker and using the same configuration. The coordinated shutdown of all Oracles prevents the on-chain exchange rate from being updated. Until the circuit breakers are reset, the on-chain exchange rate adjusts dynamically. One-sided trading with the reserve will push the exchange rate towards the current market price, while limiting the effect on the reserve of having a rate that is "wrong".
+If extreme market volatility is detected, the “circuit breaker” will shut down the Oracle. The current implementation assumes that all participating Oracles are operating with a circuit breaker and using the same configuration. The coordinated shutdown of all Oracles prevents the on-chain exchange rate from being updated. Until the circuit breakers are reset, the on-chain exchange rate adjusts dynamically. One-sided trading with the reserve will push the exchange rate towards the current market price, while limiting the effect on the reserve of having a rate that is "wrong".
 
 ### **Minimum Number of Exchanges**
 
@@ -107,11 +105,6 @@ This configurable threshold allows setting a cap on how much weight any one exch
 ### **Maximum Deviation of Prices**
 
 If the prices from different sources (i.e. exchanges) deviate too much, it suggests there is too much uncertainty in the current market conditions. When a set threshold is exceeded, the Oracle will avoid reporting a new value until the sources are in closer agreement.
-
-## Build checks
-
-We use Google CloudBuild to run continuous integration checks as part of the PR process. To run this locally, install `cloud-build-local`, start up Docker, and run the following from the root:
-`cloud-build-local --config=cloudbuild.yaml --dryrun=false .`
 
 ## Contributing
 
