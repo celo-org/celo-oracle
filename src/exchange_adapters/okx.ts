@@ -16,7 +16,10 @@ export class OKXAdapter extends BaseExchangeAdapter implements ExchangeAdapter {
   }
 
   async fetchTicker(): Promise<Ticker> {
-    const tickerJson = await this.fetchFromApi(ExchangeDataType.TICKER, `market/ticker?instId=${this.pairSymbol}`)
+    const tickerJson = await this.fetchFromApi(
+      ExchangeDataType.TICKER,
+      `market/ticker?instId=${this.pairSymbol}`
+    )
 
     return this.parseTicker(tickerJson)
   }
@@ -59,8 +62,6 @@ export class OKXAdapter extends BaseExchangeAdapter implements ExchangeAdapter {
    * }
    */
 
-  
-
   parseTicker(json: any): Ticker {
     const ticker = {
       ...this.priceObjectMetadata,
@@ -79,7 +80,6 @@ export class OKXAdapter extends BaseExchangeAdapter implements ExchangeAdapter {
    *
    * @param json parsed response from bitstamps's ticker endpoint
    * https://www.okx.com/api/v5/market/ticker?instId=CELO-USDT
-  
    * {
    * "code":"0",
    * "msg":"",
@@ -112,9 +112,6 @@ export class OKXAdapter extends BaseExchangeAdapter implements ExchangeAdapter {
       `market/ticker?instId=${this.pairSymbol}`
     )
 
-    return (
-      !!response &&
-      response.code === "0"
-    )
+    return !!response && response.code === '0'
   }
 }
