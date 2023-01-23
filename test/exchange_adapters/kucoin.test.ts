@@ -119,9 +119,9 @@ describe('KuCoin adapter', () => {
       expect(ticker).toEqual({
         source: Exchange.KUCOIN,
         symbol: kucoinAdapter.standardPairSymbol,
-        ask: new BigNumber(0.7555),
+        ask: new BigNumber(0.7563),
         baseVolume: new BigNumber(1598294.854),
-        bid: new BigNumber(0.7563),
+        bid: new BigNumber(0.7555),
         lastPrice: new BigNumber(0.7561),
         quoteVolume: new BigNumber(1213224.94637127),
         timestamp: 1674501725001,
