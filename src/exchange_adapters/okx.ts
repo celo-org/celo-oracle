@@ -61,7 +61,6 @@ export class OKXAdapter extends BaseExchangeAdapter implements ExchangeAdapter {
    *  ]
    * }
    */
-
   parseTicker(json: any): Ticker {
     const ticker = {
       ...this.priceObjectMetadata,
