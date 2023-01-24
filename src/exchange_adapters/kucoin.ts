@@ -59,7 +59,6 @@ export class KuCoinAdapter extends BaseExchangeAdapter implements ExchangeAdapte
    *  ]
    * }
    */
-
   parseTicker(json: any): Ticker {
     const pair = json.data.ticker.find((p: { symbol: string }) => p?.symbol === this.pairSymbol)
     const ticker = {
@@ -106,7 +105,6 @@ export class KuCoinAdapter extends BaseExchangeAdapter implements ExchangeAdapte
    * }
    * @returns bool
    */
-
   async isOrderbookLive(): Promise<boolean> {
     const response = await this.fetchFromApi(ExchangeDataType.ORDERBOOK_STATUS, `api/v1/symbols`)
     const pair = response.data.find((p: { symbol: string }) => p?.symbol === this.pairSymbol)
