@@ -2,7 +2,7 @@ import { Exchange } from '../utils'
 import { BaseExchangeAdapter, ExchangeAdapter, ExchangeDataType, Ticker, Trade } from './base'
 
 export class BitstampAdapter extends BaseExchangeAdapter implements ExchangeAdapter {
-  baseApiUrl = 'https://www.bitstamp.net/api/v2/'
+  baseApiUrl = 'https://www.bitstamp.net/api/v2'
   readonly _exchangeName = Exchange.BITSTAMP
   readonly _certFingerprint256 =
     '40:3E:06:2A:26:53:05:91:13:28:5B:AF:80:A0:D4:AE:42:2C:84:8C:9F:78:FA:D0:1F:C9:4B:C5:B8:7F:EF:1A'
