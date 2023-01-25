@@ -13,6 +13,7 @@ import { CoinbaseAdapter } from './exchange_adapters/coinbase'
 import { OKCoinAdapter } from './exchange_adapters/okcoin'
 import { NovaDaxAdapter } from './exchange_adapters/novadax'
 import { KrakenAdapter } from './exchange_adapters/kraken'
+import { KuCoinAdapter } from './exchange_adapters/kucoin'
 import { BitstampAdapter } from './exchange_adapters/bitstamp'
 import { MetricCollector } from './metric_collector'
 import { PriceSource, WeightedPrice } from './price_source'
@@ -53,6 +54,8 @@ function adapterFromExchangeName(name: Exchange, config: ExchangeAdapterConfig):
       return new GeminiAdapter(config)
     case Exchange.KRAKEN:
       return new KrakenAdapter(config)
+    case Exchange.KUCOIN:
+      return new KuCoinAdapter(config)
     case Exchange.BITSTAMP:
       return new BitstampAdapter(config)
     case Exchange.OKX:
