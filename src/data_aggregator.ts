@@ -13,6 +13,7 @@ import { OKCoinAdapter } from './exchange_adapters/okcoin'
 import { NovaDaxAdapter } from './exchange_adapters/novadax'
 import { KrakenAdapter } from './exchange_adapters/kraken'
 import { BitstampAdapter } from './exchange_adapters/bitstamp'
+import { MercadoAdapter } from './exchange_adapters/mercado'
 import { MetricCollector } from './metric_collector'
 import { PriceSource, WeightedPrice } from './price_source'
 import {
@@ -54,6 +55,8 @@ function adapterFromExchangeName(name: Exchange, config: ExchangeAdapterConfig):
       return new KrakenAdapter(config)
     case Exchange.BITSTAMP:
       return new BitstampAdapter(config)
+    case Exchange.MERCADO:
+      return new MercadoAdapter(config)
   }
 }
 

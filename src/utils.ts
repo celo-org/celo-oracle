@@ -33,6 +33,7 @@ export enum Exchange {
   GEMINI = 'GEMINI',
   KRAKEN = 'KRAKEN',
   BITSTAMP = 'BITSTAMP',
+  MERCADO = 'MERCADO',
 }
 
 export enum ExternalCurrency {

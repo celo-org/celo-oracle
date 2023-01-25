@@ -1,0 +1,114 @@
+import { Exchange } from '../utils'
+import { BaseExchangeAdapter, ExchangeAdapter, ExchangeDataType, Ticker, Trade } from './base'
+
+export class MercadoAdapter extends BaseExchangeAdapter implements ExchangeAdapter {
+  baseApiUrl = 'https://api.mercadobitcoin.net/api/v4'
+  readonly _exchangeName = Exchange.MERCADO
+  readonly _certFingerprint256 =
+    '3A:BB:E6:3D:AF:75:6C:50:16:B6:B8:5F:52:01:5F:D8:E8:AC:BE:27:7C:50:87:B1:27:A6:05:63:A8:41:ED:8A'
+
+  private static readonly tokenSymbolMap = MercadoAdapter.standardTokenSymbolMap
+
+  protected generatePairSymbol(): string {
+    const base = MercadoAdapter.tokenSymbolMap.get(this.config.baseCurrency)
+    const quote = MercadoAdapter.tokenSymbolMap.get(this.config.quoteCurrency)
+    return `${base}-${quote}`
+  }
+
+  async fetchTicker(): Promise<Ticker> {
+    const tickerJson = await this.fetchFromApi(
+      ExchangeDataType.TICKER,
+      `tickers?symbols=${this.pairSymbol}`
+    )
+    return this.parseTicker(tickerJson)
+  }
+
+  async fetchTrades(): Promise<Trade[]> {
+    // Trade data is not needed by oracle but is required by the parent class.
+    // This function along with all other functions that are not needed by the oracle will
+    // be removed in a future PR.
+    // -- @bayological ;) --
+    return []
+  }
+
+  /**
+   *
+   * @param json parsed response from mercado's ticker endpoint
+   * https://api.mercadobitcoin.net/api/v4/docs#tag/Public-Data/paths/~1tickers/get
+   * https://api.mercadobitcoin.net/api/v4/tickers?symbols=BTC-BRL
+   * [
+   *  {
+   *  "pair":"BTC-BRL",
+   *  "high":"120700.00000000",
+   *  "low":"117000.00001000",
+   *  "vol":"52.00314436",
+   *  "last":"119548.04744932",
+   *  "buy":"119457.96889001",
+   *  "sell":"119546.04397687",
+   *  "open":"119353.86994450",
+   *  "date":1674561363
+   *  }
+   * ]
+   *
+   */
+  // Using lastPrice to convert from baseVolume to quoteVolume, as Mercado's
+  // API does not provide this information. The correct price for the
+  // conversion would be the VWAP over the period contemplated by the ticker,
+  // but it's also not available. As a price has to be chosen for the
+  // conversion, and none of them are correct, lastPrice is chose as it
+  // was actually on one trade (whereas the buy or sell could have no
+  // relation to the VWAP). Similar argumentation for ask and bid.
+
+  parseTicker(json: any): Ticker {
+    const baseVolume = this.safeBigNumberParse(json[0].vol)!
+    const lastPrice = this.safeBigNumberParse(json[0].last)!
+    const quoteVolume = baseVolume?.multipliedBy(lastPrice)
+    const ticker = {
+      ...this.priceObjectMetadata,
+      ask: this.safeBigNumberParse(json[0].sell)!,
+      baseVolume,
+      bid: this.safeBigNumberParse(json[0].buy)!,
+      lastPrice,
+      quoteVolume,
+      timestamp: this.safeBigNumberParse(json[0].date)?.toNumber()!,
+    }
+    this.verifyTicker(ticker)
+    return ticker
+  }
+
+  /**
+   * @param json parsed response from mercado's symbols endpoint
+   * Checks status of orderbook
+   * https://api.mercadobitcoin.net/api/v4/symbols?symbols=BTC-BRL
+   *
+   * {
+   * "symbol":[ "BTC-BRL" ],
+   * "description":[ "Bitcoin" ],
+   * "currency":[ "BRL" ],
+   * "base-currency":[ "BTC" ],
+   * "exchange-listed":[ true ],
+   * "exchange-traded":[ true ],
+   * "minmovement":[ "1" ],
+   * "pricescale":[ 100000000 ],
+   * "type":[ "CRYPTO" ],
+   * "timezone":[ "America/Sao_Paulo" ],
+   * "session-regular":[ "24x7" ],
+   * "withdrawal-fee":[ "0.0004" ],
+   * "withdraw-minimum":[ "0.001" ],
+   * "deposit-minimum":[ "0.00001" ]
+   * }
+   *
+   * @returns bool
+   */
+  async isOrderbookLive(): Promise<boolean> {
+    const response = await this.fetchFromApi(
+      ExchangeDataType.ORDERBOOK_STATUS,
+      `symbols?symbols=${this.pairSymbol}`
+    )
+    return (
+      !!response &&
+      response['exchange-traded'][0] === true &&
+      response['exchange-listed'][0] === true
+    )
+  }
+}
