@@ -6,12 +6,14 @@ import { OracleApplicationConfig } from './app'
 import { ExchangeAdapter, ExchangeAdapterConfig } from './exchange_adapters/base'
 import { BinanceAdapter } from './exchange_adapters/binance'
 import { BinanceUSAdapter } from './exchange_adapters/binance_us'
+import { OKXAdapter } from './exchange_adapters/okx'
 import { BitsoAdapter } from './exchange_adapters/bitso'
 import { BittrexAdapter } from './exchange_adapters/bittrex'
 import { CoinbaseAdapter } from './exchange_adapters/coinbase'
 import { OKCoinAdapter } from './exchange_adapters/okcoin'
 import { NovaDaxAdapter } from './exchange_adapters/novadax'
 import { KrakenAdapter } from './exchange_adapters/kraken'
+import { KuCoinAdapter } from './exchange_adapters/kucoin'
 import { BitstampAdapter } from './exchange_adapters/bitstamp'
 import { MercadoAdapter } from './exchange_adapters/mercado'
 import { MetricCollector } from './metric_collector'
@@ -53,10 +55,14 @@ function adapterFromExchangeName(name: Exchange, config: ExchangeAdapterConfig):
       return new GeminiAdapter(config)
     case Exchange.KRAKEN:
       return new KrakenAdapter(config)
+    case Exchange.KUCOIN:
+      return new KuCoinAdapter(config)
     case Exchange.BITSTAMP:
       return new BitstampAdapter(config)
     case Exchange.MERCADO:
       return new MercadoAdapter(config)
+    case Exchange.OKX:
+      return new OKXAdapter(config)
   }
 }
 

@@ -32,8 +32,10 @@ export enum Exchange {
   NOVADAX = 'NOVADAX',
   GEMINI = 'GEMINI',
   KRAKEN = 'KRAKEN',
+  KUCOIN = 'KUCOIN',
   BITSTAMP = 'BITSTAMP',
   MERCADO = 'MERCADO',
+  OKX = 'OKX',
 }
 
 export enum ExternalCurrency {

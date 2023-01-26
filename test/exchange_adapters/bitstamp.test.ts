@@ -131,9 +131,7 @@ describe('Bitstamp adapter', () => {
       jest.spyOn(bitstampAdapter, 'fetchFromApi').mockReturnValue(Promise.resolve(mockStatusJson))
       expect(await bitstampAdapter.isOrderbookLive()).toEqual(true)
     })
-  })
 
-  describe('isOrderbookLive', () => {
     it('returns false when Orderbook is not live', async () => {
       jest
         .spyOn(bitstampAdapter, 'fetchFromApi')
