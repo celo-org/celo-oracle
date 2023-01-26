@@ -35,7 +35,18 @@ describe(' adapter', () => {
       date: 1674561363,
     },
   ]
-
+  
+  const validOrderbookJson = {
+    "asks":[
+       ["117275.49879111", "0.0256"],
+       ["117532.16627745", "0.01449"],
+    ],
+    "bids":[
+       ["117223.32117", "0.00001177"],
+       ["117200", "0.00002"],
+    ]
+ }
+  
   const inValidMockTickerJson = [
     {
       pair: 'BTC-BRL',
@@ -50,15 +61,26 @@ describe(' adapter', () => {
     },
   ]
 
+  const inValidOrderbookJson ={
+    "asks":[
+       [],
+       ["117532.16627745", "0.01449"],
+    ],
+    "bids":[
+       [],
+       ["117200", "0.00002"],
+    ]
+ }
+
   describe('parseTicker', () => {
     it('handles a response that matches the documentation', () => {
-      const ticker = mercadoAdapter.parseTicker(validMockTickerJson)
+      const ticker = mercadoAdapter.parseTicker(validMockTickerJson, validOrderbookJson)
       expect(ticker).toEqual({
         source: Exchange.MERCADO,
         symbol: mercadoAdapter.standardPairSymbol,
-        ask: new BigNumber(119546.04397687),
+        ask: new BigNumber(117275.49879111),
         baseVolume: new BigNumber(52.00314436),
-        bid: new BigNumber(119457.96889001),
+        bid: new BigNumber(117223.32117),
         lastPrice: new BigNumber(119548.04744932),
         quoteVolume: new BigNumber(52.00314436).multipliedBy(new BigNumber(119548.04744932)),
         timestamp: 1674561363,
@@ -67,7 +89,7 @@ describe(' adapter', () => {
 
     it('throws an error when a json field mapped to a required ticker field is missing or empty', () => {
       expect(() => {
-        mercadoAdapter.parseTicker(inValidMockTickerJson)
+        mercadoAdapter.parseTicker(inValidMockTickerJson, inValidOrderbookJson)
       }).toThrowError('bid, ask, lastPrice, baseVolume not defined')
     })
   })
