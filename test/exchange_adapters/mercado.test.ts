@@ -35,18 +35,18 @@ describe(' adapter', () => {
       date: 1674561363,
     },
   ]
-  
+
   const validOrderbookJson = {
-    "asks":[
-       ["117275.49879111", "0.0256"],
-       ["117532.16627745", "0.01449"],
+    asks: [
+      ['117275.49879111', '0.0256'],
+      ['117532.16627745', '0.01449'],
     ],
-    "bids":[
-       ["117223.32117", "0.00001177"],
-       ["117200", "0.00002"],
-    ]
- }
-  
+    bids: [
+      ['117223.32117', '0.00001177'],
+      ['117200', '0.00002'],
+    ],
+  }
+
   const inValidMockTickerJson = [
     {
       pair: 'BTC-BRL',
@@ -61,16 +61,10 @@ describe(' adapter', () => {
     },
   ]
 
-  const inValidOrderbookJson ={
-    "asks":[
-       [],
-       ["117532.16627745", "0.01449"],
-    ],
-    "bids":[
-       [],
-       ["117200", "0.00002"],
-    ]
- }
+  const inValidOrderbookJson = {
+    asks: [[], ['117532.16627745', '0.01449']],
+    bids: [[], ['117200', '0.00002']],
+  }
 
   describe('parseTicker', () => {
     it('handles a response that matches the documentation', () => {
