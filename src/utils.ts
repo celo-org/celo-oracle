@@ -34,6 +34,7 @@ export enum Exchange {
   KRAKEN = 'KRAKEN',
   KUCOIN = 'KUCOIN',
   BITSTAMP = 'BITSTAMP',
+  MERCADO = 'MERCADO',
   OKX = 'OKX',
 }
 
