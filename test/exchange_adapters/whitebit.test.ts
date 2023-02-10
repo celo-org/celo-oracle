@@ -93,13 +93,11 @@ describe('Whitebit adapter', () => {
       await whitebitAdapter.fetchTicker()
 
       expect(parseTickerSpy).toHaveBeenCalledTimes(1)
-      expect(parseTickerSpy).toHaveBeenCalledWith(
-        {
-          ...mockValidTickerData['USDC_USDT'],
-          ask: mockValidOrderbookData['asks'][0][0],
-          bid: mockValidOrderbookData['bids'][0][0],
-        }
-      )
+      expect(parseTickerSpy).toHaveBeenCalledWith({
+        ...mockValidTickerData['USDC_USDT'],
+        ask: mockValidOrderbookData['asks'][0][0],
+        bid: mockValidOrderbookData['bids'][0][0],
+      })
     })
   })
 
@@ -138,8 +136,8 @@ describe('Whitebit adapter', () => {
         Promise.resolve([
           {
             ...statusResponse,
-            tradesEnabled: false
-          }
+            tradesEnabled: false,
+          },
         ])
       )
       expect(await whitebitAdapter.isOrderbookLive()).toEqual(false)
@@ -150,19 +148,15 @@ describe('Whitebit adapter', () => {
         Promise.resolve([
           {
             ...statusResponse,
-            type: 'spotty'
-          }
+            type: 'spotty',
+          },
         ])
       )
       expect(await whitebitAdapter.isOrderbookLive()).toEqual(false)
     })
 
     it('returns true when trades are enabled and market is spot', async () => {
-      jest.spyOn(whitebitAdapter, 'fetchFromApi').mockReturnValue(
-        Promise.resolve([
-          statusResponse
-        ])
-      )
+      jest.spyOn(whitebitAdapter, 'fetchFromApi').mockReturnValue(Promise.resolve([statusResponse]))
       expect(await whitebitAdapter.isOrderbookLive()).toEqual(true)
     })
   })

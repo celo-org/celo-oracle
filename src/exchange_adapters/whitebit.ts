@@ -108,6 +108,6 @@ export class WhitebitAdapter extends BaseExchangeAdapter {
       throw new Error(`Market info not found for ${this.generatePairSymbol()}`)
     }
 
-    return filteredMarketInfo[0].tradesEnabled && filteredMarketInfo[0].type == 'spot'
+    return filteredMarketInfo[0].tradesEnabled && filteredMarketInfo[0].type === 'spot'
   }
 }
