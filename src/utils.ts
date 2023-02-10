@@ -36,6 +36,7 @@ export enum Exchange {
   BITSTAMP = 'BITSTAMP',
   MERCADO = 'MERCADO',
   OKX = 'OKX',
+  WHITEBIT = 'WHITEBIT',
 }
 
 export enum ExternalCurrency {
