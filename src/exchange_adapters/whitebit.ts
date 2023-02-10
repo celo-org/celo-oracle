@@ -26,15 +26,15 @@ export class WhitebitAdapter extends BaseExchangeAdapter {
 
   async fetchTicker(): Promise<Ticker> {
     const json = await this.fetchFromApi(ExchangeDataType.TICKER, `ticker`)
-    const tickerData = Object.entries(json).filter(
-      ([key]) => key == this.generatePairSymbol()
-    )[0][1] // Because the response is an object with a single key-value pair in an array
 
-    if (!tickerData) {
+    console.log(json)
+    const tickerData = Object.entries(json).filter(([key]) => key == this.generatePairSymbol())
+
+    if (tickerData.length !== 1) {
       throw new Error(`Ticker data not found for ${this.generatePairSymbol()}`)
-    }
+    } 
 
-    return this.parseTicker(tickerData)
+    return this.parseTicker(tickerData[0][1])
   }
 
   /**
@@ -52,7 +52,7 @@ export class WhitebitAdapter extends BaseExchangeAdapter {
    *     "change": "-4.71"
    *   },
    */
-  parseTicker(tickerData: any): Ticker { 
+  parseTicker(tickerData: any): Ticker {  
 
     const ticker = {
       ...this.priceObjectMetadata,
