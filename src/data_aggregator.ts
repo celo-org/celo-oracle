@@ -34,6 +34,7 @@ import {
   SettledPromise,
 } from './utils'
 import { GeminiAdapter } from './exchange_adapters/gemini'
+import { WhitebitAdapter } from './exchange_adapters/whitebit'
 
 function adapterFromExchangeName(name: Exchange, config: ExchangeAdapterConfig): ExchangeAdapter {
   switch (name) {
@@ -63,6 +64,8 @@ function adapterFromExchangeName(name: Exchange, config: ExchangeAdapterConfig):
       return new MercadoAdapter(config)
     case Exchange.OKX:
       return new OKXAdapter(config)
+    case Exchange.WHITEBIT:
+      return new WhitebitAdapter(config)
   }
 }
 
