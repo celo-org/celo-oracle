@@ -30,7 +30,7 @@ const mockValidTickerData = {
     isFrozen: false,
     change: '0.94',
   },
-  'USDC_USDT': {
+  USDC_USDT: {
     base_id: 8104,
     quote_id: 1,
     last_price: '0.9876',
