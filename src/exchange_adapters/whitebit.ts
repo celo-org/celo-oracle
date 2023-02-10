@@ -1,5 +1,6 @@
-import { Exchange } from '../utils'
 import { BaseExchangeAdapter, ExchangeDataType, Ticker, Trade } from './base'
+
+import { Exchange } from '../utils'
 
 export class WhitebitAdapter extends BaseExchangeAdapter {
   baseApiUrl = 'https://whitebit.com/api/v4/public/'

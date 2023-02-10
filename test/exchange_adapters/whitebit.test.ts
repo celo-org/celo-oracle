@@ -1,8 +1,51 @@
-import { WhitebitAdapter } from '../../src/exchange_adapters/whitebit'
-import { ExchangeAdapterConfig } from '../../src/exchange_adapters/base'
-import { baseLogger } from '../../src/default_config'
 import { Exchange, ExternalCurrency } from '../../src/utils'
+import { ExchangeAdapterConfig, ExchangeDataType } from '../../src/exchange_adapters/base'
+
 import BigNumber from 'bignumber.js'
+import { WhitebitAdapter } from '../../src/exchange_adapters/whitebit'
+import { baseLogger } from '../../src/default_config'
+
+// Mock data
+const validMockTickerJson = {
+  ask: 0.95,
+  base_volume: 23401032.8528,
+  bid: 0.9,
+  last_price: 0.9998,
+  quote_volume: 23399576.58906071,
+  timestamp: 0,
+}
+
+const inValidMockTickerJson = {
+  quote_volume: 23399576.58906071,
+  timestamp: 0,
+}
+
+const mockValidTickerData = {
+  '1INCH_BTC': {
+    base_id: 8104,
+    quote_id: 1,
+    last_price: '0.0000246',
+    quote_volume: '1.16888304',
+    base_volume: '48268',
+    isFrozen: false,
+    change: '0.94',
+  },
+  'USDC_USDT': {
+    base_id: 8104,
+    quote_id: 1,
+    last_price: '0.9876',
+    quote_volume: '1.16888304',
+    base_volume: '48268',
+    isFrozen: false,
+    change: '0.94',
+  },
+}
+
+const mockValidOrderbookData = {
+  timestamp: 1676047317,
+  asks: [['1.001', '5486968.7515']],
+  bids: [['0.999', '385192']],
+}
 
 describe('Whitebit adapter', () => {
   let whitebitAdapter: WhitebitAdapter
@@ -12,7 +55,6 @@ describe('Whitebit adapter', () => {
     baseLogger,
     quoteCurrency: ExternalCurrency.USDT,
   }
-
   beforeEach(() => {
     whitebitAdapter = new WhitebitAdapter(config)
   })
@@ -22,19 +64,44 @@ describe('Whitebit adapter', () => {
     jest.clearAllMocks()
   })
 
-  const validMockTickerJson = {
-    ask: 0.9,
-    base_volume: 23401032.8528,
-    bid: 0.98,
-    last_price: 0.9998,
-    quote_volume: 23399576.58906071,
-    timestamp: 0,
-  }
+  describe('fetchFromApi', () => {
+    let fetchFromApiSpy: jest.SpyInstance
+    beforeEach(() => {
+      fetchFromApiSpy = jest.spyOn(whitebitAdapter, 'fetchFromApi')
+      fetchFromApiSpy
+        .mockReturnValueOnce(mockValidTickerData)
+        .mockReturnValueOnce(mockValidOrderbookData)
+    })
 
-  const inValidMockTickerJson = { 
-    quote_volume: 23399576.58906071,
-    timestamp: 0,
-  }
+    it('calls correct endpoints on whitebit api', async () => {
+      fetchFromApiSpy
+        .mockReturnValueOnce(mockValidTickerData)
+        .mockReturnValueOnce(mockValidOrderbookData)
+
+      await whitebitAdapter.fetchTicker()
+      expect(fetchFromApiSpy).toHaveBeenCalledTimes(2)
+      expect(fetchFromApiSpy).toHaveBeenNthCalledWith(1, ExchangeDataType.TICKER, 'ticker')
+      expect(fetchFromApiSpy).toHaveBeenNthCalledWith(
+        2,
+        ExchangeDataType.TICKER,
+        'orderbook/USDC_USDT?limit=1&level=2&'
+      )
+    })
+
+    it('calls parseTicker with the right parameters', async () => {
+      let parseTickerSpy = jest.spyOn(whitebitAdapter, 'parseTicker')
+      await whitebitAdapter.fetchTicker()
+
+      expect(parseTickerSpy).toHaveBeenCalledTimes(1)
+      expect(parseTickerSpy).toHaveBeenCalledWith(
+        {
+          ...mockValidTickerData['USDC_USDT'],
+          ask: mockValidOrderbookData['asks'][0][0],
+          bid: mockValidOrderbookData['bids'][0][0],
+        }
+      )
+    })
+  })
 
   describe('parseTicker', () => {
     it('handles a response that matches the documentation', async () => {
@@ -43,9 +110,9 @@ describe('Whitebit adapter', () => {
       expect(ticker).toEqual({
         source: Exchange.WHITEBIT,
         symbol: whitebitAdapter.standardPairSymbol,
-        ask: new BigNumber(0.9),
+        ask: new BigNumber(0.95),
         baseVolume: new BigNumber(23401032.8528),
-        bid: new BigNumber(0.98),
+        bid: new BigNumber(0.9),
         lastPrice: new BigNumber(0.9998),
         quoteVolume: new BigNumber('23399576.58906071'),
         timestamp: 0,
@@ -60,25 +127,19 @@ describe('Whitebit adapter', () => {
   })
 
   describe('isOrderbookLive', () => {
-    it("returns false when trading is not enabled", async () => {
+    const statusResponse = {
+      name: 'USDC_USDT',
+      tradesEnabled: true,
+      type: 'spot',
+    }
 
+    it('returns false when trading is not enabled', async () => {
       jest.spyOn(whitebitAdapter, 'fetchFromApi').mockReturnValue(
         Promise.resolve([
           {
-            name: 'USDC_USDT',
-            stock: 'SON',
-            money: 'USD',
-            stockPrec: '3',
-            moneyPrec: '2',
-            feePrec: '4',
-            makerFee: '0.001',
-            takerFee: '0.001',
-            minAmount: '0.001',
-            minTotal: '0.001',
-            tradesEnabled: false,
-            isCollateral: true,
-            type: 'spot',
-          },
+            ...statusResponse,
+            tradesEnabled: false
+          }
         ])
       )
       expect(await whitebitAdapter.isOrderbookLive()).toEqual(false)
@@ -88,43 +149,18 @@ describe('Whitebit adapter', () => {
       jest.spyOn(whitebitAdapter, 'fetchFromApi').mockReturnValue(
         Promise.resolve([
           {
-            name: 'USDC_USDT',
-            stock: 'SON',
-            money: 'USD',
-            stockPrec: '3',
-            moneyPrec: '2',
-            feePrec: '4',
-            makerFee: '0.001',
-            takerFee: '0.001',
-            minAmount: '0.001',
-            minTotal: '0.001',
-            tradesEnabled: true,
-            isCollateral: true,
-            type: 'spotty',
-          },
+            ...statusResponse,
+            type: 'spotty'
+          }
         ])
       )
       expect(await whitebitAdapter.isOrderbookLive()).toEqual(false)
     })
 
-    it("returns true when trades are enabled and market is spot", async () => {
+    it('returns true when trades are enabled and market is spot', async () => {
       jest.spyOn(whitebitAdapter, 'fetchFromApi').mockReturnValue(
         Promise.resolve([
-          {
-            name: 'USDC_USDT',
-            stock: 'SON',
-            money: 'USD',
-            stockPrec: '3',
-            moneyPrec: '2',
-            feePrec: '4',
-            makerFee: '0.001',
-            takerFee: '0.001',
-            minAmount: '0.001',
-            minTotal: '0.001',
-            tradesEnabled: true,
-            isCollateral: true,
-            type: 'spot',
-          },
+          statusResponse
         ])
       )
       expect(await whitebitAdapter.isOrderbookLive()).toEqual(true)
