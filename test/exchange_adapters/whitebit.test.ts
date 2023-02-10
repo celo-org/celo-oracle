@@ -89,14 +89,14 @@ describe('Whitebit adapter', () => {
     })
 
     it('calls parseTicker with the right parameters', async () => {
-      let parseTickerSpy = jest.spyOn(whitebitAdapter, 'parseTicker')
+      const parseTickerSpy = jest.spyOn(whitebitAdapter, 'parseTicker')
       await whitebitAdapter.fetchTicker()
 
       expect(parseTickerSpy).toHaveBeenCalledTimes(1)
       expect(parseTickerSpy).toHaveBeenCalledWith({
-        ...mockValidTickerData['USDC_USDT'],
-        ask: mockValidOrderbookData['asks'][0][0],
-        bid: mockValidOrderbookData['bids'][0][0],
+        ...mockValidTickerData.USDC_USDT,
+        ask: mockValidOrderbookData.asks[0][0],
+        bid: mockValidOrderbookData.bids[0][0],
       })
     })
   })
