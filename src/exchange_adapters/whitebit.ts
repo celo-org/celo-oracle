@@ -26,15 +26,23 @@ export class WhitebitAdapter extends BaseExchangeAdapter {
 
   async fetchTicker(): Promise<Ticker> {
     const json = await this.fetchFromApi(ExchangeDataType.TICKER, `ticker`)
+    const tickerData = json[this.generatePairSymbol()]
 
-    console.log(json)
-    const tickerData = Object.entries(json).filter(([key]) => key == this.generatePairSymbol())
-
-    if (tickerData.length !== 1) {
+    if (!tickerData) {
       throw new Error(`Ticker data not found for ${this.generatePairSymbol()}`)
-    } 
+    }
 
-    return this.parseTicker(tickerData[0][1])
+    // Get orderbook data as ticker data does not contain bid/ask
+    const orderBookData = await this.fetchFromApi(
+      ExchangeDataType.TICKER,
+      `orderbook/${this.generatePairSymbol()}?limit=1&level=2&`
+    )
+
+    return this.parseTicker({
+      ...tickerData,
+      ask: orderBookData.asks[0][0],
+      bid: orderBookData.bids[0][0],
+    })
   }
 
   /**
@@ -52,13 +60,12 @@ export class WhitebitAdapter extends BaseExchangeAdapter {
    *     "change": "-4.71"
    *   },
    */
-  parseTicker(tickerData: any): Ticker {  
-
+  parseTicker(tickerData: any): Ticker {
     const ticker = {
       ...this.priceObjectMetadata,
-      ask: this.safeBigNumberParse(0)!, //TODO: Not in response
+      ask: this.safeBigNumberParse(tickerData.ask)!,
       baseVolume: this.safeBigNumberParse(tickerData.base_volume)!,
-      bid: this.safeBigNumberParse(0)!, //TODO: Not in response
+      bid: this.safeBigNumberParse(tickerData.bid)!,
       lastPrice: this.safeBigNumberParse(tickerData.last_price)!,
       quoteVolume: this.safeBigNumberParse(tickerData.quote_volume)!,
       timestamp: 0, // Timestamp is not provided by Whitebit and is not used by the oracle
@@ -69,16 +76,37 @@ export class WhitebitAdapter extends BaseExchangeAdapter {
 
   /**
    * Checks status of orderbook
-   * [GET] https://whitebit.com/api/v4/public/ping"
-   *
-   *  [
-   *    "pong"
-   *  ]
+   * [GET] /api/v4/public/markets
+   * [
+   *  {
+   *    "name": "SON_USD",         // Market pair name
+   *    "stock": "SON",            // Ticker of stock currency
+   *    "money": "USD",            // Ticker of money currency
+   *    "stockPrec": "3",          // Stock currency precision
+   *    "moneyPrec": "2",          // Precision of money currency
+   *    "feePrec": "4",            // Fee precision
+   *    "makerFee": "0.001",       // Default maker fee ratio
+   *    "takerFee": "0.001",       // Default taker fee ratio
+   *    "minAmount": "0.001",      // Minimal amount of stock to trade
+   *    "minTotal": "0.001",       // Minimal amount of money to trade
+   *    "tradesEnabled": true,     // Is trading enabled
+   *    "isCollateral": true,      // Is margin trading enabled
+   *    "type": "spot"             // Market type. Possible values: "spot", "futures"
+   *  }
    *
    * @returns bool
    */
   async isOrderbookLive(): Promise<boolean> {
-    const response = await this.fetchFromApi(ExchangeDataType.ORDERBOOK_STATUS, `ping`)
-    return response[0] === 'pong'
+    const marketInfoData = await this.fetchFromApi(ExchangeDataType.ORDERBOOK_STATUS, `markets`)
+
+    const filteredMarketInfo = marketInfoData.filter(
+      (market: any) => market.name === this.generatePairSymbol()
+    )
+
+    if (filteredMarketInfo.length !== 1) {
+      throw new Error(`Market info not found for ${this.generatePairSymbol()}`)
+    }
+
+    return filteredMarketInfo[0].tradesEnabled && filteredMarketInfo[0].type == 'spot'
   }
 }
