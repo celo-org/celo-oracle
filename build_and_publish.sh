@@ -1,5 +1,4 @@
 #!/bin/bash
-set -euo pipefail
 
 REPOSITORY="us-west1-docker.pkg.dev/celo-testnet-production/celo-oracle"
 
@@ -9,8 +8,13 @@ COMMIT_HASH=$(git log -1 --pretty=%h)
 
 VERSION="$PACKAGE_NAME-$PACKAGE_VERSION"
 
-gcloud artifacts docker tags list $REPOSITORY | grep $PACKAGE_VERSION > /dev/null 2>&1
-PACKAGE_VERSION_EXISTS=`expr $? = 0` # if grep finds something exit code 0 otherwise 1
+gcloud artifacts docker tags list $REPOSITORY | grep -w $PACKAGE_VERSION > /dev/null 2>&1
+# if grep finds something exit code 0 otherwise 1
+if [[ $? -eq 0 ]]; then
+  PACKAGE_VERSION_EXISTS=1
+else
+  PACKAGE_VERSION_EXISTS=0
+fi
 
 if [[ $BUILD_ENV != "production" && $BUILD_ENV != "staging" ]]; then
   echo "Invalid BUILD_ENV: $BUILD_ENV"
