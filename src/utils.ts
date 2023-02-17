@@ -70,7 +70,9 @@ export enum OracleCurrencyPair {
   BUSDUSD = 'BUSDUSD',
   USDBRL = 'USDBRL',
   USDCUSD = 'USDCUSD',
+  USDCEUR = 'USDCEUR',
   USDCUSDT = 'USDCUSDT',
+  EURUSD = 'EURUSD',
 }
 
 export const CoreCurrencyPair: OracleCurrencyPair[] = [
@@ -101,7 +103,9 @@ export const CurrencyPairBaseQuote: Record<
   [OracleCurrencyPair.BUSDUSD]: { base: ExternalCurrency.BUSD, quote: ExternalCurrency.USD },
   [OracleCurrencyPair.USDBRL]: { base: ExternalCurrency.USD, quote: ExternalCurrency.BRL },
   [OracleCurrencyPair.USDCUSD]: { base: ExternalCurrency.USDC, quote: ExternalCurrency.USD },
+  [OracleCurrencyPair.USDCEUR]: { base: ExternalCurrency.USDC, quote: ExternalCurrency.EUR },
   [OracleCurrencyPair.USDCUSDT]: { base: ExternalCurrency.USDC, quote: ExternalCurrency.USDT },
+  [OracleCurrencyPair.EURUSD]: { base: ExternalCurrency.EUR, quote: ExternalCurrency.USD },
 }
 
 export enum AggregationMethod {
