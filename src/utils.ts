@@ -61,6 +61,7 @@ export enum OracleCurrencyPair {
   CELOBUSD = 'CELOBUSD',
   EURUSDT = 'EURUSDT',
   BTCUSD = 'BTCUSD',
+  BTCUSDT = 'BTCUSDT',
   BTCBRL = 'BTCBRL',
   USDTUSD = 'USDTUSD',
   USDTUSDC = 'USDTUSDC',
@@ -106,6 +107,7 @@ export const CurrencyPairBaseQuote: Record<
   [OracleCurrencyPair.USDCEUR]: { base: ExternalCurrency.USDC, quote: ExternalCurrency.EUR },
   [OracleCurrencyPair.USDCUSDT]: { base: ExternalCurrency.USDC, quote: ExternalCurrency.USDT },
   [OracleCurrencyPair.EURUSD]: { base: ExternalCurrency.EUR, quote: ExternalCurrency.USD },
+  [OracleCurrencyPair.BTCUSDT]: { base: ExternalCurrency.BTC, quote: ExternalCurrency.USDT },
 }
 
 export enum AggregationMethod {
