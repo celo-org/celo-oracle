@@ -6,7 +6,7 @@ export class NovaDaxAdapter extends BaseExchangeAdapter implements ExchangeAdapt
   readonly _exchangeName = Exchange.NOVADAX
   // NovaDAX's certificate fingerprint.
   readonly _certFingerprint256 =
-    '4F:04:74:C6:3E:28:50:64:B1:38:00:09:8A:79:6F:FF:BF:C0:E8:AB:98:AD:AE:99:88:FD:66:3A:5A:48:00:24'
+    'A2:05:26:4C:3F:90:D3:DB:37:4A:CE:4E:AF:33:8B:51:89:75:39:2D:7A:98:2F:EE:76:B8:2F:4A:02:23:89:7B'
 
   private static readonly tokenSymbolMap = NovaDaxAdapter.standardTokenSymbolMap
 
