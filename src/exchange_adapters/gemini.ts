@@ -5,7 +5,7 @@ export class GeminiAdapter extends BaseExchangeAdapter {
   baseApiUrl = 'https://api.gemini.com/v1/'
 
   readonly _exchangeName = Exchange.GEMINI
-  // Amazon bitget.com cert
+  // Amazon cert
   readonly _certFingerprint256 =
     'F5:5F:9F:FC:B8:3C:73:45:32:61:60:1C:7E:04:4D:B1:5A:0F:03:4B:93:C0:58:30:F2:86:35:EF:88:9C:F6:70'
 
@@ -66,7 +66,7 @@ export class GeminiAdapter extends BaseExchangeAdapter {
     return ticker
   }
 
-/**
+ /**
    * Checks if the orderbook for the relevant pair is live. If it's not, the price
    * data from Ticker + Trade endpoints may be inaccurate.
    *
@@ -84,12 +84,12 @@ export class GeminiAdapter extends BaseExchangeAdapter {
    *
    * @returns bool
    */
-async isOrderbookLive(): Promise<boolean> {
-  const res = await this.fetchFromApi(
-    ExchangeDataType.ORDERBOOK_STATUS,
-    `symbols/details/${this.pairSymbol}`
-  )
+  async isOrderbookLive(): Promise<boolean> {
+    const res = await this.fetchFromApi(
+      ExchangeDataType.ORDERBOOK_STATUS,
+      `symbols/details/${this.pairSymbol}`
+    )
 
-  return res.status === 'open'
-}
+    return res.status === 'open'
+  }
 }
