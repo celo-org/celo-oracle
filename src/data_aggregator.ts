@@ -68,7 +68,7 @@ function adapterFromExchangeName(name: Exchange, config: ExchangeAdapterConfig):
     case Exchange.WHITEBIT:
       return new WhitebitAdapter(config)
     case Exchange.BITGET:
-      return new BitgetAdapter(config)  
+      return new BitgetAdapter(config)
   }
 }
 

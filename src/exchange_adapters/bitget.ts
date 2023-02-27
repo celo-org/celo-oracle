@@ -11,7 +11,10 @@ export class BitgetAdapter extends BaseExchangeAdapter {
 
   async fetchTicker(): Promise<Ticker> {
     return this.parseTicker(
-      await this.fetchFromApi(ExchangeDataType.TICKER, `spot/v1/market/ticker?symbol=${this.pairSymbol}_SPBL`)
+      await this.fetchFromApi(
+        ExchangeDataType.TICKER,
+        `spot/v1/market/ticker?symbol=${this.pairSymbol}_SPBL`
+      )
     )
   }
 
@@ -70,10 +73,10 @@ export class BitgetAdapter extends BaseExchangeAdapter {
     return ticker
   }
 
-    /**
+  /**
    * Checks if the orderbook for the relevant pair is live. If it's not, the price
    * data from Ticker + Trade endpoints may be inaccurate.
-   * 
+   *
    * https://api.bitget.com/api/spot/v1/public/product?symbol=BTCBRL_SPBL
    *
    * API response example:
@@ -90,12 +93,12 @@ export class BitgetAdapter extends BaseExchangeAdapter {
    *
    * @returns bool
    */
-    async isOrderbookLive(): Promise<boolean> {
-      const res = await this.fetchFromApi(
-        ExchangeDataType.ORDERBOOK_STATUS,
-        `spot/v1/public/product?symbol=${this.pairSymbol}_SPBL`
-      )
-  
-      return res.data.status == 'online'
-    }
+  async isOrderbookLive(): Promise<boolean> {
+    const res = await this.fetchFromApi(
+      ExchangeDataType.ORDERBOOK_STATUS,
+      `spot/v1/public/product?symbol=${this.pairSymbol}_SPBL`
+    )
+
+    return res.data.status === 'online'
+  }
 }

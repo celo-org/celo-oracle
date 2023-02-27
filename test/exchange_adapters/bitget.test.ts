@@ -20,21 +20,19 @@ describe('BitgetAdapter', () => {
   })
 
   const mockPubtickerJson = {
-    code:"00000",
-    data:
-        {
-        baseVol:"9.18503",           // (price symbol, e.g. "USD") The volume denominated in the price currency
-        buyOne:"121890",             // buy one price = bid pice
-        close:"121905",              // Latest transaction price
-        quoteVol:"1119715.23314",    // (price symbol, e.g. "USD") The volume denominated in the quantity currency
-        sellOne:"122012",            // sell one price = ask price
-        symbol:"BTCBRL",             // Symbol
-        ts:1677490448241,          // Timestamp
-        },
-    msg:"success",
-    requestTime:"1677490448872" // Request status
+    code: '00000',
+    data: {
+      baseVol: '9.18503', // (price symbol, e.g. "USD") The volume denominated in the price currency
+      buyOne: '121890', // buy one price = bid pice
+      close: '121905', // Latest transaction price
+      quoteVol: '1119715.23314', // (price symbol, e.g. "USD") The volume denominated in the quantity currency
+      sellOne: '122012', // sell one price = ask price
+      symbol: 'BTCBRL', // Symbol
+      ts: 1677490448241, // Timestamp
+    },
+    msg: 'success',
+    requestTime: '1677490448872', // Request status
   }
-
 
   describe('fetchTrades', () => {
     it('returns an empty array', async () => {
@@ -62,12 +60,12 @@ describe('BitgetAdapter', () => {
       expect(() => {
         bitgetAdapter.parseTicker({
           ...mockPubtickerJson,
-          data:
-            {
-              sellOne: undefined,
-              buyOne: undefined,
-              close: undefined,
-              baseVol: undefined},
+          data: {
+            sellOne: undefined,
+            buyOne: undefined,
+            close: undefined,
+            baseVol: undefined,
+          },
         })
       }).toThrowError('bid, ask, lastPrice, baseVolume not defined')
     })
@@ -86,7 +84,7 @@ describe('BitgetAdapter', () => {
     }
 
     it("returns false when status isn't 'online'", async () => {
-      const response = { ...mockStatusJson, data: {status: 'closed'} }
+      const response = { ...mockStatusJson, data: { status: 'closed' } }
       jest.spyOn(bitgetAdapter, 'fetchFromApi').mockReturnValue(Promise.resolve(response))
       expect(await bitgetAdapter.isOrderbookLive()).toEqual(false)
     })
