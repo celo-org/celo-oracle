@@ -4,7 +4,7 @@ import { ExchangeAdapterConfig } from '../../src/exchange_adapters/base'
 import { BitgetAdapter } from '../../src/exchange_adapters/bitget'
 import { Exchange, ExternalCurrency } from '../../src/utils'
 
-describe('GeminiAdapter', () => {
+describe('BitgetAdapter', () => {
   let bitgetAdapter: BitgetAdapter
   const config: ExchangeAdapterConfig = {
     baseCurrency: ExternalCurrency.BTC,
@@ -85,7 +85,7 @@ describe('GeminiAdapter', () => {
       requestTime: '0',
     }
 
-    it("returns false when status isn't 'open'", async () => {
+    it("returns false when status isn't 'online'", async () => {
       const response = { ...mockStatusJson, data: {status: 'closed'} }
       jest.spyOn(bitgetAdapter, 'fetchFromApi').mockReturnValue(Promise.resolve(response))
       expect(await bitgetAdapter.isOrderbookLive()).toEqual(false)
