@@ -5,7 +5,9 @@ import { Exchange } from '../utils'
 export class WhitebitAdapter extends BaseExchangeAdapter {
   baseApiUrl = 'https://whitebit.com/api/v4/public/'
   readonly _exchangeName = Exchange.WHITEBIT
-  readonly _certFingerprint256 = ''
+  // Cloudflare Inc ECC CA-3
+  readonly _certFingerprint256 =
+    '3A:BB:E6:3D:AF:75:6C:50:16:B6:B8:5F:52:01:5F:D8:E8:AC:BE:27:7C:50:87:B1:27:A6:05:63:A8:41:ED:8A'
 
   private static readonly tokenSymbolMap = this.standardTokenSymbolMap
 
