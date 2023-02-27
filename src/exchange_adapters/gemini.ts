@@ -66,7 +66,7 @@ export class GeminiAdapter extends BaseExchangeAdapter {
     return ticker
   }
 
- /**
+  /**
    * Checks if the orderbook for the relevant pair is live. If it's not, the price
    * data from Ticker + Trade endpoints may be inaccurate.
    *
