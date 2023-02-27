@@ -44,9 +44,9 @@ export class GeminiAdapter extends BaseExchangeAdapter {
    *     "bid": "977.35",                  // The highest bid currently available
    *     "last": "977.65",                 // The price of the last executed trade
    *     "volume": {                       // Information about the 24 hour volume on the exchange. See below
-   *       "BTC": "2210.505328803",        // The end of the 24-hour period over which volume was measured
-   *       "USD": "2135477.463379586263",  // (price symbol, e.g. "USD") The volume denominated in the price currency
-   *       "timestamp": 1483018200000      // (price symbol, e.g. "USD") The volume denominated in the quantity currency
+   *       "BTC": "2210.505328803",        // (price symbol, e.g. "USD") The volume denominated in the price currency
+   *       "USD": "2135477.463379586263",  // (price symbol, e.g. "USD") The volume denominated in the quantity currency
+   *       "timestamp": 1483018200000      // The end of the 24-hour period over which volume was measured
    *     }
    *   }
    */
