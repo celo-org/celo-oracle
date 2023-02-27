@@ -37,6 +37,7 @@ export enum Exchange {
   MERCADO = 'MERCADO',
   OKX = 'OKX',
   WHITEBIT = 'WHITEBIT',
+  BITGET = 'BITGET',
 }
 
 export enum ExternalCurrency {
@@ -72,8 +73,10 @@ export enum OracleCurrencyPair {
   USDBRL = 'USDBRL',
   USDCUSD = 'USDCUSD',
   USDCEUR = 'USDCEUR',
+  USDCBRL = 'USDCBRL',
   USDCUSDT = 'USDCUSDT',
   EURUSD = 'EURUSD',
+  BTCUSDC = 'BTCUSDC',
 }
 
 export const CoreCurrencyPair: OracleCurrencyPair[] = [
@@ -108,6 +111,8 @@ export const CurrencyPairBaseQuote: Record<
   [OracleCurrencyPair.USDCUSDT]: { base: ExternalCurrency.USDC, quote: ExternalCurrency.USDT },
   [OracleCurrencyPair.EURUSD]: { base: ExternalCurrency.EUR, quote: ExternalCurrency.USD },
   [OracleCurrencyPair.BTCUSDT]: { base: ExternalCurrency.BTC, quote: ExternalCurrency.USDT },
+  [OracleCurrencyPair.USDCBRL]: { base: ExternalCurrency.USDC, quote: ExternalCurrency.BRL },
+  [OracleCurrencyPair.BTCUSDC]: { base: ExternalCurrency.BTC, quote: ExternalCurrency.USDC },
 }
 
 export enum AggregationMethod {
