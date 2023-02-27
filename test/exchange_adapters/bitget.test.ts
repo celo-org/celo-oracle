@@ -64,13 +64,12 @@ describe('GeminiAdapter', () => {
           ...mockPubtickerJson,
           data:
             {
-              ts: undefined, 
               sellOne: undefined,
               buyOne: undefined,
               close: undefined,
               baseVol: undefined},
         })
-      }).toThrowError('timestamp, bid, ask, lastPrice, baseVolume not defined')
+      }).toThrowError('bid, ask, lastPrice, baseVolume not defined')
     })
   })
 
