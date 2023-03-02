@@ -1,0 +1,34 @@
+name: Docker Build Push
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+jobs:
+  Build-Celo-Oracle-Dev:
+    uses: celo-org/reusable-workflows/.github/workflows/container-cicd.yaml@v1.1
+    if: github.ref != 'refs/heads/main'
+    with:
+      workload-id-provider: projects/1094498259535/locations/global/workloadIdentityPools/gh-celo-oracle/providers/github-by-repos
+      service-account:  'celo-oracle-images-dev@devopsre.iam.gserviceaccount.com'
+      artifact-registry: ${{ vars.DEV_IMAGE_REPO }}/celo-oracle
+      tag: testing
+      context: .
+      trivy: true
+      trivy-timeout: 20m
+
+  Build-Celo-Oracle:
+   uses: celo-org/reusable-workflows/.github/workflows/container-cicd.yaml@v1.1
+   if: github.ref == 'refs/heads/main'
+   with:
+      workload-id-provider: projects/1094498259535/locations/global/workloadIdentityPools/gh-celo-oracle-main/providers/github-by-repos
+
+      service-account:  'celo-oracle-images@devopsre.iam.gserviceaccount.com'
+      artifact-registry: us-west1-docker.pkg.dev/devopsre/celo-oracle/celo-oracle
+      tag: ${GITHUB_REF##*/}
+      context: .
+      trivy: true
+      trivy-timeout: 20m
+
+
