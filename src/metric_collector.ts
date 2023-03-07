@@ -338,7 +338,7 @@ export class MetricCollector {
     this.lastBlockHeaderNumberGauge.set({ type }, blockNumber)
   }
 
-  oracleBalanceValue(oracleAddress: string, balance: number ) {
+  oracleBalanceValue(oracleAddress: string, balance: number) {
     this.oracleBalanceValueGauge.set({ oracleAddress }, balance)
   }
 

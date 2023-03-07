@@ -84,7 +84,7 @@ export const newKit = () => ({
   web3: {
     eth: {
       getTransaction: async (_: string) => Promise.resolve(),
-      getBalance: async(_: string) => Promise.resolve()
+      getBalance: async (_: string) => Promise.resolve(),
     },
   },
 })
