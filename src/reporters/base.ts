@@ -219,6 +219,8 @@ export abstract class BaseReporter {
         price,
         trigger
       )
+      const balanceOf = await this.config.kit.web3.eth.getBalance(this.config.oracleAccount);
+      this.config.metricCollector.oracleBalanceValue(this.config.oracleAccount, parseInt(balanceOf));
     }
   }
 

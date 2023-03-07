@@ -420,6 +420,7 @@ describe('BaseReporter', () => {
           await reporter.report(currentPriceValue, defaultReportTrigger)
           // transaction information
           expect(metricCollector!.reportTransaction).toBeCalled()
+          expect(metricCollector!.oracleBalanceValue).toBeCalled()
           // duration of various async actions
           const durationActions = [
             'getSortedOracles',

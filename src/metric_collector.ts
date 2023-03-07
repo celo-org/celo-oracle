@@ -57,6 +57,8 @@ export class MetricCollector {
 
   private lastBlockHeaderNumberGauge: Gauge<string>
 
+  private oracleBalanceValueGauge: Gauge<string>
+
   private potentialReportValueGauge: Gauge<string>
 
   private reportCountCounter: Counter<string>
@@ -111,6 +113,12 @@ export class MetricCollector {
       name: 'oracle_last_block_header_number',
       help: 'Gauge to indicate the last block number seen when using block based reporting',
       labelNames: ['type'],
+    })
+
+    this.oracleBalanceValueGauge = new Gauge({
+      name: 'oracle_balance_value',
+      help: 'Help determine the celo balance of the oracle address',
+      labelNames: ['oracleAddress'],
     })
 
     this.potentialReportValueGauge = new Gauge({
@@ -328,6 +336,10 @@ export class MetricCollector {
    */
   blockHeaderNumber(type: BlockType, blockNumber: number) {
     this.lastBlockHeaderNumberGauge.set({ type }, blockNumber)
+  }
+
+  oracleBalanceValue(oracleAddress: string, balance: number ) {
+    this.oracleBalanceValueGauge.set({ oracleAddress }, balance)
   }
 
   websocketProviderSetup() {
