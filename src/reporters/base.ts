@@ -219,8 +219,7 @@ export abstract class BaseReporter {
         price,
         trigger
       )
-      const balanceOf = await this.config.kit.web3.eth.getBalance(this.config.oracleAccount)
-      this.config.metricCollector.oracleBalanceValue(this.config.oracleAccount, Number(balanceOf))
+      await this.getOracleBlanceMetric()
     }
   }
 
@@ -513,6 +512,11 @@ export abstract class BaseReporter {
     return doWithDurationMetric(fn, (duration: number) => {
       this.config.metricCollector?.expiryDuration(action, this.config.currencyPair, duration)
     })
+  }
+
+  private async getOracleBlanceMetric() {
+    const balanceOf = await this.config.kit.web3.eth.getBalance(this.config.oracleAccount)
+    this.config.metricCollector!.oracleBalanceValue(this.config.oracleAccount, Number(balanceOf))
   }
 
   get lastReportedPrice(): BigNumber | undefined {
