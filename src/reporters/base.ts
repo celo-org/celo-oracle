@@ -219,7 +219,6 @@ export abstract class BaseReporter {
         price,
         trigger
       )
-      await this.getOracleBlanceMetric()
     }
   }
 
@@ -514,9 +513,12 @@ export abstract class BaseReporter {
     })
   }
 
-  private async getOracleBlanceMetric() {
-    const balanceOf = await this.config.kit.web3.eth.getBalance(this.config.oracleAccount)
-    this.config.metricCollector!.oracleBalanceValue(this.config.oracleAccount, Number(balanceOf))
+  async setOracleBalanceMetric() {
+    const balance = await this.config.kit.web3.eth.getBalance(this.config.oracleAccount)
+    this.config.metricCollector!.oracleBalanceValue(
+      this.config.oracleAccount,
+      Number(this.config.kit.web3.utils.fromWei(balance))
+    )
   }
 
   get lastReportedPrice(): BigNumber | undefined {

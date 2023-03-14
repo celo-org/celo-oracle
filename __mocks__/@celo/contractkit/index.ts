@@ -84,7 +84,10 @@ export const newKit = () => ({
   web3: {
     eth: {
       getTransaction: async (_: string) => Promise.resolve(),
-      getBalance: async (_: string) => '100',
+      getBalance: jest.fn(async (_: string) => Promise.resolve('1000000000000000000')),
+    },
+    utils: {
+      fromWei: jest.fn((value: number) => value / 1e18),
     },
   },
 })

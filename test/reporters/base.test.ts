@@ -420,9 +420,6 @@ describe('BaseReporter', () => {
           await reporter.report(currentPriceValue, defaultReportTrigger)
           // transaction information
           expect(metricCollector!.reportTransaction).toBeCalled()
-          // the 100 for the oracle balance is set in the mock definition of the mock getBalance call in
-          // __mocks__/@celo/contractkit/index.ts
-          expect(metricCollector!.oracleBalanceValue).toHaveBeenCalledWith(mockOracleAccount, 100)
           // duration of various async actions
           const durationActions = [
             'getSortedOracles',
@@ -440,6 +437,21 @@ describe('BaseReporter', () => {
             )
           }
         })
+      })
+    })
+
+    describe('setOracleBalanceMetric()', () => {
+      it('should set the account balance metric', async () => {
+        const mockBalanceInWei = '1000000000000000000'
+        const mockBalance = 1
+        await reporter.setOracleBalanceMetric()
+
+        expect(reporter.config.kit.web3.eth.getBalance).toHaveBeenLastCalledWith(mockOracleAccount)
+        expect(reporter.config.kit.web3.utils.fromWei).toHaveBeenCalledWith(mockBalanceInWei)
+        expect(metricCollector!.oracleBalanceValue).toHaveBeenCalledWith(
+          mockOracleAccount,
+          mockBalance
+        )
       })
     })
 
