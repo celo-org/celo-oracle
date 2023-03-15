@@ -513,6 +513,14 @@ export abstract class BaseReporter {
     })
   }
 
+  async setOracleBalanceMetric() {
+    const balance = await this.config.kit.web3.eth.getBalance(this.config.oracleAccount)
+    this.config.metricCollector!.oracleBalanceValue(
+      this.config.oracleAccount,
+      Number(this.config.kit.web3.utils.fromWei(balance))
+    )
+  }
+
   get lastReportedPrice(): BigNumber | undefined {
     return this._lastReportedPrice
   }

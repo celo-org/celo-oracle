@@ -440,6 +440,21 @@ describe('BaseReporter', () => {
       })
     })
 
+    describe('setOracleBalanceMetric()', () => {
+      it('should set the account balance metric', async () => {
+        const mockBalanceInWei = '1000000000000000000'
+        const mockBalance = 1
+        await reporter.setOracleBalanceMetric()
+
+        expect(reporter.config.kit.web3.eth.getBalance).toHaveBeenLastCalledWith(mockOracleAccount)
+        expect(reporter.config.kit.web3.utils.fromWei).toHaveBeenCalledWith(mockBalanceInWei)
+        expect(metricCollector!.oracleBalanceValue).toHaveBeenCalledWith(
+          mockOracleAccount,
+          mockBalance
+        )
+      })
+    })
+
     describe('expire()', () => {
       it('collects metrics', async () => {
         jest
