@@ -158,7 +158,7 @@ describe('BinanceAdapter', () => {
             symbols: [{ ...mockCeloUsdInfo, orderTypes }, mockOtherInfo],
           })
         )
-        expect(await binanceAdapter.isOrderbookLive()).toEqual(true)
+        expect(await binanceAdapter.isOrderbookLive()).toEqual(false)
       }
     })
 
