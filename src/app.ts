@@ -214,15 +214,14 @@ export class OracleApplication {
           async () => {
             // Credentials are set in the constructor, so we must create a fresh
             // wallet for each try
-                      azureHsmWallet = new AzureHSMWallet(azureKeyVaultName!)
-                              await azureHsmWallet.init()
-            },
-                      azureHsmInitTryCount!,
-            secondsToMs(5),
-                      azureHsmInitMaxRetryBackoffMs!,
+            azureHsmWallet = new AzureHSMWallet(azureKeyVaultName!)
+            await azureHsmWallet.init()
+          },
+          azureHsmInitTryCount!,
+          secondsToMs(5),
+          azureHsmInitMaxRetryBackoffMs!,
           (e: Error, backoffMs: number) => {
             this.logger.info(e, `Failed to init wallet, backing off ${backoffMs} ms`)
-            console.log()
             this.metricCollector?.error(Context.WALLET_INIT)
           }
         )
