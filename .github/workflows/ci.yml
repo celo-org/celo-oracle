@@ -12,6 +12,7 @@ on:
 
 jobs:
   ci:
+    name: Build & Test
     runs-on: ubuntu-latest
     strategy:
       matrix:
