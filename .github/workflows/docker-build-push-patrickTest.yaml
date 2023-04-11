@@ -16,7 +16,7 @@ jobs:
       tag: testing
       context: .
       trivy: true
-      trivy-timeout: 20m
+      trivy-timeout: 40m
 
   Build-Celo-Oracle:
    uses: celo-org/reusable-workflows/.github/workflows/container-cicd.yaml@v1.1
@@ -29,6 +29,6 @@ jobs:
       tag: ${GITHUB_REF##*/}
       context: .
       trivy: true
-      trivy-timeout: 20m
+      trivy-timeout: 40m
 
 
