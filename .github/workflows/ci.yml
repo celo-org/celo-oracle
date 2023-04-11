@@ -14,9 +14,6 @@ jobs:
   ci:
     name: Build & Test
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [12.x]
 
     steps:
       - name: "Check out the repo"
@@ -25,7 +22,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: 12
 
       - name: Install dependencies
         run: "yarn install --immutable"
@@ -39,15 +36,6 @@ jobs:
           yarn run lint
           yarn run lint:tests
 
-      - name: "Add lint summary"
-        run: |
-          echo "## Lint" >> $GITHUB_STEP_SUMMARY
-          echo "✅ Passed" >> $GITHUB_STEP_SUMMARY
-
       - name: Run tests
         run: yarn run test --maxWorkers 2
 
-      - name: "Add test summary"
-        run: |
-          echo "## Tests" >> $GITHUB_STEP_SUMMARY
-          echo "✅ Passed" >> $GITHUB_STEP_SUMMARY
