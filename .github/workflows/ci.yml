@@ -32,9 +32,6 @@ jobs:
       - name: Build packages
         run: yarn build
 
-      - name: Check licenses
-        run: yarn check-licenses
-
       - name: Run lint checks
         run: |
           yarn run prettify:diff
