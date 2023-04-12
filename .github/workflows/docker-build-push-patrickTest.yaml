@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 jobs:
   Build-Celo-Oracle-Dev:
-    uses: celo-org/reusable-workflows/.github/workflows/container-cicd.yaml@v1.1
+    uses: celo-org/reusable-workflows/.github/workflows/container-cicd.yaml@v1.6
     if: github.ref != 'refs/heads/main'
     with:
       workload-id-provider: projects/1094498259535/locations/global/workloadIdentityPools/gh-celo-oracle/providers/github-by-repos
@@ -19,7 +19,7 @@ jobs:
       trivy-timeout: 40m
 
   Build-Celo-Oracle:
-   uses: celo-org/reusable-workflows/.github/workflows/container-cicd.yaml@v1.1
+   uses: celo-org/reusable-workflows/.github/workflows/container-cicd.yaml@v1.6
    if: github.ref == 'refs/heads/main'
    with:
       workload-id-provider: projects/1094498259535/locations/global/workloadIdentityPools/gh-celo-oracle-main/providers/github-by-repos
