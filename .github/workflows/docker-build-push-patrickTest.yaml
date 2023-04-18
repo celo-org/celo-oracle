@@ -6,10 +6,12 @@ on:
   pull_request:
   workflow_dispatch:
 jobs:
+
   set-docker-vars:
     runs-on: ubuntu-latest
     outputs:
       tag: ${{ steps.set-docker-vars.outputs.tag }}
+    steps:
       - name: Print inputs passed to the reusable workflow
         id: set-docker-vars
         run: |
