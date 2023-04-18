@@ -226,6 +226,7 @@ export class BlockBasedReporter extends BaseReporter {
     if (shouldReport) {
       const trigger = heartbeat ? ReportTrigger.HEARTBEAT : ReportTrigger.PRICE_CHANGE
       await this.report(price, trigger)
+      await this.setOracleBalanceMetric()
     } else {
       this.logger.info(
         {

@@ -1,19 +1,20 @@
-import BigNumber from 'bignumber.js'
-import Logger from 'bunyan'
+import {
+  AggregationMethod,
+  OracleCurrencyPair,
+  ReportStrategy,
+  WalletType,
+  minutesToMs,
+  secondsToMs,
+} from './utils'
 import {
   BaseReporterConfigSubset,
   BlockBasedReporterConfigSubset,
   DataAggregatorConfigSubset,
   OracleApplicationConfig,
 } from './app'
-import {
-  AggregationMethod,
-  minutesToMs,
-  OracleCurrencyPair,
-  ReportStrategy,
-  secondsToMs,
-  WalletType,
-} from './utils'
+
+import BigNumber from 'bignumber.js'
+import Logger from 'bunyan'
 
 export const baseLogger = Logger.createLogger({
   name: 'oracle',

@@ -1,6 +1,6 @@
 {
   "name": "celo-oracle",
-  "version": "1.0.1",
+  "version": "1.0.3",
   "description": "Oracle application to aggregate and report exchange rates to the Celo network",
   "author": "Celo",
   "license": "Apache-2.0",
