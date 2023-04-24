@@ -2,9 +2,7 @@ name: Docker Build Push
 on:
   workflow_dispatch:
 jobs:
-
-
- set-docker-vars:
+  set-docker-vars:
       runs-on: ubuntu-latest
       outputs:
         tag: ${{ steps.set-docker-vars.outputs.tag }}
@@ -13,7 +11,6 @@ jobs:
           id: set-docker-vars
           run: |
             echo "tag=${{ github.environment }}"
-
 
 
   Build-Celo-Oracle:
