@@ -22,6 +22,8 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node }}
+      - run: echo $(npm pkg get version)
+      - run: echo "$(npm pkg get version)"
       - run: echo "npm_version=$(npm pkg get version)" >> GITHUB_OUTPUT
       - name: Print inputs passed to the reusable workflow
         id: set-docker-vars
