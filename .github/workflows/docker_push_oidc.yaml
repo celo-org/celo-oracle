@@ -13,9 +13,9 @@ jobs:
 
   set-docker-vars:
     runs-on: ubuntu-latest
+    if: inputs.build_env == 'production' || inputs.build_env == 'staging'
     outputs:
       tag: ${{ steps.set-docker-vars.outputs.tag }}
-
     steps:
       - uses: actions/checkout@v3
       - name: Run linting rules and tests
@@ -30,23 +30,27 @@ jobs:
 #          echo "tag=${{ inputs.build_env == 'production' && }}" npm pkg get version }}">> $GITHUB_OUTPUT
 #          echo "tag=${{ inputs.build_env == 'staging' && 'staging' }}" >> $GITHUB_OUTPUT
 
-#      - name: Staging 
+      - name: Staging 
 #        id: staging
-#        if: inputs.build_env == 'staging'
-#  #      run: echo "npm_version=$(npm pkg get version)" >> $GITHUB_OUTPUT
-#        run: |
-#          echo "tag=staging" >> $GITHUB_OUTPUT
-
-
-      - name: Print inputs passed to the reusable workflow
-        id: set-docker-vars
+        if: inputs.build_env == 'staging'
+  #      run: echo "npm_version=$(npm pkg get version)" >> $GITHUB_OUTPUT
         run: |
-                [[ "${{ inputs.build_env == 'staging' }}" = true ]] echo "tag=staging" >> $GITHUB_OUTPUT
-                [[ "${{ inputs.build_env == 'production' }}" = true ]] echo "tag=${{ steps.set-npm-version.outputs.npm_version }}" >> $GITHUB_OUTPUT
+          echo "tag=staging" >> $GITHUB_OUTPUT
 
+      - name: Production 
+#        id: production
+        if: inputs.build_env == 'production'
+  #      run: echo "npm_version=$(npm pkg get version)" >> $GITHUB_OUTPUT
+        run: |
+          echo "tag=$(npm pkg get version)" >> $GITHUB_OUTPUT
+
+
+#      - name: Print inputs passed to the reusable workflow
+#        id: set-docker-vars
+#        run: |
 #          echo "tag=${{ inputs.build_env == 'staging' && 'staging' }}" >> $GITHUB_OUTPUT
 #          echo "tag=${{ inputs.build_env == 'production' && steps.set-npm-version.outputs.npm_version  }}" >> $GITHUB_OUTPUT
-
+#
 
   Build-Celo-Oracle:
     uses: celo-org/reusable-workflows/.github/workflows/container-cicd.yaml@v1.8
