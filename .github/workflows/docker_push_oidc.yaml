@@ -25,7 +25,7 @@ jobs:
 
       - name: Set NPM Version
         id: set-npm-version
-        run: echo "npm_version=$(npm pkg get version)" >> GITHUB_OUTPUT
+        run: echo "npm_version=$(npm pkg get version)" >> $GITHUB_OUTPUT
 
       - name: Print inputs passed to the reusable workflow
         id: set-docker-vars
