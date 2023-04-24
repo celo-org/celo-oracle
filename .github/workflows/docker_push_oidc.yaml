@@ -28,8 +28,8 @@ jobs:
 #        if: inputs.build_env == 'production'
   #      run: echo "npm_version=$(npm pkg get version)" >> $GITHUB_OUTPUT
         run: |
-          echo "tag=${{ inputs.build_env == 'production' && $(npm pkg get version)" >> $GITHUB_OUTPUT
-          echo "tag=${{ inputs.build_env == 'staging' && 'staging'" >> $GITHUB_OUTPUT
+          echo "tag=${{ inputs.build_env == 'production' && $(npm pkg get version) }}">> $GITHUB_OUTPUT
+          echo "tag=${{ inputs.build_env == 'staging' && 'staging' }}" >> $GITHUB_OUTPUT
 
 #      - name: Staging 
 #        id: staging
