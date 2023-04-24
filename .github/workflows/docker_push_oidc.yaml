@@ -30,6 +30,7 @@ jobs:
 
   Build-Celo-Oracle:
     uses: celo-org/reusable-workflows/.github/workflows/container-cicd.yaml@v1.8
+    needs: [set-docker-vars]
     with:
       workload-id-provider: projects/1094498259535/locations/global/workloadIdentityPools/gh-celo-oracle/providers/github-by-repos
       service-account: 'celo-oracle-images@devopsre.iam.gserviceaccount.com'
