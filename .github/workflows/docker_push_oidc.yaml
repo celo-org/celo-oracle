@@ -14,8 +14,7 @@ jobs:
   set-docker-vars:
     runs-on: ubuntu-latest
     outputs:
-#      tag: ${{ steps.set-docker-vars.outputs.tag }}
-      tag: ${{ inputs.build_env == 'staging' && 'staging' || steps.set-npm-version.outputs.tag  }}
+      tag: ${{ steps.set-docker-vars.outputs.tag }}
 
     steps:
       - uses: actions/checkout@v3
@@ -25,15 +24,15 @@ jobs:
           node-version: ${{ matrix.node }}
 
       - name: Set NPM Version
-        run: echo "npm_version=$(npm pkg get version)" >> GITHUB_OUTPUT
         id: set-npm-version
+        run: echo "npm_version=$(npm pkg get version)" >> GITHUB_OUTPUT
 
       - name: Print inputs passed to the reusable workflow
         id: set-docker-vars
         run: |
-          echo "tag=${{ inputs.build_env == 'staging' && 'staging' }}" >> $GITHUB_OUTPUT
+          echo steps.set-npm-version.outputs.npm_version
 
-#          echo "tag=${{ inputs.build_env == 'staging' && 'staging' || steps.set-npm-version.outputs.npm_version }}" >> $GITHUB_OUTPUT
+          echo "tag=${{ inputs.build_env == 'staging' && 'staging' || steps.set-npm-version.outputs.npm_version }}" >> $GITHUB_OUTPUT
 
   Build-Celo-Oracle:
     uses: celo-org/reusable-workflows/.github/workflows/container-cicd.yaml@v1.8
