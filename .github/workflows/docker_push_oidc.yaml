@@ -28,7 +28,7 @@ jobs:
         if: inputs.build_env == 'production'
   #      run: echo "npm_version=$(npm pkg get version)" >> $GITHUB_OUTPUT
         run: |
-          echo "tag=${{ steps.set-npm-version.outputs.npm_version }}" >> $GITHUB_OUTPUT
+          echo "tag=$(npm pkg get version)" >> $GITHUB_OUTPUT
 
       - name: Staging 
         id: staging
