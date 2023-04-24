@@ -1,30 +1,44 @@
 name: Docker Build Push
 on:
-  push:
-    branches:
-      - main
-  pull_request:
   workflow_dispatch:
 jobs:
 
-  set-docker-vars:
-    runs-on: ubuntu-latest
-    outputs:
-      tag: ${{ steps.set-docker-vars.outputs.tag }}
-    steps:
-      - name: Print inputs passed to the reusable workflow
-        id: set-docker-vars
-        run: |
-          echo "tag=${{ github.ref != 'ref/heads/main' && 'testing' || 'latest' }}" >> $GITHUB_OUTPUT
+
+ set-docker-vars:
+      runs-on: ubuntu-latest
+      outputs:
+        tag: ${{ steps.set-docker-vars.outputs.tag }}
+      steps:
+        - name: Print inputs passed to the reusable workflow
+          id: set-docker-vars
+          run: |
+            echo "tag=${{ github.environment }}"
+
+
 
   Build-Celo-Oracle:
    uses: celo-org/reusable-workflows/.github/workflows/container-cicd.yaml@v1.8
    needs: [set-docker-vars]
+#   environment: production
    with:
       workload-id-provider: projects/1094498259535/locations/global/workloadIdentityPools/gh-celo-oracle/providers/github-by-repos
       service-account:  'celo-oracle-images@devopsre.iam.gserviceaccount.com'
       artifact-registry: us-west1-docker.pkg.dev/devopsre/celo-oracle/celo-oracle
+#      tag: production
       tag: ${{ needs.set-docker-vars.outputs.tag }}
       context: .
       trivy: true
       trivy-timeout: 40m
+
+#  Build-Celo-Oracle:
+#   uses: celo-org/reusable-workflows/.github/workflows/container-cicd.yaml@v1.8
+#   needs: [set-docker-vars]
+#   environment: staging
+#   with:
+#      workload-id-provider: projects/1094498259535/locations/global/workloadIdentityPools/gh-celo-oracle/providers/github-by-repos
+#      service-account:  'celo-oracle-images@devopsre.iam.gserviceaccount.com'
+#      artifact-registry: us-west1-docker.pkg.dev/devopsre/celo-oracle/celo-oracle
+#      tag: staging
+#      context: .
+#      trivy: true
+#      trivy-timeout: 40m
