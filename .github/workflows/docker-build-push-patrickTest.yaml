@@ -1,4 +1,5 @@
 name: Docker Build Push
+
 on:
   workflow_dispatch:
     inputs:
@@ -7,6 +8,7 @@ on:
       required: true
       default: 'staging'
       type: string
+
 jobs:
 #  set-docker-vars:
 #    runs-on: ubuntu-latest
