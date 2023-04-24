@@ -3,11 +3,11 @@ name: Docker Push OIDC
 on:
   workflow_dispatch:
     inputs:
-    build_env:
-      description: 'Build environment (staging|production)'
-      required: true
-      default: 'staging'
-      type: string
+      build_env:
+        description: 'Build environment (staging|production)'
+        required: true
+        default: 'staging'
+        type: string
 
 jobs:
   Build-Celo-Oracle:
