@@ -27,7 +27,7 @@ jobs:
       - name: Print inputs passed to the reusable workflow
         id: set-docker-vars
         run: |
-          echo "tag=${{ inputs.build_env == 'staging' && 'staging' || env.npm_version }}" >> $GITHUB_OUTPUT
+          echo "tag=${{ inputs.build_env == 'staging' && 'staging' || steps.set-docker-vars.outputs.npm_version }}" >> $GITHUB_OUTPUT
 
   Build-Celo-Oracle:
     uses: celo-org/reusable-workflows/.github/workflows/container-cicd.yaml@v1.8
