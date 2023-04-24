@@ -23,19 +23,20 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
 
-      - name: Production 
-        id: production
-        if: inputs.build_env == 'production'
+      - name: set-vars 
+        id: set-vars
+#        if: inputs.build_env == 'production'
   #      run: echo "npm_version=$(npm pkg get version)" >> $GITHUB_OUTPUT
         run: |
-          echo "tag=$(npm pkg get version)" >> $GITHUB_OUTPUT
+          echo "tag=${{ inputs.build_env == 'production' && $(npm pkg get version)" >> $GITHUB_OUTPUT
+          echo "tag=${{ inputs.build_env == 'staging' && 'staging'" >> $GITHUB_OUTPUT
 
-      - name: Staging 
-        id: staging
-        if: inputs.build_env == 'staging'
-  #      run: echo "npm_version=$(npm pkg get version)" >> $GITHUB_OUTPUT
-        run: |
-          echo "tag=staging" >> $GITHUB_OUTPUT
+#      - name: Staging 
+#        id: staging
+#        if: inputs.build_env == 'staging'
+#  #      run: echo "npm_version=$(npm pkg get version)" >> $GITHUB_OUTPUT
+#        run: |
+#          echo "tag=staging" >> $GITHUB_OUTPUT
 
 
 #      - name: Print inputs passed to the reusable workflow
