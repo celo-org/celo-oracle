@@ -14,9 +14,9 @@ jobs:
   set-docker-vars:
     runs-on: ubuntu-latest
     if: inputs.build_env == 'production' || inputs.build_env == 'staging'
-    #permissions:
-    #  contents: 'read'
-    #  id-token: 'write'
+    permissions:
+      contents: 'read'
+      id-token: 'write'
     outputs:
       tag: ${{ steps.set-docker-vars.outputs.tag }}
     steps:
@@ -46,13 +46,13 @@ jobs:
           service_account: steps.set-docker-vars.outputs.service_account
 
 
-     - name: 'Set up Cloud SDK'
-       uses: 'google-github-actions/setup-gcloud@v1'
-       with:
-         version: '>= 363.0.0'
+      - name: 'Set up Cloud SDK'
+        uses: 'google-github-actions/setup-gcloud@v1'
+        with:
+          version: '>= 363.0.0'
 
-     - name: 'Check existing tag'
-       run: 'gcloud artifacts docker tags list ${{ steps.set-docker-vars.outputs.artifact-registry }} --filter "tag~${{ steps.set-npm-version.outputs.npm_version }}\$" 2>&1 | grep "Listed 0 items" > /dev/null'
+      - name: 'Check existing tag'
+        run: 'gcloud artifacts docker tags list ${{ steps.set-docker-vars.outputs.artifact-registry }} --filter "tag~${{ steps.set-npm-version.outputs.npm_version }}\$" 2>&1 | grep "Listed 0 items" > /dev/null'
 
 
 
