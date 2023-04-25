@@ -14,6 +14,9 @@ jobs:
   set-docker-vars:
     runs-on: ubuntu-latest
     if: inputs.build_env == 'production' || inputs.build_env == 'staging'
+    permissions:
+      contents: 'read'
+      id-token: 'write'
     outputs:
       tag: ${{ steps.set-docker-vars.outputs.tag }}
     steps:
@@ -27,20 +30,31 @@ jobs:
         id: set-npm-version
         run: echo "npm_version=$(npm pkg get version)" >> $GITHUB_OUTPUT
 
-#      - name: Staging 
-#        if: inputs.build_env == 'staging'
-#        run: |
-#          echo "tag=staging" >> $GITHUB_OUTPUT
-#
-#      - name: Production 
-#        if: inputs.build_env == 'production'
-#        run: |
-#          echo "tag=${{ steps.set-npm-version.outputs.npm_version  }}" >> $GITHUB_OUTPUT
-
       - name: Print inputs passed to the reusable workflow
         id: set-docker-vars
         run: |
           echo "tag=${{ inputs.build_env == 'staging' && 'staging' || steps.set-npm-version.outputs.npm_version }}" >> $GITHUB_OUTPUT
+          echo "artifact-registry=us-west1-docker.pkg.dev/devopsre/celo-oracle/celo-oracle" >> $GITHUB_OUTPUT
+          echo "workload_identity_provider=projects/1094498259535/locations/global/workloadIdentityPools/gh-celo-oracle/providers/github-by-repos" >> $GITHUB_OUTPUT
+          echo "service_account=celo-oracle-images@devopsre.iam.gserviceaccount.com" >> $GITHUB_OUTPUT
+     
+
+      - id: 'auth'
+        uses: 'google-github-actions/auth@v1'
+        with:
+          workload_identity_provider: steps.set-docker-vars.outputs.workload_identity_provider
+          service_account: steps.set-docker-vars.outputs.service_account
+
+
+     - name: 'Set up Cloud SDK'
+       uses: 'google-github-actions/setup-gcloud@v1'
+       with:
+         version: '>= 363.0.0'
+
+     - name: 'Check existing tag'
+       run: 'gcloud artifacts docker tags list ${{ steps.set-docker-vars.outputs.artifact-registry }} --filter "tag~${{ steps.set-npm-version.outputs.npm_version }}\$" 2>&1 | grep "Listed 0 items" > /dev/null'
+
+
 
 
   Build-Celo-Oracle:
