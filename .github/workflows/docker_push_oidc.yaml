@@ -14,9 +14,9 @@ jobs:
   set-docker-vars:
     runs-on: ubuntu-latest
     if: inputs.build_env == 'production' || inputs.build_env == 'staging'
-    permissions:
-      contents: 'read'
-      id-token: 'write'
+    #permissions:
+    #  contents: 'read'
+    #  id-token: 'write'
     outputs:
       tag: ${{ steps.set-docker-vars.outputs.tag }}
     steps:
