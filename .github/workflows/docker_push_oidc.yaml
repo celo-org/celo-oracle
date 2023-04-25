@@ -40,6 +40,7 @@ jobs:
      
 
       - id: 'auth'
+        if: inputs.build_env == 'production'
         uses: 'google-github-actions/auth@v1'
         with:
           workload_identity_provider: ${{ steps.set-docker-vars.outputs.workload_identity_provider }}
@@ -47,11 +48,14 @@ jobs:
 
 
       - name: 'Set up Cloud SDK'
+        if: inputs.build_env == 'production'
+
         uses: 'google-github-actions/setup-gcloud@v1'
         with:
           version: '>= 363.0.0'
 
       - name: 'Check existing tag'
+        if: inputs.build_env == 'production'
         run: 'gcloud artifacts docker tags list ${{ steps.set-docker-vars.outputs.artifact-registry }} --filter "tag~${{ steps.set-npm-version.outputs.npm_version }}\$" 2>&1 | grep "Listed 0 items" > /dev/null'
 
 
