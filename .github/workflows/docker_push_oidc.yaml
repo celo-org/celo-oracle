@@ -42,8 +42,8 @@ jobs:
       - id: 'auth'
         uses: 'google-github-actions/auth@v1'
         with:
-          workload_identity_provider: steps.set-docker-vars.outputs.workload_identity_provider
-          service_account: steps.set-docker-vars.outputs.service_account
+          workload_identity_provider: ${{ steps.set-docker-vars.outputs.workload_identity_provider }}
+          service_account: ${{ steps.set-docker-vars.outputs.service_account }}
 
 
       - name: 'Set up Cloud SDK'
