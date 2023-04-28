@@ -18,6 +18,7 @@ jobs:
       artifact-registry: us-west1-docker.pkg.dev/devopsre/celo-oracle/celo-oracle
       tag: ${{ inputs.version }}
       context: .
+      strip-sig: true
       provenance: false
       trivy: true
       trivy-timeout: 40m
