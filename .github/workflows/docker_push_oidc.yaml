@@ -10,75 +10,13 @@ on:
         type: string
 
 jobs:
-
-  set-docker-vars:
-    runs-on: ubuntu-latest
-    # dont run the plan if the build_env isn't production or staging
-    if: inputs.build_env == 'production' || inputs.build_env == 'staging'
-    permissions:
-      # permissions required for google auth
-      contents: 'read'
-      id-token: 'write'
-    outputs:
-      # pass these outputs to next step that builds the container
-      tag: ${{ steps.set-docker-vars.outputs.tag }}
-      artifact_registry: ${{ steps.set-docker-vars.outputs.artifact_registry }}
-      workload_identity_provider: ${{ steps.set-docker-vars.outputs.workload_identity_provider }}
-      service_account: ${{ steps.set-docker-vars.outputs.service_account }}
-    steps:
-      - uses: actions/checkout@v3
-      - name: Run linting rules and tests
-        uses: actions/setup-node@v3
-        with:
-          node-version: ${{ matrix.node }}
-
-      - name: Set NPM Version
-        id: set-npm-version
-        # get the npm version from npm pkg get version
-        run: echo "npm_version=$(npm pkg get version)" >> $GITHUB_OUTPUT
-
-      - name: Print inputs passed to the reusable workflow
-        id: set-docker-vars
-        run: |
-          # Sets the tag to staging if the input is staging, or to the npm version if its production
-          echo "tag=${{ inputs.build_env == 'staging' && 'staging' || steps.set-npm-version.outputs.npm_version }}" >> $GITHUB_OUTPUT
-          # Sets the artifact registry we're checking and pushing the image to
-          echo "artifact_registry=us-west1-docker.pkg.dev/devopsre/celo-oracle/celo-oracle" >> $GITHUB_OUTPUT
-          # Our workload identity provider that allows this repo to push to the artifact registry
-          echo "workload_identity_provider=projects/1094498259535/locations/global/workloadIdentityPools/gh-celo-oracle/providers/github-by-repos" >> $GITHUB_OUTPUT
-          # The service account we have the permissions to assume through gh workload identity federation to push the image
-          echo "service_account=celo-oracle-images@devopsre.iam.gserviceaccount.com" >> $GITHUB_OUTPUT
-
-      # We have to auth twice, once to check if the tag exists and cancel the workflow if it does, one in the container build section with the reusable workflow below
-      - id: 'auth'
-        if: inputs.build_env == 'production'
-        uses: 'google-github-actions/auth@v1'
-        with:
-          workload_identity_provider: ${{ steps.set-docker-vars.outputs.workload_identity_provider }}
-          service_account: ${{ steps.set-docker-vars.outputs.service_account }}
-
-      - name: 'Set up Cloud SDK'
-        if: inputs.build_env == 'production'
-
-        uses: 'google-github-actions/setup-gcloud@v1'
-        with:
-          version: '>= 363.0.0'
-
-      - name: 'Check existing tag'
-        if: inputs.build_env == 'production'
-        # github actions fails and stops the plan if a step returns a non zero exit code.  If this command runs and doesn't return "Listed 0 items" it will return non zero exit code and fail
-        run: 'gcloud artifacts docker tags list ${{ steps.set-docker-vars.outputs.artifact_registry }} --filter "tag~${{ steps.set-npm-version.outputs.npm_version }}\$" 2>&1 | grep "Listed 0 items" > /dev/null'
-
   Build-Celo-Oracle:
     uses: celo-org/reusable-workflows/.github/workflows/container-cicd.yaml@v1.8
-    if: inputs.build_env == 'production' || inputs.build_env == 'staging'
-    needs: [set-docker-vars]
     with:
-      # Get the variables from the set-docker-vars outputs
-      workload-id-provider: ${{ needs.set-docker-vars.outputs.workload_identity_provider }}
-      service-account: ${{ needs.set-docker-vars.outputs.service_account }} 
-      artifact-registry: ${{ needs.set-docker-vars.outputs.artifact_registry }}
-      tag: ${{ needs.set-docker-vars.outputs.tag }}
+      workload-id-provider: projects/1094498259535/locations/global/workloadIdentityPools/gh-celo-oracle/providers/github-by-repos
+      service-account: 'celo-oracle-images@devopsre.iam.gserviceaccount.com'
+      artifact-registry: us-west1-docker.pkg.dev/devopsre/celo-oracle/celo-oracle
+      tag: ${{ inputs.build_env }}
       context: .
       trivy: true
       trivy-timeout: 40m
