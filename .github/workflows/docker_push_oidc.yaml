@@ -11,7 +11,7 @@ on:
 
 jobs:
   Build-Celo-Oracle:
-    uses: celo-org/reusable-workflows/.github/workflows/container-cicd.yaml@vmain
+    uses: celo-org/reusable-workflows/.github/workflows/container-cicd.yaml@main
     with:
       workload-id-provider: projects/1094498259535/locations/global/workloadIdentityPools/gh-celo-oracle/providers/github-by-repos
       service-account: 'celo-oracle-images@devopsre.iam.gserviceaccount.com'
