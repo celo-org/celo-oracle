@@ -67,6 +67,7 @@ export class MetricCollector {
 
   private tickerPropertyGauge: Gauge<string>
   private priceSourceGauge: Gauge<string>
+  private maxPercentageDeviationGauge: Gauge<string>
 
   private transactionBlockNumberGauge: Gauge<string>
   private transactionGasGauge: Gauge<string>
@@ -156,6 +157,12 @@ export class MetricCollector {
       name: 'oracle_price_source',
       help: 'Gauge indicating values from different price sources',
       labelNames: ['pair', 'source', 'property'],
+    })
+
+    this.maxPercentageDeviationGauge = new Gauge({
+      name: 'oracle_max_percentage_deviation',
+      help: 'Gauge to indicate the max price cross-sectional deviation of a price pair',
+      labelNames: ['currencyPair'],
     })
 
     this.transactionBlockNumberGauge = new Gauge({
@@ -329,6 +336,13 @@ export class MetricCollector {
   priceSource(pair: string, source: string, weightedPrice: WeightedPrice) {
     this.priceSourceGauge.set({ pair, source, property: 'price' }, weightedPrice.price.toNumber())
     this.priceSourceGauge.set({ pair, source, property: 'weight' }, weightedPrice.weight.toNumber())
+  }
+
+  /**
+   * Indicates the max price cross-sectional deviation of a price pair
+   */
+  maxPercentageDeviation(pair: string, maxPercentageDeviation: BigNumber) {
+    this.maxPercentageDeviationGauge.set({ pair }, maxPercentageDeviation.toNumber())
   }
 
   /**

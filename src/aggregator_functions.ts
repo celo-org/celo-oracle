@@ -114,6 +114,7 @@ export function crossCheckPriceData(
   // 1. Prices should not deviate more than maxPercentageDeviation.
   const prices = tickerData.map((price: WeightedPrice) => price.price)
   const maxNormalizedAbsMeanDev = maxPercentageDeviaton(prices)
+  config.metricCollector?.maxPercentageDeviation(config.currencyPair, maxNormalizedAbsMeanDev)
   assert(
     maxNormalizedAbsMeanDev.isLessThanOrEqualTo(config.maxPercentageDeviation),
     `Max price cross-sectional deviation too large (${maxNormalizedAbsMeanDev} >= ${config.maxPercentageDeviation} )`
