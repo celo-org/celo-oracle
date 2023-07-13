@@ -18,6 +18,9 @@ import { BitstampAdapter } from './exchange_adapters/bitstamp'
 import { MercadoAdapter } from './exchange_adapters/mercado'
 import { BitgetAdapter } from './exchange_adapters/bitget'
 import { MetricCollector } from './metric_collector'
+import { GeminiAdapter } from './exchange_adapters/gemini'
+import { WhitebitAdapter } from './exchange_adapters/whitebit'
+import { BitMartAdapter } from './exchange_adapters/bitmart'
 import { PriceSource, WeightedPrice } from './price_source'
 import {
   ExchangePriceSourceConfig,
@@ -34,8 +37,6 @@ import {
   PromiseStatus,
   SettledPromise,
 } from './utils'
-import { GeminiAdapter } from './exchange_adapters/gemini'
-import { WhitebitAdapter } from './exchange_adapters/whitebit'
 
 function adapterFromExchangeName(name: Exchange, config: ExchangeAdapterConfig): ExchangeAdapter {
   switch (name) {
@@ -69,6 +70,8 @@ function adapterFromExchangeName(name: Exchange, config: ExchangeAdapterConfig):
       return new WhitebitAdapter(config)
     case Exchange.BITGET:
       return new BitgetAdapter(config)
+    case Exchange.BITMART:
+      return new BitMartAdapter(config)
   }
 }
 
