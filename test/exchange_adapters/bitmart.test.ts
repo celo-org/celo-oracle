@@ -81,7 +81,6 @@ describe('BitMart adapter', () => {
         quoteVolume: new BigNumber(91361.4229378),
         timestamp: 1689239976811,
       })
-      console.log(ticker)
     })
 
     it('throws an error when a json field mapped to a required ticker field is missing or empty', () => {
