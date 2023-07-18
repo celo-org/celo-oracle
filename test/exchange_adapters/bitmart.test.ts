@@ -34,7 +34,7 @@ describe('BitMart adapter', () => {
       high_24h: '1.10872025',
       low_24h: '1.09676936',
       open_24h: '1.09735661',
-      close_24h: '1.10806017',
+      close_24h: '1.10',
       best_ask: '1.11109875',
       best_ask_size: '51.1',
       best_bid: '1.10756051',
@@ -155,6 +155,44 @@ describe('BitMart adapter', () => {
           trade_status: 'trading',
         },
         {
+          symbol: 'EUROC_USDC',
+          symbol_id: 2632,
+          base_currency: 'EUROC',
+          quote_currency: 'USDC',
+          quote_increment: '0.1',
+          base_min_size: '0.100000000000000000000000000000',
+          price_min_precision: 5,
+          price_max_precision: 8,
+          expiration: 'NA',
+          min_buy_amount: '5.000000000000000000000000000000',
+          min_sell_amount: '5.000000000000000000000000000000',
+          trade_status: 'notTrading',
+        },
+      ],
+    },
+  }
+
+  const inValidMockStatusJson2 = {
+    message: 'OK',
+    code: 1000,
+    trace: '48cff315816f4e1aa26ca72cccb46051.69.16892383896653019',
+    data: {
+      symbols: [
+        {
+          symbol: 'SOLAR_USDT',
+          symbol_id: 2342,
+          base_currency: 'SOLAR',
+          quote_currency: 'USDT',
+          quote_increment: '1',
+          base_min_size: '1.000000000000000000000000000000',
+          price_min_precision: 3,
+          price_max_precision: 6,
+          expiration: 'NA',
+          min_buy_amount: '5.000000000000000000000000000000',
+          min_sell_amount: '5.000000000000000000000000000000',
+          trade_status: 'trading',
+        },
+        {
           symbol: 'EUROC_XOF',
           symbol_id: 2632,
           base_currency: 'EUROC',
@@ -166,7 +204,7 @@ describe('BitMart adapter', () => {
           expiration: 'NA',
           min_buy_amount: '5.000000000000000000000000000000',
           min_sell_amount: '5.000000000000000000000000000000',
-          trade_status: '',
+          trade_status: 'trading',
         },
       ],
     },
@@ -184,6 +222,13 @@ describe('BitMart adapter', () => {
       jest
         .spyOn(bitmartAdapter, 'fetchFromApi')
         .mockReturnValue(Promise.resolve(inValidMockStatusJson))
+      expect(await bitmartAdapter.isOrderbookLive()).toEqual(false)
+    })
+
+    it('returns false if pair is not in response', async () => {
+      jest
+        .spyOn(bitmartAdapter, 'fetchFromApi')
+        .mockReturnValue(Promise.resolve(inValidMockStatusJson2))
       expect(await bitmartAdapter.isOrderbookLive()).toEqual(false)
     })
   })
