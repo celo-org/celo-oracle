@@ -38,6 +38,7 @@ export enum Exchange {
   OKX = 'OKX',
   WHITEBIT = 'WHITEBIT',
   BITGET = 'BITGET',
+  BITMART = 'BITMART',
 }
 
 export enum ExternalCurrency {
@@ -48,6 +49,7 @@ export enum ExternalCurrency {
   BRL = 'BRL',
   BUSD = 'BUSD',
   USDC = 'USDC',
+  EUROC = 'EUROC',
 }
 
 export type Currency = ExternalCurrency | CeloToken
@@ -77,6 +79,8 @@ export enum OracleCurrencyPair {
   USDCUSDT = 'USDCUSDT',
   EURUSD = 'EURUSD',
   BTCUSDC = 'BTCUSDC',
+  EUROCEUR = 'EUROCEUR',
+  EUROCUSDC = 'EUROCUSDC',
 }
 
 export const CoreCurrencyPair: OracleCurrencyPair[] = [
@@ -113,6 +117,8 @@ export const CurrencyPairBaseQuote: Record<
   [OracleCurrencyPair.BTCUSDT]: { base: ExternalCurrency.BTC, quote: ExternalCurrency.USDT },
   [OracleCurrencyPair.USDCBRL]: { base: ExternalCurrency.USDC, quote: ExternalCurrency.BRL },
   [OracleCurrencyPair.BTCUSDC]: { base: ExternalCurrency.BTC, quote: ExternalCurrency.USDC },
+  [OracleCurrencyPair.EUROCEUR]: { base: ExternalCurrency.EUROC, quote: ExternalCurrency.EUR },
+  [OracleCurrencyPair.EUROCUSDC]: { base: ExternalCurrency.EUROC, quote: ExternalCurrency.USDC },
 }
 
 export enum AggregationMethod {
