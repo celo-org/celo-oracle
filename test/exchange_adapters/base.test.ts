@@ -97,16 +97,14 @@ describe('BaseExchangeAdapter', () => {
         fetch.mockReturnValue(Promise.resolve(new Response(mockJsonResponse, { status: 200 })))
       })
 
-      for (const dataType of [ExchangeDataType.TICKER]) {
-        it(`returns a parsed json response for ${dataType}`, async () => {
-          const path = `CELO-USD/${dataType.toLowerCase()}`
-          const response = await adapter.fetchFromApi(dataType, path)
+      it(`returns a parsed json response for ticker`, async () => {
+        const path = `CELO-USD/${ExchangeDataType.TICKER.toLowerCase()}`
+        const response = await adapter.fetchFromApi(ExchangeDataType.TICKER, path)
 
-          expect(response).toEqual({ fake: 'jsonValue' })
+        expect(response).toEqual({ fake: 'jsonValue' })
 
-          expect(fetch).toHaveBeenCalledWith(expect.stringContaining(path), expect.anything())
-        })
-      }
+        expect(fetch).toHaveBeenCalledWith(expect.stringContaining(path), expect.anything())
+      })
 
       it('collects metrics', async () => {
         await adapter.fetchFromApi(ExchangeDataType.TICKER, mockTickerEndpoint)
