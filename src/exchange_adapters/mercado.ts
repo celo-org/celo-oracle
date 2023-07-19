@@ -1,5 +1,7 @@
+import { BaseExchangeAdapter, ExchangeAdapter, ExchangeDataType, Ticker } from './base'
+
 import { Exchange } from '../utils'
-import { BaseExchangeAdapter, ExchangeAdapter, ExchangeDataType, Ticker, Trade } from './base'
+
 export class MercadoAdapter extends BaseExchangeAdapter implements ExchangeAdapter {
   baseApiUrl = 'https://api.mercadobitcoin.net/api/v4'
   readonly _exchangeName = Exchange.MERCADO
@@ -20,14 +22,6 @@ export class MercadoAdapter extends BaseExchangeAdapter implements ExchangeAdapt
       this.fetchFromApi(ExchangeDataType.TICKER, `${this.pairSymbol}/orderbook`),
     ])
     return this.parseTicker(tickerJson, orderbookJson)
-  }
-
-  async fetchTrades(): Promise<Trade[]> {
-    // Trade data is not needed by oracle but is required by the parent class.
-    // This function along with all other functions that are not needed by the oracle will
-    // be removed in a future PR.
-    // -- @bayological ;) --
-    return []
   }
 
   /**

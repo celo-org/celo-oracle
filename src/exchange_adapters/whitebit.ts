@@ -1,4 +1,4 @@
-import { BaseExchangeAdapter, ExchangeDataType, Ticker, Trade } from './base'
+import { BaseExchangeAdapter, ExchangeDataType, Ticker } from './base'
 
 import { Exchange } from '../utils'
 
@@ -16,15 +16,6 @@ export class WhitebitAdapter extends BaseExchangeAdapter {
     const quote = WhitebitAdapter.tokenSymbolMap.get(this.config.quoteCurrency)?.toUpperCase()
 
     return `${base}_${quote}`
-  }
-
-  async fetchTrades(): Promise<Trade[]> {
-    // "An empty array in TypeScript may seem insignificant,
-    //    but it holds within it the infinite potential of
-    //          all the elements yet to come."
-    // -- @bayological --
-
-    return []
   }
 
   async fetchTicker(): Promise<Ticker> {

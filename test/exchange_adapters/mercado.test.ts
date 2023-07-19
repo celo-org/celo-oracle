@@ -1,8 +1,9 @@
-import { MercadoAdapter } from '../../src/exchange_adapters/mercado'
-import { ExchangeAdapterConfig } from '../../src/exchange_adapters/base'
-import { baseLogger } from '../../src/default_config'
 import { Exchange, ExternalCurrency } from '../../src/utils'
+
 import BigNumber from 'bignumber.js'
+import { ExchangeAdapterConfig } from '../../src/exchange_adapters/base'
+import { MercadoAdapter } from '../../src/exchange_adapters/mercado'
+import { baseLogger } from '../../src/default_config'
 
 describe(' adapter', () => {
   let mercadoAdapter: MercadoAdapter
@@ -85,12 +86,6 @@ describe(' adapter', () => {
       expect(() => {
         mercadoAdapter.parseTicker(inValidMockTickerJson, inValidOrderbookJson)
       }).toThrowError('bid, ask, lastPrice, baseVolume not defined')
-    })
-  })
-
-  describe('fetchTrades', () => {
-    it('returns empty array', async () => {
-      expect(await mercadoAdapter.fetchTrades()).toEqual([])
     })
   })
 

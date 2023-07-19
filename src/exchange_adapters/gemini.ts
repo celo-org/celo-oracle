@@ -1,5 +1,6 @@
+import { BaseExchangeAdapter, ExchangeDataType, Ticker } from './base'
+
 import { Exchange } from '../utils'
-import { BaseExchangeAdapter, ExchangeDataType, Ticker, Trade } from './base'
 
 export class GeminiAdapter extends BaseExchangeAdapter {
   baseApiUrl = 'https://api.gemini.com/v1/'
@@ -13,14 +14,6 @@ export class GeminiAdapter extends BaseExchangeAdapter {
     return this.parseTicker(
       await this.fetchFromApi(ExchangeDataType.TICKER, `pubticker/${this.pairSymbol}`)
     )
-  }
-
-  async fetchTrades(): Promise<Trade[]> {
-    /**
-     * Trades are cool, but empty arrays are cooler.
-     *                          @bogdan, 01/2023
-     */
-    return []
   }
 
   protected generatePairSymbol(): string {
@@ -68,7 +61,7 @@ export class GeminiAdapter extends BaseExchangeAdapter {
 
   /**
    * Checks if the orderbook for the relevant pair is live. If it's not, the price
-   * data from Ticker + Trade endpoints may be inaccurate.
+   * data from ticker endpoint may be inaccurate.
    *
    * API response example:
    * {

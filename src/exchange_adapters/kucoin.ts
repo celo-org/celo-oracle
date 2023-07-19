@@ -1,5 +1,6 @@
+import { BaseExchangeAdapter, ExchangeAdapter, ExchangeDataType, Ticker } from './base'
+
 import { Exchange } from '../utils'
-import { BaseExchangeAdapter, ExchangeAdapter, ExchangeDataType, Ticker, Trade } from './base'
 
 export class KuCoinAdapter extends BaseExchangeAdapter implements ExchangeAdapter {
   baseApiUrl = 'https://api.kucoin.com'
@@ -19,14 +20,6 @@ export class KuCoinAdapter extends BaseExchangeAdapter implements ExchangeAdapte
     const tickerJson = await this.fetchFromApi(ExchangeDataType.TICKER, `api/v1/market/allTickers`)
 
     return this.parseTicker(tickerJson)
-  }
-
-  async fetchTrades(): Promise<Trade[]> {
-    // Trade data is not needed by oracle but is required by the parent class.
-    // This function along with all other functions that are not needed by the oracle will
-    // be removed in a future PR.
-    // -- @bayological ;) --
-    return []
   }
 
   /**

@@ -1,23 +1,20 @@
-import { CeloContract } from '@celo/contractkit'
-import BigNumber from 'bignumber.js'
-import fetch from 'node-fetch'
-import { baseLogger } from '../../src/default_config'
 import {
   BaseExchangeAdapter,
   ExchangeDataType,
   Ticker,
-  Trade,
 } from '../../src/exchange_adapters/base'
-import { ExchangeApiRequestError, MetricCollector } from '../../src/metric_collector'
 import { Exchange, ExternalCurrency } from '../../src/utils'
+import { ExchangeApiRequestError, MetricCollector } from '../../src/metric_collector'
+
+import { CeloContract } from '@celo/contractkit'
+import { baseLogger } from '../../src/default_config'
+import fetch from 'node-fetch'
 
 jest.mock('@celo/contractkit')
 jest.mock('node-fetch')
 jest.mock('../../src/metric_collector')
 
 const { Response } = jest.requireActual('node-fetch')
-
-const now = Date.now()
 
 export class MockAdapter extends BaseExchangeAdapter {
   baseApiUrl = 'https://api.mock.com/api/v1.1'
@@ -26,20 +23,6 @@ export class MockAdapter extends BaseExchangeAdapter {
 
   async fetchTicker(): Promise<Ticker> {
     throw new Error('does not work yet')
-  }
-
-  async fetchTrades(): Promise<Trade[]> {
-    return Promise.resolve([
-      {
-        source: this.exchangeName,
-        id: 'id',
-        timestamp: now,
-        symbol: this.generatePairSymbol(),
-        price: new BigNumber(123),
-        amount: new BigNumber(321),
-        cost: new BigNumber(12),
-      },
-    ])
   }
 
   protected generatePairSymbol(): string {
@@ -54,6 +37,7 @@ export class MockAdapter extends BaseExchangeAdapter {
 describe('BaseExchangeAdapter', () => {
   let adapter: BaseExchangeAdapter
   let metricCollector: MetricCollector
+  const mockTickerEndpoint = '/ticker/CELO-USD'
 
   beforeEach(() => {
     metricCollector = new MetricCollector(baseLogger)
@@ -73,7 +57,7 @@ describe('BaseExchangeAdapter', () => {
   describe('fetchFromApi', () => {
     let metricArgs: string[]
     beforeEach(() => {
-      metricArgs = [adapter.exchangeName, 'trade/endpoint/CELO-USD', adapter.standardPairSymbol]
+      metricArgs = [adapter.exchangeName, mockTickerEndpoint, adapter.standardPairSymbol]
     })
 
     describe('when orderbook is not live', () => {
@@ -113,7 +97,7 @@ describe('BaseExchangeAdapter', () => {
         fetch.mockReturnValue(Promise.resolve(new Response(mockJsonResponse, { status: 200 })))
       })
 
-      for (const dataType of [ExchangeDataType.TICKER, ExchangeDataType.TRADE]) {
+      for (const dataType of [ExchangeDataType.TICKER]) {
         it(`returns a parsed json response for ${dataType}`, async () => {
           const path = `CELO-USD/${dataType.toLowerCase()}`
           const response = await adapter.fetchFromApi(dataType, path)
@@ -125,7 +109,7 @@ describe('BaseExchangeAdapter', () => {
       }
 
       it('collects metrics', async () => {
-        await adapter.fetchFromApi(ExchangeDataType.TRADE, 'trade/endpoint/CELO-USD')
+        await adapter.fetchFromApi(ExchangeDataType.TICKER, mockTickerEndpoint)
         expect(metricCollector.exchangeApiRequestDuration).toBeCalledWith(
           ...metricArgs,
           expect.anything()
@@ -137,7 +121,7 @@ describe('BaseExchangeAdapter', () => {
         fetch.mockReturnValue(Promise.resolve(new Response('', { status: 500 })))
 
         await expect(async () =>
-          adapter.fetchFromApi(ExchangeDataType.TRADE, `trade/endpoint/CELO-USD`)
+          adapter.fetchFromApi(ExchangeDataType.TICKER, mockTickerEndpoint)
         ).rejects.toThrowError(`Bad fetch status code 500`)
 
         expect(metricCollector.exchangeApiRequestDuration).toBeCalledWith(
@@ -153,7 +137,7 @@ describe('BaseExchangeAdapter', () => {
           Promise.resolve(new Response('<html>blah blah not json</html>', { status: 200 }))
         )
         await expect(async () =>
-          adapter.fetchFromApi(ExchangeDataType.TRADE, `trade/endpoint/CELO-USD`)
+          adapter.fetchFromApi(ExchangeDataType.TICKER, mockTickerEndpoint)
         ).rejects.toThrowError(
           'Failed to parse JSON response: FetchError: invalid json response body at  reason: Unexpected token < in JSON at position 0'
         )

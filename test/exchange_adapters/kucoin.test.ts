@@ -1,9 +1,10 @@
-import { KuCoinAdapter } from '../../src/exchange_adapters/kucoin'
+import { Exchange, ExternalCurrency } from '../../src/utils'
+
+import BigNumber from 'bignumber.js'
 import { CeloContract } from '@celo/contractkit'
 import { ExchangeAdapterConfig } from '../../src/exchange_adapters/base'
+import { KuCoinAdapter } from '../../src/exchange_adapters/kucoin'
 import { baseLogger } from '../../src/default_config'
-import { Exchange, ExternalCurrency } from '../../src/utils'
-import BigNumber from 'bignumber.js'
 
 describe('KuCoin adapter', () => {
   let kucoinAdapter: KuCoinAdapter
@@ -132,12 +133,6 @@ describe('KuCoin adapter', () => {
       expect(() => {
         kucoinAdapter.parseTicker(inValidMockTickerJson)
       }).toThrowError('timestamp, bid, ask, lastPrice, baseVolume not defined')
-    })
-  })
-
-  describe('fetchTrades', () => {
-    it('returns empty array', async () => {
-      expect(await kucoinAdapter.fetchTrades()).toEqual([])
     })
   })
 

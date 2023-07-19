@@ -1,5 +1,6 @@
+import { BaseExchangeAdapter, ExchangeDataType, Ticker } from './base'
+
 import { Exchange } from '../utils'
-import { BaseExchangeAdapter, ExchangeDataType, Ticker, Trade } from './base'
 
 export class BittrexAdapter extends BaseExchangeAdapter {
   baseApiUrl = 'https://api.bittrex.com/v3'
@@ -17,14 +18,6 @@ export class BittrexAdapter extends BaseExchangeAdapter {
     ])
 
     return this.parseTicker(tickerJson, summaryJson)
-  }
-
-  async fetchTrades(): Promise<Trade[]> {
-    const tradeJson = await this.fetchFromApi(
-      ExchangeDataType.TRADE,
-      `markets/${this.pairSymbol}/trades`
-    )
-    return this.parseTrades(tradeJson)
   }
 
   protected generatePairSymbol(): string {
@@ -76,41 +69,6 @@ export class BittrexAdapter extends BaseExchangeAdapter {
     }
     this.verifyTicker(ticker)
     return ticker
-  }
-
-  /**
-   * Translates the json response from the Bittrex API into the standard Trade object
-   *
-   * @param json response from the trades endpoint
-   *    https://api.bittrex.com/v3/markets/{marketSymbol}/trades
-   *
-   *    [
-   *      {
-   *        id: "string (uuid)",
-   *        executedAt: "string (date-time)",
-   *        quantity: "number (double)",
-   *        rate: "number (double)",
-   *        takerSide: "string"
-   *      }
-   *    ]
-   */
-  parseTrades(json: any): Trade[] {
-    return json.map((trade: any) => {
-      const price = this.safeBigNumberParse(trade.rate)
-      const amount = this.safeBigNumberParse(trade.quantity)
-      const cost = amount ? price?.times(amount) : undefined
-      const normalizedTrade = {
-        ...this.priceObjectMetadata,
-        amount,
-        cost,
-        id: trade.id,
-        price,
-        side: trade.takerSide,
-        timestamp: this.safeDateParse(trade.executedAt)!,
-      }
-      this.verifyTrade(normalizedTrade)
-      return normalizedTrade
-    })
   }
 
   /**

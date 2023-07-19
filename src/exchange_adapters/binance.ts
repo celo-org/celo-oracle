@@ -1,5 +1,6 @@
+import { BaseExchangeAdapter, ExchangeAdapter, ExchangeDataType, Ticker } from './base'
+
 import { Exchange } from '../utils'
-import { BaseExchangeAdapter, ExchangeAdapter, ExchangeDataType, Ticker, Trade } from './base'
 
 export class BinanceAdapter extends BaseExchangeAdapter implements ExchangeAdapter {
   baseApiUrl = 'https://api.binance.com/api/v3'
@@ -22,15 +23,6 @@ export class BinanceAdapter extends BaseExchangeAdapter implements ExchangeAdapt
       `ticker/24hr?symbol=${this.pairSymbol}`
     )
     return this.parseTicker(tickerJson)
-  }
-
-  async fetchTrades(): Promise<Trade[]> {
-    const tradesJson = await this.fetchFromApi(
-      ExchangeDataType.TRADE,
-      `aggTrades?symbol=${this.pairSymbol}`
-    )
-    // sort order from API is chronological
-    return this.parseTrades(tradesJson)
   }
 
   /**
@@ -76,41 +68,6 @@ export class BinanceAdapter extends BaseExchangeAdapter implements ExchangeAdapt
     }
     this.verifyTicker(ticker)
     return ticker
-  }
-
-  /**
-   *
-   * @param json response from Binance's trades endpoint
-   *
-   * [
-   *   {
-   *     "a": 683882,               // Aggregate tradeId
-   *     "p": "0.00008185",        // Price
-   *     "q": "5.30000000",       // Quantity
-   *     "f": 854278,            // First tradeId
-   *     "l": 854278,           // Last tradeId
-   *     "T": 1614665220705,   // Timestamp
-   *     "m": true,           // Was the buyer the maker?
-   *     "M": true           // Was the trade the best price match?
-   *   }
-   * ]
-   */
-  parseTrades(json: any): Trade[] {
-    return json.map((trade: any) => {
-      const price = this.safeBigNumberParse(trade.p)
-      const amount = this.safeBigNumberParse(trade.q)
-      const normalizedTrade = {
-        ...this.priceObjectMetadata,
-        amount,
-        cost: amount ? price?.times(amount) : undefined,
-        id: trade.a,
-        price,
-        side: trade.m ? 'sell' : 'buy',
-        timestamp: this.safeBigNumberParse(trade.T)?.toNumber()!,
-      }
-      this.verifyTrade(normalizedTrade)
-      return normalizedTrade
-    })
   }
 
   async isOrderbookLive(): Promise<boolean> {
