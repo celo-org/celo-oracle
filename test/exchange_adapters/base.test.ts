@@ -1,8 +1,4 @@
-import {
-  BaseExchangeAdapter,
-  ExchangeDataType,
-  Ticker,
-} from '../../src/exchange_adapters/base'
+import { BaseExchangeAdapter, ExchangeDataType, Ticker } from '../../src/exchange_adapters/base'
 import { Exchange, ExternalCurrency } from '../../src/utils'
 import { ExchangeApiRequestError, MetricCollector } from '../../src/metric_collector'
 
