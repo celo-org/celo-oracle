@@ -1,42 +1,45 @@
-import { strict as assert } from 'assert'
-import BigNumber from 'bignumber.js'
-import Logger from 'bunyan'
 import * as aggregators from './aggregator_functions'
-import { OracleApplicationConfig } from './app'
-import { ExchangeAdapter, ExchangeAdapterConfig } from './exchange_adapters/base'
-import { BinanceAdapter } from './exchange_adapters/binance'
-import { BinanceUSAdapter } from './exchange_adapters/binance_us'
-import { OKXAdapter } from './exchange_adapters/okx'
-import { BitsoAdapter } from './exchange_adapters/bitso'
-import { BittrexAdapter } from './exchange_adapters/bittrex'
-import { CoinbaseAdapter } from './exchange_adapters/coinbase'
-import { OKCoinAdapter } from './exchange_adapters/okcoin'
-import { NovaDaxAdapter } from './exchange_adapters/novadax'
-import { KrakenAdapter } from './exchange_adapters/kraken'
-import { KuCoinAdapter } from './exchange_adapters/kucoin'
-import { BitstampAdapter } from './exchange_adapters/bitstamp'
-import { MercadoAdapter } from './exchange_adapters/mercado'
-import { BitgetAdapter } from './exchange_adapters/bitget'
-import { MetricCollector } from './metric_collector'
-import { GeminiAdapter } from './exchange_adapters/gemini'
-import { WhitebitAdapter } from './exchange_adapters/whitebit'
-import { BitMartAdapter } from './exchange_adapters/bitmart'
-import { PriceSource, WeightedPrice } from './price_source'
-import {
-  ExchangePriceSourceConfig,
-  ExchangePriceSource,
-  OrientedAdapter,
-  OrientedExchangePair,
-} from './exchange_price_source'
+
 import {
   AggregationMethod,
-  allSettled,
   CurrencyPairBaseQuote,
   Exchange,
   OracleCurrencyPair,
   PromiseStatus,
   SettledPromise,
+  allSettled,
 } from './utils'
+import { ExchangeAdapter, ExchangeAdapterConfig } from './exchange_adapters/base'
+import {
+  ExchangePriceSource,
+  ExchangePriceSourceConfig,
+  OrientedAdapter,
+  OrientedExchangePair,
+} from './exchange_price_source'
+import { PriceSource, WeightedPrice } from './price_source'
+
+import BigNumber from 'bignumber.js'
+import { BinanceAdapter } from './exchange_adapters/binance'
+import { BinanceUSAdapter } from './exchange_adapters/binance_us'
+import { BitMartAdapter } from './exchange_adapters/bitmart'
+import { BitgetAdapter } from './exchange_adapters/bitget'
+import { BitsoAdapter } from './exchange_adapters/bitso'
+import { BitstampAdapter } from './exchange_adapters/bitstamp'
+import { BittrexAdapter } from './exchange_adapters/bittrex'
+import { CoinbaseAdapter } from './exchange_adapters/coinbase'
+import { GeminiAdapter } from './exchange_adapters/gemini'
+import { KrakenAdapter } from './exchange_adapters/kraken'
+import { KuCoinAdapter } from './exchange_adapters/kucoin'
+import Logger from 'bunyan'
+import { MercadoAdapter } from './exchange_adapters/mercado'
+import { MetricCollector } from './metric_collector'
+import { NovaDaxAdapter } from './exchange_adapters/novadax'
+import { OKCoinAdapter } from './exchange_adapters/okcoin'
+import { OKXAdapter } from './exchange_adapters/okx'
+import { OneForgeAdapter } from './exchange_adapters/1forge'
+import { OracleApplicationConfig } from './app'
+import { WhitebitAdapter } from './exchange_adapters/whitebit'
+import { strict as assert } from 'assert'
 
 function adapterFromExchangeName(name: Exchange, config: ExchangeAdapterConfig): ExchangeAdapter {
   switch (name) {
@@ -72,6 +75,8 @@ function adapterFromExchangeName(name: Exchange, config: ExchangeAdapterConfig):
       return new BitgetAdapter(config)
     case Exchange.BITMART:
       return new BitMartAdapter(config)
+    case Exchange.ONEFORGE:
+      return new OneForgeAdapter(config)
   }
 }
 
