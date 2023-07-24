@@ -1,5 +1,6 @@
+import { BaseExchangeAdapter, ExchangeAdapter, ExchangeDataType, Ticker } from './base'
+
 import { Exchange } from '../utils'
-import { BaseExchangeAdapter, ExchangeAdapter, ExchangeDataType, Ticker, Trade } from './base'
 
 export class BitsoAdapter extends BaseExchangeAdapter implements ExchangeAdapter {
   baseApiUrl = 'https://api.bitso.com/api/v3'
@@ -22,14 +23,6 @@ export class BitsoAdapter extends BaseExchangeAdapter implements ExchangeAdapter
       `ticker?book=${this.pairSymbol}`
     )
     return this.parseTicker(tickerJson.payload)
-  }
-
-  async fetchTrades(): Promise<Trade[]> {
-    const tradesJson = await this.fetchFromApi(
-      ExchangeDataType.TRADE,
-      `trades?book=${this.pairSymbol}`
-    )
-    return this.parseTrades(tradesJson.payload).sort((a, b) => a.timestamp - b.timestamp)
   }
 
   /**
@@ -68,39 +61,6 @@ export class BitsoAdapter extends BaseExchangeAdapter implements ExchangeAdapter
     }
     this.verifyTicker(ticker)
     return ticker
-  }
-
-  /**
-   *
-   * @param json response from Bitso's trades endpoint
-   *
-   * [
-   *     {
-   *         "book": "btc_mxn",
-   *         "created_at": "2021-07-02T05:54:45+0000",
-   *         "amount": "0.00127843",
-   *         "maker_side": "buy",
-   *         "price": "659436.40",
-   *         "tid": 41827090
-   *     }
-   * ]
-   */
-  parseTrades(json: any): Trade[] {
-    return json.map((trade: any) => {
-      const price = this.safeBigNumberParse(trade.price)
-      const amount = this.safeBigNumberParse(trade.amount)
-      const normalizedTrade = {
-        ...this.priceObjectMetadata,
-        amount,
-        cost: amount ? price?.times(amount) : undefined,
-        id: trade.tid,
-        price,
-        side: trade.maker_side,
-        timestamp: this.safeDateParse(trade.created_at)!,
-      }
-      this.verifyTrade(normalizedTrade)
-      return normalizedTrade
-    })
   }
 
   /**

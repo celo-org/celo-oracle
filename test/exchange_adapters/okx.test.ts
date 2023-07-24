@@ -1,9 +1,10 @@
+import { Exchange, ExternalCurrency } from '../../src/utils'
+
 import BigNumber from 'bignumber.js'
-import { baseLogger } from '../../src/default_config'
+import { CeloContract } from '@celo/contractkit'
 import { ExchangeAdapterConfig } from '../../src/exchange_adapters/base'
 import { OKXAdapter } from '../../src/exchange_adapters/okx'
-import { Exchange, ExternalCurrency } from '../../src/utils'
-import { CeloContract } from '@celo/contractkit'
+import { baseLogger } from '../../src/default_config'
 
 describe('OKXAdapter', () => {
   let okxAdapter: OKXAdapter
@@ -68,13 +69,6 @@ describe('OKXAdapter', () => {
       },
     ],
   }
-
-  describe('fetchTrades', () => {
-    it('returns an empty array', async () => {
-      const tradesFetched = await okxAdapter.fetchTrades()
-      expect(tradesFetched).toEqual([])
-    })
-  })
 
   describe('parseTicker', () => {
     it('handles a response that matches the documentation', () => {

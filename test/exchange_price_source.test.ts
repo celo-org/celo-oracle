@@ -1,14 +1,15 @@
-import { ExchangeAdapter, Ticker, Trade } from '../src/exchange_adapters/base'
-import BigNumber from 'bignumber.js'
-import { Exchange } from '../src/utils'
+import { ExchangeAdapter, Ticker } from '../src/exchange_adapters/base'
 import {
   ExchangePriceSource,
   OrientedAdapter,
   PairData,
   impliedPair,
 } from '../src/exchange_price_source'
-import { baseLogger } from '../src/default_config'
+
+import BigNumber from 'bignumber.js'
+import { Exchange } from '../src/utils'
 import { MetricCollector } from '../src/metric_collector'
+import { baseLogger } from '../src/default_config'
 
 jest.mock('../src/metric_collector')
 
@@ -21,11 +22,6 @@ class MockAdapter implements ExchangeAdapter {
     this.ticker = ticker
     this.pairSymbol = ticker.symbol
     this.exchangeName = ticker.source
-  }
-
-  async fetchTrades(): Promise<Trade[]> {
-    // Trades are not used.
-    return [] as Trade[]
   }
 
   async fetchTicker(): Promise<Ticker> {

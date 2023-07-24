@@ -1,5 +1,6 @@
+import { BaseExchangeAdapter, ExchangeAdapter, ExchangeDataType, Ticker } from './base'
+
 import { Exchange } from '../utils'
-import { BaseExchangeAdapter, ExchangeAdapter, ExchangeDataType, Ticker, Trade } from './base'
 
 export class OKXAdapter extends BaseExchangeAdapter implements ExchangeAdapter {
   baseApiUrl = 'https://www.okx.com/api/v5'
@@ -22,14 +23,6 @@ export class OKXAdapter extends BaseExchangeAdapter implements ExchangeAdapter {
     )
 
     return this.parseTicker(tickerJson)
-  }
-
-  async fetchTrades(): Promise<Trade[]> {
-    // Trade data is not needed by oracle but is required by the parent class.
-    // This function along with all other functions that are not needed by the oracle will
-    // be removed in a future PR.
-    // -- @bayological ;) --
-    return []
   }
 
   /**

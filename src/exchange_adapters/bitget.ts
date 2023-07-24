@@ -1,5 +1,6 @@
+import { BaseExchangeAdapter, ExchangeDataType, Ticker } from './base'
+
 import { Exchange } from '../utils'
-import { BaseExchangeAdapter, ExchangeDataType, Ticker, Trade } from './base'
 
 export class BitgetAdapter extends BaseExchangeAdapter {
   baseApiUrl = 'https://api.bitget.com/api'
@@ -16,14 +17,6 @@ export class BitgetAdapter extends BaseExchangeAdapter {
         `spot/v1/market/ticker?symbol=${this.pairSymbol}_SPBL`
       )
     )
-  }
-
-  async fetchTrades(): Promise<Trade[]> {
-    /**
-     * Trades are cool, but empty arrays are cooler.
-     *                          @bogdan, 01/2023
-     */
-    return []
   }
 
   protected generatePairSymbol(): string {
@@ -75,7 +68,7 @@ export class BitgetAdapter extends BaseExchangeAdapter {
 
   /**
    * Checks if the orderbook for the relevant pair is live. If it's not, the price
-   * data from Ticker + Trade endpoints may be inaccurate.
+   * data from Ticker endpoint may be inaccurate.
    *
    * https://api.bitget.com/api/spot/v1/public/product?symbol=BTCBRL_SPBL
    *

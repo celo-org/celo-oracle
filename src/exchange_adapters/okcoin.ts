@@ -1,5 +1,6 @@
+import { BaseExchangeAdapter, ExchangeDataType, Ticker } from './base'
+
 import { Exchange } from '../utils'
-import { BaseExchangeAdapter, ExchangeDataType, Ticker, Trade } from './base'
 
 export class OKCoinAdapter extends BaseExchangeAdapter {
   baseApiUrl = 'https://www.okcoin.com/api'
@@ -19,14 +20,6 @@ export class OKCoinAdapter extends BaseExchangeAdapter {
       `spot/v3/instruments/${this.pairSymbol}/ticker`
     )
     return this.parseTicker(json)
-  }
-
-  async fetchTrades(): Promise<Trade[]> {
-    const tradeJson = await this.fetchFromApi(
-      ExchangeDataType.TRADE,
-      `spot/v3/instruments/${this.pairSymbol}/trades`
-    )
-    return this.parseTrades(tradeJson)
   }
 
   /**
@@ -69,44 +62,6 @@ export class OKCoinAdapter extends BaseExchangeAdapter {
     }
     this.verifyTicker(ticker)
     return ticker
-  }
-
-  /**
-   * Parses the response from the trades endpoint and returns an array of standard
-   * Trade objects.
-   *
-   * @param json response from /spot/v3/instruments/${this.pairSymbol}/trades
-   *
-   *    Example response from OKCoin Docs: https://www.okcoin.com/docs/en/#spot-deal_information
-   *
-   *    [
-   *      {
-   *        "time":"2019-04-12T02:07:30.523Z",
-   *        "timestamp":"2019-04-12T02:07:30.523Z",
-   *        "trade_id":"1296412902",
-   *        "price":"4913.4",
-   *        "size":"0.00990734",
-   *        "side":"buy"
-   *      }
-   *    ]
-   */
-  parseTrades(json: any): Trade[] {
-    return json.map((trade: any) => {
-      const price = this.safeBigNumberParse(trade.price)
-      const amount = this.safeBigNumberParse(trade.size)
-      const cost = amount ? price?.times(amount) : undefined
-      const normalizedTrade = {
-        ...this.priceObjectMetadata,
-        amount,
-        cost,
-        id: trade.trade_id,
-        price,
-        side: trade.side,
-        timestamp: this.safeDateParse(trade.timestamp),
-      }
-      this.verifyTrade(normalizedTrade)
-      return normalizedTrade
-    })
   }
 
   protected generatePairSymbol(): string {

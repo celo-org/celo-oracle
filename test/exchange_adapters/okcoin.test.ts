@@ -1,9 +1,10 @@
-import { CeloContract } from '@celo/contractkit'
+import { Exchange, ExternalCurrency } from '../../src/utils'
+
 import BigNumber from 'bignumber.js'
-import { baseLogger } from '../../src/default_config'
+import { CeloContract } from '@celo/contractkit'
 import { ExchangeAdapterConfig } from '../../src/exchange_adapters/base'
 import { OKCoinAdapter } from '../../src/exchange_adapters/okcoin'
-import { Exchange, ExternalCurrency } from '../../src/utils'
+import { baseLogger } from '../../src/default_config'
 
 describe('OKCoinAdapter', () => {
   let okcoinAdapter: OKCoinAdapter
@@ -73,65 +74,6 @@ describe('OKCoinAdapter', () => {
           timestamp: 'the 20th of May, 2020 at 1:22 pm',
         })
       }).toThrowError('timestamp not defined')
-    })
-  })
-  describe('parseTrades', () => {
-    // Slightly modified example from their docs
-    const goodTrade1 = {
-      time: '2019-04-12T02:07:30.523Z',
-      timestamp: '2019-04-12T02:07:30.523Z',
-      trade_id: '1296412902',
-      price: '4913.4',
-      size: '0.0099',
-      side: 'buy',
-    }
-    const goodTrade2 = {
-      time: '2019-04-12T02:07:30.455Z',
-      timestamp: '2019-04-12T02:07:30.455Z',
-      trade_id: '1296412899',
-      price: '4913.2',
-      size: '0.17',
-      side: 'sell',
-    }
-    const goodTradeArray = [goodTrade1, goodTrade2]
-
-    it('handles correctly formatted trades', () => {
-      const result = okcoinAdapter.parseTrades(goodTradeArray)
-      expect(result).toEqual([
-        {
-          amount: new BigNumber(0.0099),
-          cost: new BigNumber(48.64266),
-          id: '1296412902',
-          price: new BigNumber(4913.4),
-          side: 'buy',
-          source: Exchange.OKCOIN,
-          symbol: okcoinAdapter.standardPairSymbol,
-          timestamp: 1555034850523,
-        },
-        {
-          amount: new BigNumber(0.17),
-          cost: new BigNumber(835.244),
-          id: '1296412899',
-          price: new BigNumber(4913.2),
-          side: 'sell',
-          source: Exchange.OKCOIN,
-          symbol: okcoinAdapter.standardPairSymbol,
-          timestamp: 1555034850455,
-        },
-      ])
-    })
-    it('throws an error if a required field is missing on one trade', () => {
-      expect(() => {
-        okcoinAdapter.parseTrades([
-          {
-            ...goodTrade1,
-            price: undefined,
-            trade_id: undefined,
-            size: undefined,
-          },
-          goodTrade2,
-        ])
-      }).toThrowError('id, price, amount, cost not defined')
     })
   })
 })

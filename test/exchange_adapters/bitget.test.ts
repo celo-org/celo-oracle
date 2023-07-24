@@ -1,8 +1,9 @@
-import BigNumber from 'bignumber.js'
-import { baseLogger } from '../../src/default_config'
-import { ExchangeAdapterConfig } from '../../src/exchange_adapters/base'
-import { BitgetAdapter } from '../../src/exchange_adapters/bitget'
 import { Exchange, ExternalCurrency } from '../../src/utils'
+
+import BigNumber from 'bignumber.js'
+import { BitgetAdapter } from '../../src/exchange_adapters/bitget'
+import { ExchangeAdapterConfig } from '../../src/exchange_adapters/base'
+import { baseLogger } from '../../src/default_config'
 
 describe('BitgetAdapter', () => {
   let bitgetAdapter: BitgetAdapter
@@ -33,13 +34,6 @@ describe('BitgetAdapter', () => {
     msg: 'success',
     requestTime: '1677490448872', // Request status
   }
-
-  describe('fetchTrades', () => {
-    it('returns an empty array', async () => {
-      const tradesFetched = await bitgetAdapter.fetchTrades()
-      expect(tradesFetched).toEqual([])
-    })
-  })
 
   describe('parseTicker', () => {
     it('handles a response that matches the documentation', () => {

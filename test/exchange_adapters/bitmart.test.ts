@@ -1,8 +1,9 @@
+import { Exchange, ExternalCurrency } from '../../src/utils'
+
+import BigNumber from 'bignumber.js'
 import { BitMartAdapter } from '../../src/exchange_adapters/bitmart'
 import { ExchangeAdapterConfig } from '../../src/exchange_adapters/base'
 import { baseLogger } from '../../src/default_config'
-import { Exchange, ExternalCurrency } from '../../src/utils'
-import BigNumber from 'bignumber.js'
 
 describe('BitMart adapter', () => {
   let bitmartAdapter: BitMartAdapter
@@ -87,12 +88,6 @@ describe('BitMart adapter', () => {
       expect(() => {
         bitmartAdapter.parseTicker(inValidMockTickerJson)
       }).toThrowError('timestamp, bid, ask, lastPrice, baseVolume not defined')
-    })
-  })
-
-  describe('fetchTrades', () => {
-    it('returns empty array', async () => {
-      expect(await bitmartAdapter.fetchTrades()).toEqual([])
     })
   })
 

@@ -1,5 +1,6 @@
+import { BaseExchangeAdapter, ExchangeAdapter, ExchangeDataType, Ticker } from './base'
+
 import { Exchange } from '../utils'
-import { BaseExchangeAdapter, ExchangeAdapter, ExchangeDataType, Ticker, Trade } from './base'
 
 export class NovaDaxAdapter extends BaseExchangeAdapter implements ExchangeAdapter {
   baseApiUrl = 'https://api.novadax.com/v1/market'
@@ -22,14 +23,6 @@ export class NovaDaxAdapter extends BaseExchangeAdapter implements ExchangeAdapt
       `ticker?symbol=${this.pairSymbol}`
     )
     return this.parseTicker(tickerJson)
-  }
-
-  async fetchTrades(): Promise<Trade[]> {
-    const tradesJson = await this.fetchFromApi(
-      ExchangeDataType.TRADE,
-      `trades?symbol=${this.pairSymbol}`
-    )
-    return this.parseTrades(tradesJson.payload).sort((a, b) => a.timestamp - b.timestamp)
   }
 
   /**
@@ -73,49 +66,6 @@ export class NovaDaxAdapter extends BaseExchangeAdapter implements ExchangeAdapt
     }
     this.verifyTicker(ticker)
     return ticker
-  }
-
-  /**
-   *
-   * @param json response from NovaDax's trades endpoint
-   *
-   *  {
-   *      "code": "A10000",
-   *      "data": [
-   *          {
-   *              "price": "43657.57",
-   *              "amount": "1",
-   *              "side": "SELL",
-   *              "timestamp": 1565007823401
-   *          },
-   *          {
-   *              "price": "43687.16",
-   *              "amount": "0.071",
-   *              "side": "BUY",
-   *              "timestamp": 1565007198261
-   *          }
-   *      ],
-   *      "message": "Success"
-   *  }
-   *
-   */
-
-  parseTrades(json: any): Trade[] {
-    return json.data.map((trade: any) => {
-      const price = this.safeBigNumberParse(trade.price)
-      const amount = this.safeBigNumberParse(trade.amount)
-      const normalizedTrade = {
-        ...this.priceObjectMetadata,
-        amount,
-        cost: amount ? price?.times(amount) : undefined,
-        // no trade id
-        price,
-        side: trade.side.toLowerCase(),
-        timestamp: this.safeBigNumberParse(trade.created_at)!.toNumber(),
-      }
-      this.verifyTrade(normalizedTrade)
-      return normalizedTrade
-    })
   }
 
   /**
