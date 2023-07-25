@@ -1,28 +1,30 @@
-import { ContractKit, newKit } from '@celo/contractkit'
-import { ReportTarget } from '@celo/contractkit/lib/wrappers/SortedOracles'
-import { ensureLeading0x, isValidPrivateKey, privateKeyToAddress } from '@celo/utils/lib/address'
-import { AwsHsmWallet } from '@celo/wallet-hsm-aws'
-import { AzureHSMWallet } from '@celo/wallet-hsm-azure'
-import Logger from 'bunyan'
-import fs from 'fs'
-import { DataAggregator, DataAggregatorConfig } from './data_aggregator'
-import { Context, MetricCollector } from './metric_collector'
 import { BaseReporter, BaseReporterConfig } from './reporters/base'
 import { BlockBasedReporter, BlockBasedReporterConfig } from './reporters/block_based_reporter'
+import { Context, MetricCollector } from './metric_collector'
+import { ContractKit, newKit } from '@celo/contractkit'
+import { DataAggregator, DataAggregatorConfig } from './data_aggregator'
 import {
+  Exchange,
   OracleCurrencyPair,
   ReportStrategy,
+  WalletType,
   reportTargetForCurrencyPair,
   requireVariables,
   secondsToMs,
   tryExponentialBackoff,
-  WalletType,
 } from './utils'
+import { ensureLeading0x, isValidPrivateKey, privateKeyToAddress } from '@celo/utils/lib/address'
+
+import { AwsHsmWallet } from '@celo/wallet-hsm-aws'
+import { AzureHSMWallet } from '@celo/wallet-hsm-azure'
+import Logger from 'bunyan'
+import { ReportTarget } from '@celo/contractkit/lib/wrappers/SortedOracles'
+import fs from 'fs'
 
 /**
  * Omit the fields that are passed in by the Application
  */
-type DataAggregatorConfigToOmit = 'metricCollector' | 'currencyPair'
+type DataAggregatorConfigToOmit = 'metricCollector' | 'currencyPair' | 'apiKeys'
 export type DataAggregatorConfigSubset = Omit<DataAggregatorConfig, DataAggregatorConfigToOmit>
 type ReporterConfigToOmit =
   | 'dataAggregator'
@@ -57,6 +59,10 @@ export interface OracleApplicationConfig {
    * this is ignored and the address is derived from the private key
    */
   address?: string
+  /**
+   * A set of available API keys per exchange (for those that require one)
+  */
+  apiKeys: Partial<Record<Exchange, string>>
   /**
    * The name in code form of the AWS region the key is located in.
    * Only used if walletType is AWS_HSM.
@@ -147,6 +153,7 @@ export class OracleApplication {
     }
     this._dataAggregator = new DataAggregator({
       ...config.dataAggregatorConfig,
+      apiKeys: this.config.apiKeys,
       currencyPair: this.config.currencyPair,
       metricCollector: this.metricCollector,
     })

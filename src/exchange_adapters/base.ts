@@ -63,6 +63,10 @@ export interface ExchangeAdapter {
 }
 
 export interface ExchangeAdapterConfig {
+  /*
+    API key for the exchange (if required)
+  */
+  apiKey?: string
   apiRequestTimeout?: number
   /** The currency to get the price of */
   baseCurrency: Currency

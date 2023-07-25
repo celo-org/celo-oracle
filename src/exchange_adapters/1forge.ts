@@ -5,7 +5,6 @@ import { Exchange } from '../utils'
 
 export class OneForgeAdapter extends BaseExchangeAdapter implements ExchangeAdapter {
   baseApiUrl = 'https://api.1forge.com'
-  readonly API_KEY = "SECRET"
   readonly _exchangeName: Exchange = Exchange.ONEFORGE
   // Amazon RSA 2048 M02
   readonly _certFingerprint256 =
@@ -13,6 +12,7 @@ export class OneForgeAdapter extends BaseExchangeAdapter implements ExchangeAdap
 
   private static readonly tokenSymbolMap = OneForgeAdapter.standardTokenSymbolMap
 
+  // @XOF: I think I can replace this to be standardPairSymbol, see baseExchangeAdapter abstract class
   protected generatePairSymbol(): string {
     const base = OneForgeAdapter.tokenSymbolMap.get(this.config.baseCurrency)
     const quote = OneForgeAdapter.tokenSymbolMap.get(this.config.quoteCurrency)
@@ -21,10 +21,9 @@ export class OneForgeAdapter extends BaseExchangeAdapter implements ExchangeAdap
   }
 
   async fetchTicker(): Promise<Ticker> {
-    console.log('Inmside fetchTicker')
     const tickerJson = await this.fetchFromApi(
       ExchangeDataType.TICKER,
-      `quotes?pairs=${this.pairSymbol}&api_key=${this.API_KEY}`
+      `quotes?pairs=${this.pairSymbol}&api_key=${this.config.apiKey}`
     )
     return this.parseTicker(tickerJson)
   }
@@ -66,7 +65,7 @@ export class OneForgeAdapter extends BaseExchangeAdapter implements ExchangeAdap
     // @XOF: Check if calling this endpoint is enough.
     const res = await this.fetchFromApi(
       ExchangeDataType.ORDERBOOK_STATUS,
-      `market_status?&api_key=${this.API_KEY}`
+      `market_status?&api_key=${this.config.apiKey}`
     )
     return res.market_is_open === true
 

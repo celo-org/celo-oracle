@@ -1,8 +1,3 @@
-import { strict as assert } from 'assert'
-import { ensureLeading0x, isValidAddress } from '@celo/utils/lib/address'
-import BigNumber from 'bignumber.js'
-import Web3 from 'web3'
-import { baseLogger } from './default_config'
 import {
   AggregationMethod,
   Exchange,
@@ -10,7 +5,14 @@ import {
   ReportStrategy,
   WalletType,
 } from './utils'
-import { OrientedExchangePair, ExchangePriceSourceConfig } from './exchange_price_source'
+import { ExchangePriceSourceConfig, OrientedExchangePair } from './exchange_price_source'
+import { ensureLeading0x, isValidAddress } from '@celo/utils/lib/address'
+
+import BigNumber from 'bignumber.js'
+import Web3 from 'web3'
+import { strict as assert } from 'assert'
+import { baseLogger } from './default_config'
+
 const yaml = require('js-yaml')
 
 export class EnvVarValidationError extends Error {
@@ -23,6 +25,7 @@ export enum EnvVar {
   ADDRESS = 'ADDRESS',
   AGGREGATION_METHOD = 'AGGREGATION_METHOD',
   AGGREGATION_PERIOD = 'AGGREGATION_PERIOD',
+  API_KEYS = 'API_KEYS',
   API_REQUEST_TIMEOUT = 'API_REQUEST_TIMEOUT',
   AWS_KEY_REGION = 'AWS_KEY_REGION',
   AZURE_HSM_INIT_MAX_RETRY_BACKOFF_MS = 'AZURE_HSM_INIT_MAX_RETRY_BACKOFF_MS',
@@ -209,6 +212,25 @@ const envVarHandlingMap = new Map<EnvVar, EnvVarHandling>([
       ...integerEnvVarHandling,
       validationFns: [envVarValidations.isInteger, envVarValidations.isGreaterThanZero],
     },
+  ],
+  [
+    EnvVar.API_KEYS,
+    {
+      parseFn: (unparsed: string): Partial<Record<Exchange, string>> => {
+        const pairs = unparsed.split(',')
+        const exchanges = pairs.map((pair) => pair.split(':')[0])
+        const keys = pairs.map((pair) => pair.split(':')[1])
+
+        return Object.fromEntries(
+          exchanges.map((exchange, index) => [exchange, keys[index]])
+        );
+      },
+      validationFns: [
+        (value: Partial<Record<Exchange, string>>) => {
+          envVarValidations.allAreInSet(Object.keys(value), Object.values(Exchange))
+        }
+      ]
+    }
   ],
   [
     EnvVar.API_REQUEST_TIMEOUT,
