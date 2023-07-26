@@ -10,12 +10,9 @@ export class OpenexchangeratesAdapter extends BaseExchangeAdapter implements Exc
   readonly _certFingerprint256 =
     '0A:6F:07:12:F7:5E:93:8D:C2:74:BD:AD:1B:C6:0B:19:F4:D4:9D:41:6C:C8:15:04:65:6C:35:21:92:6F:F3:98'
 
-  private static readonly tokenSymbolMap = OpenexchangeratesAdapter.standardTokenSymbolMap
-
-  // @XOF: I think I can replace this to be standardPairSymbol, see baseExchangeAdapter abstract class
   protected generatePairSymbol(): string {
-    const base = OpenexchangeratesAdapter.tokenSymbolMap.get(this.config.baseCurrency)
-    const quote = OpenexchangeratesAdapter.tokenSymbolMap.get(this.config.quoteCurrency)
+    const base = OpenexchangeratesAdapter.standardTokenSymbolMap.get(this.config.baseCurrency)
+    const quote = OpenexchangeratesAdapter.standardTokenSymbolMap.get(this.config.quoteCurrency)
 
     return `${base}/${quote}`
   }

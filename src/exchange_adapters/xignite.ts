@@ -10,11 +10,9 @@ export class XigniteAdapter extends BaseExchangeAdapter implements ExchangeAdapt
   readonly _certFingerprint256 =
     'AC:3B:21:EB:EE:92:8B:81:85:EF:85:DF:76:DE:9A:A0:2C:06:3D:D0:48:89:F2:29:76:9F:AB:E1:69:3A:D4:F4'
 
-  private static readonly tokenSymbolMap = XigniteAdapter.standardTokenSymbolMap
-
   protected generatePairSymbol(): string {
-    const base = XigniteAdapter.tokenSymbolMap.get(this.config.baseCurrency)
-    const quote = XigniteAdapter.tokenSymbolMap.get(this.config.quoteCurrency)
+    const base = XigniteAdapter.standardTokenSymbolMap.get(this.config.baseCurrency)
+    const quote = XigniteAdapter.standardTokenSymbolMap.get(this.config.quoteCurrency)
 
     return `${base}${quote}`
   }

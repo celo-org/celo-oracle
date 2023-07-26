@@ -10,12 +10,9 @@ export class OneforgeAdapter extends BaseExchangeAdapter implements ExchangeAdap
   readonly _certFingerprint256 =
     'B2:D9:95:26:E0:8D:74:D5:01:DF:F8:B3:1B:7D:56:97:DF:C4:C8:A2:94:39:8E:F1:6B:D1:D3:D6:A5:B2:E0:EA'
 
-  private static readonly tokenSymbolMap = OneforgeAdapter.standardTokenSymbolMap
-
-  // @XOF: I think I can replace this to be standardPairSymbol, see baseExchangeAdapter abstract class
   protected generatePairSymbol(): string {
-    const base = OneforgeAdapter.tokenSymbolMap.get(this.config.baseCurrency)
-    const quote = OneforgeAdapter.tokenSymbolMap.get(this.config.quoteCurrency)
+    const base = OneforgeAdapter.standardTokenSymbolMap.get(this.config.baseCurrency)
+    const quote = OneforgeAdapter.standardTokenSymbolMap.get(this.config.quoteCurrency)
 
     return `${base}/${quote}`
   }
