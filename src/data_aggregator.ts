@@ -36,9 +36,10 @@ import { MetricCollector } from './metric_collector'
 import { NovaDaxAdapter } from './exchange_adapters/novadax'
 import { OKCoinAdapter } from './exchange_adapters/okcoin'
 import { OKXAdapter } from './exchange_adapters/okx'
-import { OneForgeAdapter } from './exchange_adapters/1forge'
+import { OneforgeAdapter } from './exchange_adapters/1forge'
 import { OracleApplicationConfig } from './app'
 import { WhitebitAdapter } from './exchange_adapters/whitebit'
+import { XigniteAdapter } from './exchange_adapters/xignite'
 import { strict as assert } from 'assert'
 
 function adapterFromExchangeName(name: Exchange, config: ExchangeAdapterConfig): ExchangeAdapter {
@@ -76,7 +77,9 @@ function adapterFromExchangeName(name: Exchange, config: ExchangeAdapterConfig):
     case Exchange.BITMART:
       return new BitMartAdapter(config)
     case Exchange.ONEFORGE:
-      return new OneForgeAdapter(config)
+      return new OneforgeAdapter(config)
+    case Exchange.XIGNITE:
+      return new XigniteAdapter(config)
   }
 }
 

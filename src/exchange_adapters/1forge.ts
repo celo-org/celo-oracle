@@ -2,25 +2,28 @@ import { BaseExchangeAdapter, ExchangeAdapter, ExchangeDataType, Ticker } from '
 
 import BigNumber from 'bignumber.js'
 import { Exchange } from '../utils'
+import { strict as assert } from 'assert'
 
-export class OneForgeAdapter extends BaseExchangeAdapter implements ExchangeAdapter {
+export class OneforgeAdapter extends BaseExchangeAdapter implements ExchangeAdapter {
   baseApiUrl = 'https://api.1forge.com'
   readonly _exchangeName: Exchange = Exchange.ONEFORGE
   // Amazon RSA 2048 M02
   readonly _certFingerprint256 =
     'B0:F3:30:A3:1A:0C:50:98:7E:1C:3A:7B:B0:2C:2D:DA:68:29:91:D3:16:5B:51:7B:D4:4F:BA:4A:60:20:BD:94'
 
-  private static readonly tokenSymbolMap = OneForgeAdapter.standardTokenSymbolMap
+  private static readonly tokenSymbolMap = OneforgeAdapter.standardTokenSymbolMap
 
   // @XOF: I think I can replace this to be standardPairSymbol, see baseExchangeAdapter abstract class
   protected generatePairSymbol(): string {
-    const base = OneForgeAdapter.tokenSymbolMap.get(this.config.baseCurrency)
-    const quote = OneForgeAdapter.tokenSymbolMap.get(this.config.quoteCurrency)
+    const base = OneforgeAdapter.tokenSymbolMap.get(this.config.baseCurrency)
+    const quote = OneforgeAdapter.tokenSymbolMap.get(this.config.quoteCurrency)
 
     return `${base}/${quote}`
   }
 
   async fetchTicker(): Promise<Ticker> {
+    assert(this.config.apiKey !== undefined, '1Forge API key was not set')
+
     const tickerJson = await this.fetchFromApi(
       ExchangeDataType.TICKER,
       `quotes?pairs=${this.pairSymbol}&api_key=${this.config.apiKey}`
