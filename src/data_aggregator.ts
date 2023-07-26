@@ -184,7 +184,6 @@ export class DataAggregator {
 
   private setupPriceSources(): PriceSource[] {
     const baseAdapterConfig = {
-      apiKeys: this.config.apiKeys,
       apiRequestTimeout: this.config.apiRequestTimeout,
       baseLogger: this.config.baseLogger,
       metricCollector: this.config.metricCollector,
