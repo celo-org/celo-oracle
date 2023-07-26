@@ -52,12 +52,21 @@ export class XigniteAdapter extends BaseExchangeAdapter implements ExchangeAdapt
     }
   */
   parseTicker(json: any): Ticker {
+    assert(
+      json.BaseCurrency === this.config.baseCurrency, 
+      `Base currency mismatch in response: ${json.BaseCurrency} != ${this.config.baseCurrency}`
+    )
+    assert (
+      json.QuoteCurrency === this.config.quoteCurrency,
+      `Quote currency mismatch in response: ${json.QuoteCurrency} != ${this.config.quoteCurrency}`
+    )
+
     const ticker = {
       ...this.priceObjectMetadata,
       ask: this.safeBigNumberParse(json.Ask)!,
       bid: this.safeBigNumberParse(json.Bid)!,
       lastPrice: this.safeBigNumberParse(json.Mid)!,
-      timestamp: parseInt((Date.now() / 1000).toString()), // @XOF: Convert time and date in the response as a a unix timestamp
+      timestamp: 0, // @XOF: Convert time and date in the response as a a unix timestamp
       // These FX API's do not provide volume data,
       // therefore we set all of them to 1 to weight them equally
       baseVolume: new BigNumber(1),

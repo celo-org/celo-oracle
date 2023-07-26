@@ -48,7 +48,7 @@ export class OpenexchangeratesAdapter extends BaseExchangeAdapter implements Exc
       json.base === this.config.baseCurrency,
       `Base currency mismatch in response: ${json.base} != ${this.config.baseCurrency}`
     )
-    assert(json.rates[this.config.quoteCurrency] !== undefined, `Quote currency not found in response: ${json.rates}`)
+    assert(json.rates[this.config.quoteCurrency] !== undefined, `Quote currency not found inside of rates`)
 
     const rate = this.safeBigNumberParse(json.rates[this.config.quoteCurrency])!
     const timestamp = this.safeBigNumberParse(json.timestamp)?.toNumber()!

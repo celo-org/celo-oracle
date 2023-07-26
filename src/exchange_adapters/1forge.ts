@@ -44,9 +44,7 @@ export class OneforgeAdapter extends BaseExchangeAdapter implements ExchangeAdap
     ]
   */
   parseTicker(json: any): Ticker {
-    if (json.length !== 1) {
-      throw new Error(`Ticker response returned more than one object: ${json.length}`)
-    }
+    assert(json.length === 1, `Ticker response returned more than one object: ${json.length}`)
 
     const ticker = {
       ...this.priceObjectMetadata,
@@ -64,12 +62,7 @@ export class OneforgeAdapter extends BaseExchangeAdapter implements ExchangeAdap
   }
 
   async isOrderbookLive(): Promise<boolean> {
-    // @XOF: Check if calling this endpoint is enough.
-    const res = await this.fetchFromApi(
-      ExchangeDataType.ORDERBOOK_STATUS,
-      `market_status?&api_key=${this.config.apiKey}`
-    )
-    return res.market_is_open === true
-
+    // @XOF: TODO
+    return true;
   }
 }
