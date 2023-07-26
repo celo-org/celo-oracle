@@ -37,6 +37,7 @@ import { NovaDaxAdapter } from './exchange_adapters/novadax'
 import { OKCoinAdapter } from './exchange_adapters/okcoin'
 import { OKXAdapter } from './exchange_adapters/okx'
 import { OneforgeAdapter } from './exchange_adapters/1forge'
+import { OpenexchangeratesAdapter } from './exchange_adapters/openexchangerates'
 import { OracleApplicationConfig } from './app'
 import { WhitebitAdapter } from './exchange_adapters/whitebit'
 import { XigniteAdapter } from './exchange_adapters/xignite'
@@ -80,6 +81,8 @@ function adapterFromExchangeName(name: Exchange, config: ExchangeAdapterConfig):
       return new OneforgeAdapter(config)
     case Exchange.XIGNITE:
       return new XigniteAdapter(config)
+    case Exchange.OPENEXCHANGERATES:
+      return new OpenexchangeratesAdapter(config)
   }
 }
 
