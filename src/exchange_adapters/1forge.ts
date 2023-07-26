@@ -7,9 +7,8 @@ import { strict as assert } from 'assert'
 export class OneforgeAdapter extends BaseExchangeAdapter implements ExchangeAdapter {
   baseApiUrl = 'https://api.1forge.com'
   readonly _exchangeName: Exchange = Exchange.ONEFORGE
-  // Amazon RSA 2048 M02
   readonly _certFingerprint256 =
-    'B0:F3:30:A3:1A:0C:50:98:7E:1C:3A:7B:B0:2C:2D:DA:68:29:91:D3:16:5B:51:7B:D4:4F:BA:4A:60:20:BD:94'
+    'B2:D9:95:26:E0:8D:74:D5:01:DF:F8:B3:1B:7D:56:97:DF:C4:C8:A2:94:39:8E:F1:6B:D1:D3:D6:A5:B2:E0:EA'
 
   private static readonly tokenSymbolMap = OneforgeAdapter.standardTokenSymbolMap
 
