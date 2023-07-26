@@ -41,6 +41,7 @@ export enum Exchange {
   BITGET = 'BITGET',
   BITMART = 'BITMART',
   ONEFORGE = 'ONEFORGE',
+  XIGNITE = 'XIGNITE',
 }
 
 export enum ExternalCurrency {
