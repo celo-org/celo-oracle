@@ -62,6 +62,7 @@ export enum OracleCurrencyPair {
   CELOEUR = 'CELOEUR',
   CELOBTC = 'CELOBTC',
   CELOBRL = 'CELOBRL',
+  CELOXOF = 'CELOXOF',
   BTCEUR = 'BTCEUR',
   CELOUSDT = 'CELOUSDT',
   CELOBUSD = 'CELOBUSD',
@@ -84,8 +85,8 @@ export enum OracleCurrencyPair {
   BTCUSDC = 'BTCUSDC',
   EUROCEUR = 'EUROCEUR',
   EUROCUSDC = 'EUROCUSDC',
-  XOFUSD = 'XOFUSD',
   XOFEUR = 'XOFEUR',
+  USDXOF = 'USDXOF',
   USDEUR = 'USDEUR',
 }
 
@@ -103,6 +104,7 @@ export const CurrencyPairBaseQuote: Record<
   [OracleCurrencyPair.CELOBTC]: { base: CeloContract.GoldToken, quote: ExternalCurrency.BTC },
   [OracleCurrencyPair.CELOEUR]: { base: CeloContract.GoldToken, quote: ExternalCurrency.EUR },
   [OracleCurrencyPair.CELOBRL]: { base: CeloContract.GoldToken, quote: ExternalCurrency.BRL },
+  [OracleCurrencyPair.CELOXOF]: { base: CeloContract.GoldToken, quote: ExternalCurrency.XOF },
   [OracleCurrencyPair.BTCEUR]: { base: ExternalCurrency.BTC, quote: ExternalCurrency.EUR },
   [OracleCurrencyPair.CELOUSDT]: { base: CeloContract.GoldToken, quote: ExternalCurrency.USDT },
   [OracleCurrencyPair.CELOBUSD]: { base: CeloContract.GoldToken, quote: ExternalCurrency.BUSD },
@@ -125,8 +127,8 @@ export const CurrencyPairBaseQuote: Record<
   [OracleCurrencyPair.BTCUSDC]: { base: ExternalCurrency.BTC, quote: ExternalCurrency.USDC },
   [OracleCurrencyPair.EUROCEUR]: { base: ExternalCurrency.EUROC, quote: ExternalCurrency.EUR },
   [OracleCurrencyPair.EUROCUSDC]: { base: ExternalCurrency.EUROC, quote: ExternalCurrency.USDC },
-  [OracleCurrencyPair.XOFUSD]: { base: ExternalCurrency.XOF, quote: ExternalCurrency.USD },
   [OracleCurrencyPair.XOFEUR]: { base: ExternalCurrency.XOF, quote: ExternalCurrency.EUR },
+  [OracleCurrencyPair.USDXOF]: { base: ExternalCurrency.USD, quote: ExternalCurrency.XOF },
   [OracleCurrencyPair.USDEUR]: { base: ExternalCurrency.USD, quote: ExternalCurrency.EUR },
 }
 
