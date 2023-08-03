@@ -41,7 +41,10 @@ describe('OracleApplication', () => {
   const address = mockOracleAccount
   const aggregationMethod = AggregationMethod.MIDPRICES
   const aggregationWindowDuration = minutesToMs(6)
-  const apiKeys: Partial<Record<Exchange, string>> = {'BINANCE': 'mockBinanceApiKey', 'COINBASE': 'mockCoinbaseApiKey'}
+  const apiKeys: Partial<Record<Exchange, string>> = {
+    BINANCE: 'mockBinanceApiKey',
+    COINBASE: 'mockCoinbaseApiKey',
+  }
   const awsKeyRegion = 'eu-central-1'
   const azureKeyVaultName = mockAzureKeyVaultName
   const azureHsmInitMaxRetryBackoffMs = secondsToMs(30)

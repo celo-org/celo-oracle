@@ -24,45 +24,45 @@ describe('Alphavantage adapter', () => {
   })
 
   const validMockTickerJson = {
-    "Realtime Currency Exchange Rate": {
-        "1. From_Currency Code": "XOF",
-        "2. From_Currency Name": "CFA Franc BCEAO",
-        "3. To_Currency Code": "EUR",
-        "4. To_Currency Name": "Euro",
-        "5. Exchange Rate": "0.00152950",
-        "6. Last Refreshed": "2023-08-03 08:13:36",
-        "7. Time Zone": "UTC",
-        "8. Bid Price": "0.00152900",
-        "9. Ask Price": "0.00153000"
-    }
+    'Realtime Currency Exchange Rate': {
+      '1. From_Currency Code': 'XOF',
+      '2. From_Currency Name': 'CFA Franc BCEAO',
+      '3. To_Currency Code': 'EUR',
+      '4. To_Currency Name': 'Euro',
+      '5. Exchange Rate': '0.00152950',
+      '6. Last Refreshed': '2023-08-03 08:13:36',
+      '7. Time Zone': 'UTC',
+      '8. Bid Price': '0.00152900',
+      '9. Ask Price': '0.00153000',
+    },
   }
 
   const invalidJsonWithFromCurrencyMissmatch = {
     ...validMockTickerJson,
-    "Realtime Currency Exchange Rate": {
-      ...validMockTickerJson["Realtime Currency Exchange Rate"],
-      "1. From_Currency Code": "USD",
-    }
+    'Realtime Currency Exchange Rate': {
+      ...validMockTickerJson['Realtime Currency Exchange Rate'],
+      '1. From_Currency Code': 'USD',
+    },
   }
 
   const invalidJsonWithToCurrencyMissmatch = {
     ...validMockTickerJson,
-    "Realtime Currency Exchange Rate": {
-      ...validMockTickerJson["Realtime Currency Exchange Rate"],
-      "3. To_Currency Code": "USD",
-    }
+    'Realtime Currency Exchange Rate': {
+      ...validMockTickerJson['Realtime Currency Exchange Rate'],
+      '3. To_Currency Code': 'USD',
+    },
   }
 
   const invalidJsonWithMissingFields = {
-    "Realtime Currency Exchange Rate": {
-        "1. From_Currency Code": "XOF",
-        "2. From_Currency Name": "CFA Franc BCEAO",
-        "3. To_Currency Code": "EUR",
-        "4. To_Currency Name": "Euro",
-        "5. Exchange Rate": "0.00152950",
-        "6. Last Refreshed": "2023-08-03 08:13:36",
-        "7. Time Zone": "UTC",
-    }
+    'Realtime Currency Exchange Rate': {
+      '1. From_Currency Code': 'XOF',
+      '2. From_Currency Name': 'CFA Franc BCEAO',
+      '3. To_Currency Code': 'EUR',
+      '4. To_Currency Name': 'Euro',
+      '5. Exchange Rate': '0.00152950',
+      '6. Last Refreshed': '2023-08-03 08:13:36',
+      '7. Time Zone': 'UTC',
+    },
   }
 
   describe('parseTicker', () => {
@@ -72,9 +72,9 @@ describe('Alphavantage adapter', () => {
       expect(ticker).toEqual({
         source: Exchange.ALPHAVANTAGE,
         symbol: adapter.standardPairSymbol,
-        ask: new BigNumber(0.00153000),
-        bid: new BigNumber(0.00152900),
-        lastPrice: new BigNumber(0.00152950),
+        ask: new BigNumber(0.00153),
+        bid: new BigNumber(0.001529),
+        lastPrice: new BigNumber(0.0015295),
         timestamp: 1691050416,
         baseVolume: new BigNumber(1),
         quoteVolume: new BigNumber(1),

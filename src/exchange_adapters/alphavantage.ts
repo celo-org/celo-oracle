@@ -5,20 +5,20 @@ import { Exchange } from '../utils'
 import { strict as assert } from 'assert'
 
 enum ResponseKeys {
-  fromCurrency = "1. From_Currency Code",
-  toCurrency = "3. To_Currency Code",
-  rate = "5. Exchange Rate",
-  lastUpdated = "6. Last Refreshed",
-  bid = "8. Bid Price",
-  ask = "9. Ask Price",
+  fromCurrency = '1. From_Currency Code',
+  toCurrency = '3. To_Currency Code',
+  rate = '5. Exchange Rate',
+  lastUpdated = '6. Last Refreshed',
+  bid = '8. Bid Price',
+  ask = '9. Ask Price',
 }
 
 type ResponseData = {
-  [K in ResponseKeys]: string;
-};
+  [K in ResponseKeys]: string
+}
 
 interface Response {
-  "Realtime Currency Exchange Rate": ResponseData;
+  'Realtime Currency Exchange Rate': ResponseData
 }
 
 export class AlphavantageAdapter extends BaseExchangeAdapter implements ExchangeAdapter {
@@ -50,30 +50,30 @@ export class AlphavantageAdapter extends BaseExchangeAdapter implements Exchange
   /**
    *
    * @param json parsed response from Alphavantage's rate endpoint
-  {
-    "Realtime Currency Exchange Rate": {
-      "1. From_Currency Code": "XOF",
-      "2. From_Currency Name": "CFA Franc BCEAO",
-      "3. To_Currency Code": "EUR",
-      "4. To_Currency Name": "Euro",
-      "5. Exchange Rate": "0.00153000",
-      "6. Last Refreshed": "2023-08-03 07:41:09",
-      "7. Time Zone": "UTC",
-      "8. Bid Price": "0.00152900",
-      "9. Ask Price": "0.00153000"
-    }
-  }
-  */
+   *  {
+   *    "Realtime Currency Exchange Rate": {
+   *      "1. From_Currency Code": "XOF",
+   *      "2. From_Currency Name": "CFA Franc BCEAO",
+   *      "3. To_Currency Code": "EUR",
+   *      "4. To_Currency Name": "Euro",
+   *      "5. Exchange Rate": "0.00153000",
+   *      "6. Last Refreshed": "2023-08-03 07:41:09",
+   *      "7. Time Zone": "UTC",
+   *      "8. Bid Price": "0.00152900",
+   *      "9. Ask Price": "0.00153000"
+   *    }
+   *  }
+   */
   parseTicker(json: Response): Ticker {
     const response = json['Realtime Currency Exchange Rate']
 
     const from = response[ResponseKeys.fromCurrency]
     const to = response[ResponseKeys.toCurrency]
     assert(
-      from === this.config.baseCurrency, 
+      from === this.config.baseCurrency,
       `From currency mismatch in response: ${from} != ${this.config.baseCurrency}`
     )
-    assert (
+    assert(
       to === this.config.quoteCurrency,
       `To currency mismatch in response: ${to} != ${this.config.quoteCurrency}`
     )
@@ -103,7 +103,6 @@ export class AlphavantageAdapter extends BaseExchangeAdapter implements Exchange
 
     // month should be 0-indexed
     return Date.UTC(year, month - 1, day, hours, minutes, seconds) / 1000
-
   }
 
   async isOrderbookLive(): Promise<boolean> {
@@ -137,10 +136,7 @@ export class AlphavantageAdapter extends BaseExchangeAdapter implements Exchange
     const now = Date.now() / 1000
     const lastUpdated = ticker.timestamp // timestamp is already in seconds
 
-    assert (
-      now >= lastUpdated,
-      `Ticker timestamp is in the future: ${now} < ${lastUpdated}`
-    )
+    assert(now >= lastUpdated, `Ticker timestamp is in the future: ${now} < ${lastUpdated}`)
     return now - lastUpdated <= thirtyMinutesInSecs
   }
 }

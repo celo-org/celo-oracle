@@ -108,7 +108,7 @@ export interface DataAggregatorConfig {
   aggregationWindowDuration: number
   /**
    * A set of available API keys per exchange (for those that require one)
-  */
+   */
   apiKeys: Partial<Record<Exchange, string>>
   /**
    * Maximum number of milliseconds a single request is allowed to take. Any

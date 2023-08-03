@@ -33,7 +33,10 @@ describe('DataAggregator', () => {
   const apiRequestTimeout = secondsToMs(5)
   const metricCollector = new MetricCollector(baseLogger)
 
-  const apiKeys: Partial<Record<Exchange, string>> = {'BINANCE': 'mockBinanceApiKey', 'COINBASE': 'mockCoinbaseApiKey'}
+  const apiKeys: Partial<Record<Exchange, string>> = {
+    BINANCE: 'mockBinanceApiKey',
+    COINBASE: 'mockCoinbaseApiKey',
+  }
   let currencyPair = OracleCurrencyPair.CELOUSD
   let minPriceSourceCount = 1
   const minAggregatedVolume = new BigNumber(1000)

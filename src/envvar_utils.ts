@@ -221,16 +221,14 @@ const envVarHandlingMap = new Map<EnvVar, EnvVarHandling>([
         const exchanges = pairs.map((pair) => pair.split(':')[0])
         const keys = pairs.map((pair) => pair.split(':')[1])
 
-        return Object.fromEntries(
-          exchanges.map((exchange, index) => [exchange, keys[index]])
-        );
+        return Object.fromEntries(exchanges.map((exchange, index) => [exchange, keys[index]]))
       },
       validationFns: [
         (value: Partial<Record<Exchange, string>>) => {
           envVarValidations.allAreInSet(Object.keys(value), Object.values(Exchange))
-        }
-      ]
-    }
+        },
+      ],
+    },
   ],
   [
     EnvVar.API_REQUEST_TIMEOUT,

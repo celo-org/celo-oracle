@@ -61,7 +61,7 @@ export interface OracleApplicationConfig {
   address?: string
   /**
    * A set of available API keys per exchange (for those that require one)
-  */
+   */
   apiKeys: Partial<Record<Exchange, string>>
   /**
    * The name in code form of the AWS region the key is located in.

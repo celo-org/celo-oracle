@@ -46,7 +46,7 @@ describe('fetchParseValidateEnvVar()', () => {
   })
   it('correctly parses API_KEYS', () => {
     process.env[EnvVar.API_KEYS] = 'COINBASE:foo,BINANCE:bar'
-    expect(fetchParseValidateEnvVar(EnvVar.API_KEYS)).toEqual({COINBASE: 'foo', BINANCE: 'bar'})
+    expect(fetchParseValidateEnvVar(EnvVar.API_KEYS)).toEqual({ COINBASE: 'foo', BINANCE: 'bar' })
 
     process.env[EnvVar.API_KEYS] = 'invalidExchange:foo'
     expect(() => fetchParseValidateEnvVar(EnvVar.API_KEYS)).toThrow()
