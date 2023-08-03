@@ -59,7 +59,18 @@ export class OneforgeAdapter extends BaseExchangeAdapter implements ExchangeAdap
   }
 
   async isOrderbookLive(): Promise<boolean> {
-    // @XOF: TODO
-    return true;
+    /*
+      TODO: verify the behaviour of the ticker endpoit on the weekend.
+
+      The check below assumes that the timestamp returned will stale on
+      the weekend while the markets are closed.
+    */
+    const thirtyMinutesInSecs = 30 * 60
+    const ticker = await this.fetchTicker()
+
+    const now = Date.now() / 1000
+    const lastUpdated = ticker.timestamp / 1000 // timestamp returned is in milliseconds
+
+    return now - lastUpdated <= thirtyMinutesInSecs
   }
 }

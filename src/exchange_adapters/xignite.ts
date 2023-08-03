@@ -64,7 +64,7 @@ export class XigniteAdapter extends BaseExchangeAdapter implements ExchangeAdapt
       ask: this.safeBigNumberParse(json.Ask)!,
       bid: this.safeBigNumberParse(json.Bid)!,
       lastPrice: this.safeBigNumberParse(json.Mid)!,
-      timestamp: 0, // @XOF: Convert time and date in the response as a a unix timestamp
+      timestamp: this.toUnixTimestamp(json.Date, json.Time),
       // These FX API's do not provide volume data,
       // therefore we set all of them to 1 to weight them equally
       baseVolume: new BigNumber(1),
@@ -74,10 +74,31 @@ export class XigniteAdapter extends BaseExchangeAdapter implements ExchangeAdapt
     return ticker
   }
 
+  toUnixTimestamp(date: string, time: string): number {
+    const [month, day, year] = date.split('/').map(Number) // date format: MM/DD/YYYY
+    let [hours, minutes, seconds] = time.split(' ')[0].split(':').map(Number) // time format: HH:MM:SS AM/PM
+
+    if (time.includes('PM') && hours !== 12) hours += 12
+    if (time.includes('AM') && hours === 12) hours = 0
+
+    // month should be 0-indexed
+    return Date.UTC(year, month - 1, day, hours, minutes, seconds) / 1000
+
+  }
+
   async isOrderbookLive(): Promise<boolean> {
-    // @XOF: update this later on
-    // Current idea would be to call fetch ticker and check how recent is the timestamp,
-    // but for that I need to check how the API behaves on the weekends
-    return true;
+    /*
+      TODO: verify the behaviour of the ticker endpoit on the weekend.
+
+      The check below assumes that the timestamp returned will stale on
+      the weekend while the markets are closed.
+    */
+      const thirtyMinutesInSecs = 30 * 60
+      const ticker = await this.fetchTicker()
+  
+      const now = Date.now() / 1000
+      const lastUpdated = ticker.timestamp // timestamp is in seconds
+  
+      return now - lastUpdated <= thirtyMinutesInSecs
   }
 }
