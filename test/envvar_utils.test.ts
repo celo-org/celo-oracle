@@ -1,6 +1,7 @@
-import BigNumber from 'bignumber.js'
 import { EnvVar, fetchParseValidateEnvVar } from '../src/envvar_utils'
+
 import { AggregationMethod } from '../src/utils'
+import BigNumber from 'bignumber.js'
 
 describe('fetchParseValidateEnvVar()', () => {
   const env = { ...process.env }
@@ -42,6 +43,13 @@ describe('fetchParseValidateEnvVar()', () => {
     expect(fetchParseValidateEnvVar(EnvVar.CURRENCY_PAIR)).toEqual('CELOUSD')
     process.env[EnvVar.CURRENCY_PAIR] = 'CELOBTC'
     expect(fetchParseValidateEnvVar(EnvVar.CURRENCY_PAIR)).toEqual('CELOBTC')
+  })
+  it('correctly parses API_KEYS', () => {
+    process.env[EnvVar.API_KEYS] = 'COINBASE:foo,BINANCE:bar'
+    expect(fetchParseValidateEnvVar(EnvVar.API_KEYS)).toEqual({COINBASE: 'foo', BINANCE: 'bar'})
+
+    process.env[EnvVar.API_KEYS] = 'invalidExchange:foo'
+    expect(() => fetchParseValidateEnvVar(EnvVar.API_KEYS)).toThrow()
   })
   it('parses aggregation method correctly', () => {
     process.env[EnvVar.AGGREGATION_METHOD] = 'Midprices'

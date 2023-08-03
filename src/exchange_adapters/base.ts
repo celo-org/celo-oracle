@@ -63,6 +63,10 @@ export interface ExchangeAdapter {
 }
 
 export interface ExchangeAdapterConfig {
+  /*
+    API key for the exchange (if required)
+  */
+  apiKey?: string
   apiRequestTimeout?: number
   /** The currency to get the price of */
   baseCurrency: Currency
@@ -139,6 +143,7 @@ export abstract class BaseExchangeAdapter {
     [ExternalCurrency.BUSD, 'BUSD'],
     [ExternalCurrency.USDC, 'USDC'],
     [ExternalCurrency.EUROC, 'EUROC'],
+    [ExternalCurrency.XOF, 'XOF'],
   ])
 
   protected readonly logger: Logger

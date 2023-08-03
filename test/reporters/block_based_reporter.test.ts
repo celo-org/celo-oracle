@@ -1,17 +1,18 @@
-import { CeloContract, newKit } from '@celo/contractkit'
-import { SortedOraclesWrapper } from '@celo/contractkit/lib/wrappers/SortedOracles'
-// This is a fix for incompatible bignumber versions
-import { BigNumber as CKBigNumber } from '@celo/contractkit/node_modules/bignumber.js'
-import { BigNumber } from 'bignumber.js'
-import { BlockHeader } from 'web3-eth'
-import { DataAggregator } from '../../src/data_aggregator'
-import { baseLogger, defaultDataAggregatorConfig } from '../../src/default_config'
-import { BlockType, MetricCollector, ReportTrigger } from '../../src/metric_collector'
 import {
   BlockBasedReporter,
   BlockBasedReporterConfig,
 } from '../../src/reporters/block_based_reporter'
-import { minutesToMs, msToSeconds, OracleCurrencyPair, secondsToMs } from '../../src/utils'
+import { BlockType, MetricCollector, ReportTrigger } from '../../src/metric_collector'
+import { CeloContract, newKit } from '@celo/contractkit'
+import { OracleCurrencyPair, minutesToMs, msToSeconds, secondsToMs } from '../../src/utils'
+import { baseLogger, defaultDataAggregatorConfig } from '../../src/default_config'
+
+import { BigNumber } from 'bignumber.js'
+import { BlockHeader } from 'web3-eth'
+// This is a fix for incompatible bignumber versions
+import { BigNumber as CKBigNumber } from '@celo/contractkit/node_modules/bignumber.js'
+import { DataAggregator } from '../../src/data_aggregator'
+import { SortedOraclesWrapper } from '@celo/contractkit/lib/wrappers/SortedOracles'
 
 jest.mock('@celo/contractkit')
 jest.mock('../../src/metric_collector')
@@ -83,6 +84,7 @@ describe('Reporter', () => {
   beforeEach(() => {
     const dataAggregatorCfg = {
       ...defaultDataAggregatorConfig,
+      apiKeys: {},
       currencyPair: OracleCurrencyPair.CELOUSD,
     }
     dataAggregator = new DataAggregator(dataAggregatorCfg)
