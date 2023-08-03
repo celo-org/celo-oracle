@@ -135,7 +135,7 @@ describe('OracleApplication', () => {
   it('set up a data aggregator with the appropriate, passed-through config', () => {
     expect(DataAggregator).toHaveBeenCalledWith({
       ...dataAggregatorConfig,
-      apiKeys: apiKeys,
+      apiKeys,
       currencyPair: 'CELOUSD',
       metricCollector: oracleApplication.metricCollector,
     })

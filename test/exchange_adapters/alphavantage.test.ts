@@ -111,7 +111,7 @@ describe('Alphavantage adapter', () => {
   })
 
   describe('isOrderbookLive', () => {
-    let adapter2 = new AlphavantageAdapter(config)
+    const adapter2 = new AlphavantageAdapter(config)
     const mockTime = 1691050416 // 2023-08-03 08:13:36 as in the mock ticker
 
     it('returns true when the ticker is not older than 30 minutes', async () => {
