@@ -1,6 +1,6 @@
 {
   "name": "celo-oracle",
-  "version": "1.0.4",
+  "version": "1.0.4-p1",
   "description": "Oracle application to aggregate and report exchange rates to the Celo network",
   "author": "Celo",
   "license": "Apache-2.0",
@@ -18,13 +18,16 @@
     "prettify:diff": "yarn run prettier --config .prettierrc.js --list-different '**/*.+(ts|tsx|js|jsx|sol|java)'"
   },
   "dependencies": {
+    "@azure/identity": "^3.2.4",
+    "@azure/keyvault-keys": "^4.7.1",
+    "@azure/keyvault-secrets": "^4.7.0",
     "@celo/connect": "1.5.2",
     "@celo/contractkit": "1.5.2",
     "@celo/utils": "1.5.2",
     "@celo/wallet-hsm-aws": "1.5.2",
-    "@celo/wallet-hsm-azure": "1.5.2",
     "bignumber.js": "^8.1.1",
     "bunyan": "1.8.15",
+    "dotenv": "^16.3.1",
     "express": "^4.17.1",
     "js-yaml": "^3.13.1",
     "mathjs": "^7.5.1",

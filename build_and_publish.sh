@@ -26,8 +26,8 @@ if [[ $BUILD_ENV != "production" && $BUILD_ENV != "staging" ]]; then
   exit 1
 fi
 
-echo "Building version $VERSION"
-docker buildx build --platform linux/amd64 -t $PACKAGE_NAME .
+# echo "Building version $VERSION"
+# docker buildx build --platform linux/amd64 -t $PACKAGE_NAME .
 
 echo "Tagging and pushing"
 docker tag $PACKAGE_NAME $REPOSITORY/$PACKAGE_NAME:$COMMIT_HASH

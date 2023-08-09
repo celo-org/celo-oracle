@@ -20,7 +20,7 @@ import {
   WalletType,
 } from '../src/utils'
 jest.mock('@celo/contractkit')
-jest.mock('@celo/wallet-hsm-azure')
+jest.mock('../src/wallet-hsm-azure')
 jest.mock('../src/metric_collector')
 
 const mockPrivateKeyPath = '/foo/bar/barfoo'
