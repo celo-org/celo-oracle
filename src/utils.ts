@@ -93,6 +93,7 @@ export const CoreCurrencyPair: OracleCurrencyPair[] = [
   OracleCurrencyPair.CELOEUR,
   OracleCurrencyPair.CELOUSD,
   OracleCurrencyPair.CELOBRL,
+  OracleCurrencyPair.CELOXOF,
 ]
 
 export const CurrencyPairBaseQuote: Record<
@@ -168,6 +169,8 @@ export async function reportTargetForCurrencyPair(
   } else if (pair === OracleCurrencyPair.CELOBRL) {
     // Workaround until StableTokenBRL makes it fully to ContractKit.
     return kit.registry.addressFor('StableTokenBRL' as CeloContract)
+  } else if (pair === OracleCurrencyPair.CELOXOF) {
+    return kit.registry.addressFor('StableTokenXOF' as CeloContract)
   } else {
     throw new Error(`${pair} can not be converted to a ReportTarget`)
   }
