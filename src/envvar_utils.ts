@@ -216,12 +216,9 @@ const envVarHandlingMap = new Map<EnvVar, EnvVarHandling>([
   [
     EnvVar.API_KEYS,
     {
+      // COINBASE:foo,BINANCE:bar
       parseFn: (unparsed: string): Partial<Record<Exchange, string>> => {
-        const pairs = unparsed.split(',')
-        const exchanges = pairs.map((pair) => pair.split(':')[0])
-        const keys = pairs.map((pair) => pair.split(':')[1])
-
-        return Object.fromEntries(exchanges.map((exchange, index) => [exchange, keys[index]]))
+        return Object.fromEntries(unparsed.split(',').map(pair => pair.split(':')));
       },
       validationFns: [
         (value: Partial<Record<Exchange, string>>) => {

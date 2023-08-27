@@ -44,9 +44,12 @@ describe('fetchParseValidateEnvVar()', () => {
     process.env[EnvVar.CURRENCY_PAIR] = 'CELOBTC'
     expect(fetchParseValidateEnvVar(EnvVar.CURRENCY_PAIR)).toEqual('CELOBTC')
   })
-  it('correctly parses API_KEYS', () => {
+  it('correctly handles API_KEYS', () => {
     process.env[EnvVar.API_KEYS] = 'COINBASE:foo,BINANCE:bar'
     expect(fetchParseValidateEnvVar(EnvVar.API_KEYS)).toEqual({ COINBASE: 'foo', BINANCE: 'bar' })
+
+    process.env[EnvVar.API_KEYS] = 'BITSTAMP:foo'
+    expect(fetchParseValidateEnvVar(EnvVar.API_KEYS)).toEqual({ BITSTAMP: 'foo'})
 
     process.env[EnvVar.API_KEYS] = 'invalidExchange:foo'
     expect(() => fetchParseValidateEnvVar(EnvVar.API_KEYS)).toThrow()
