@@ -85,7 +85,7 @@ export enum OracleCurrencyPair {
   BTCUSDC = 'BTCUSDC',
   EUROCEUR = 'EUROCEUR',
   EUROCUSDC = 'EUROCUSDC',
-  XOFEUR = 'XOFEUR',
+  EURXOF = 'EURXOF',
   USDXOF = 'USDXOF',
 }
 
@@ -127,7 +127,7 @@ export const CurrencyPairBaseQuote: Record<
   [OracleCurrencyPair.BTCUSDC]: { base: ExternalCurrency.BTC, quote: ExternalCurrency.USDC },
   [OracleCurrencyPair.EUROCEUR]: { base: ExternalCurrency.EUROC, quote: ExternalCurrency.EUR },
   [OracleCurrencyPair.EUROCUSDC]: { base: ExternalCurrency.EUROC, quote: ExternalCurrency.USDC },
-  [OracleCurrencyPair.XOFEUR]: { base: ExternalCurrency.XOF, quote: ExternalCurrency.EUR },
+  [OracleCurrencyPair.EURXOF]: { base: ExternalCurrency.EUR, quote: ExternalCurrency.XOF },
   [OracleCurrencyPair.USDXOF]: { base: ExternalCurrency.USD, quote: ExternalCurrency.XOF },
 }
 
