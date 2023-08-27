@@ -9,6 +9,7 @@ enum ResponseKeys {
   toCurrency = '3. To_Currency Code',
   rate = '5. Exchange Rate',
   lastUpdated = '6. Last Refreshed',
+  timezone = '7. Time Zone',
   bid = '8. Bid Price',
   ask = '9. Ask Price',
 }
@@ -78,12 +79,18 @@ export class AlphavantageAdapter extends BaseExchangeAdapter implements Exchange
       `To currency mismatch in response: ${to} != ${this.config.quoteCurrency}`
     )
 
+    assert (
+      response[ResponseKeys.timezone] === 'UTC',
+      `Timezone mismatch in response: ${response[ResponseKeys.timezone]} != UTC`
+    )
+    const dateString = `${response[ResponseKeys.lastUpdated]} UTC`
+
     const ticker = {
       ...this.priceObjectMetadata,
       ask: this.safeBigNumberParse(response[ResponseKeys.ask])!,
       bid: this.safeBigNumberParse(response[ResponseKeys.bid])!,
       lastPrice: this.safeBigNumberParse(response[ResponseKeys.rate])!,
-      timestamp: this.toUnixTimestamp(response[ResponseKeys.lastUpdated]),
+      timestamp: this.safeDateParse(dateString)! / 1000,
       // These FX API's do not provide volume data,
       // therefore we set all of them to 1 to weight them equally
       baseVolume: new BigNumber(1),
@@ -91,18 +98,6 @@ export class AlphavantageAdapter extends BaseExchangeAdapter implements Exchange
     }
     this.verifyTicker(ticker)
     return ticker
-  }
-
-  toUnixTimestamp(datetime: string): number {
-    // datetime format: YYYY-MM-DD HH:MM:SS
-    const date = datetime.split(' ')[0]
-    const time = datetime.split(' ')[1]
-
-    const [year, month, day] = date.split('-').map(Number)
-    const [hours, minutes, seconds] = time.split(':').map(Number)
-
-    // month should be 0-indexed
-    return Date.UTC(year, month - 1, day, hours, minutes, seconds) / 1000
   }
 
   async isOrderbookLive(): Promise<boolean> {

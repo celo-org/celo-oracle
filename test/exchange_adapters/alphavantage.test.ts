@@ -53,6 +53,14 @@ describe('Alphavantage adapter', () => {
     },
   }
 
+  const invalidJsonWithNonUtcTimezone = {
+    ...validMockTickerJson,
+    'Realtime Currency Exchange Rate': {
+      ...validMockTickerJson['Realtime Currency Exchange Rate'],
+      '7. Time Zone': 'CET',
+    },
+  }
+
   const invalidJsonWithMissingFields = {
     'Realtime Currency Exchange Rate': {
       '1. From_Currency Code': 'XOF',
@@ -93,20 +101,16 @@ describe('Alphavantage adapter', () => {
       }).toThrowError('To currency mismatch in response: USD != EUR')
     })
 
+    it('throws an error when the timezone is non UTC', () => {
+      expect(() => {
+        adapter.parseTicker(invalidJsonWithNonUtcTimezone)
+      }).toThrowError('Timezone mismatch in response: CET != UTC')
+    })
+
     it('throws an error when some required fields are missing', () => {
       expect(() => {
         adapter.parseTicker(invalidJsonWithMissingFields as any)
       }).toThrowError('bid, ask not defined')
-    })
-  })
-
-  describe('toUnixTimestamp', () => {
-    it('parses datetime strings correctly', () => {
-      expect(adapter.toUnixTimestamp('2023-07-26 10:00:00')).toEqual(1690365600)
-      expect(adapter.toUnixTimestamp('2023-01-01 4:29:03')).toEqual(1672547343)
-      expect(adapter.toUnixTimestamp('2023-03-15 16:53:27')).toEqual(1678899207)
-      expect(adapter.toUnixTimestamp('2023-07-20 12:53:15')).toEqual(1689857595)
-      expect(adapter.toUnixTimestamp('2023-07-20 00:53:15')).toEqual(1689814395)
     })
   })
 
