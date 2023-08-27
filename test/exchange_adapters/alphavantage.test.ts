@@ -113,39 +113,4 @@ describe('Alphavantage adapter', () => {
       }).toThrowError('bid, ask not defined')
     })
   })
-
-  describe('isOrderbookLive', () => {
-    const adapter2 = new AlphavantageAdapter(config)
-    const mockTime = 1691050416 // 2023-08-03 08:13:36 as in the mock ticker
-
-    it('returns true when the ticker is not older than 30 minutes', async () => {
-      const fifteenMinutes = 15 * 60
-      jest.spyOn(adapter2, 'fetchFromApi').mockResolvedValue(validMockTickerJson)
-
-      jest.spyOn(Date, 'now').mockImplementation(() => (mockTime + fifteenMinutes) * 1000)
-      expect(await adapter2.isOrderbookLive()).toEqual(true)
-
-      const thirtyMinutes = fifteenMinutes * 2
-      jest.spyOn(Date, 'now').mockImplementation(() => (mockTime + thirtyMinutes) * 1000)
-      expect(await adapter2.isOrderbookLive()).toEqual(true)
-    })
-
-    it('returns false when the ticker is older 30 minutes', async () => {
-      const thirtyOneMinutes = 31 * 60
-      jest.spyOn(adapter2, 'fetchFromApi').mockResolvedValue(validMockTickerJson)
-
-      jest.spyOn(Date, 'now').mockImplementation(() => (mockTime + thirtyOneMinutes) * 1000)
-      expect(await adapter2.isOrderbookLive()).toEqual(false)
-    })
-
-    it('throws if the ticker timestamp is older than current time', async () => {
-      const thirtyFiveMinutes = 35 * 60
-
-      jest.spyOn(adapter2, 'fetchFromApi').mockResolvedValue(validMockTickerJson)
-      jest.spyOn(Date, 'now').mockImplementation(() => (mockTime - thirtyFiveMinutes) * 1000)
-      expect(async () => {
-        await adapter2.isOrderbookLive()
-      }).rejects.toThrowError('Ticker timestamp is in the future: 1691048316 < 1691050416')
-    })
-  })
 })

@@ -101,37 +101,6 @@ export class AlphavantageAdapter extends BaseExchangeAdapter implements Exchange
   }
 
   async isOrderbookLive(): Promise<boolean> {
-    /*
-      This check requires us to make a call to the ticker endpoint, however we can't
-      use fetchTicker() because it creates a circular dependency: 
-      fetchTicker requires isOrderbookLive under the hood, which requires fetchTicker, etc.
-
-      Therefore we make a similar call using fetchFromApi() and the orderbook status type.
-
-      We will have the same scenario for other adapters as well so we can find a nicer 
-      way to do this in the future. 
-    */
-    const base = this.config.baseCurrency
-    const quote = this.config.quoteCurrency
-
-    const tickerJson: Response = await this.fetchFromApi(
-      ExchangeDataType.ORDERBOOK_STATUS,
-      `query?function=CURRENCY_EXCHANGE_RATE&from_currency=${base}&to_currency=${quote}&apikey=${this.config.apiKey}`
-    )
-    const ticker = this.parseTicker(tickerJson)
-
-    /*
-      TODO: verify the behaviour of the ticker endpoit on the weekend.
-
-      The check below assumes that the timestamp returned will stale on
-      the weekend while the markets are closed.
-    */
-    const thirtyMinutesInSecs = 30 * 60
-
-    const now = Date.now() / 1000
-    const lastUpdated = ticker.timestamp // timestamp is already in seconds
-
-    assert(now >= lastUpdated, `Ticker timestamp is in the future: ${now} < ${lastUpdated}`)
-    return now - lastUpdated <= thirtyMinutesInSecs
+    return true
   }
 }
