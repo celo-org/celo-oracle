@@ -6,7 +6,7 @@ export class BitstampAdapter extends BaseExchangeAdapter implements ExchangeAdap
   baseApiUrl = 'https://www.bitstamp.net/api/v2'
   readonly _exchangeName = Exchange.BITSTAMP
   readonly _certFingerprint256 =
-    '40:3E:06:2A:26:53:05:91:13:28:5B:AF:80:A0:D4:AE:42:2C:84:8C:9F:78:FA:D0:1F:C9:4B:C5:B8:7F:EF:1A'
+    'B2:FC:1C:C5:2A:4A:B4:B0:26:4E:C4:32:B8:F4:F0:34:87:66:2B:FD:CE:A0:35:47:0D:F1:0B:1B:97:68:2B:1A'
 
   private static readonly tokenSymbolMap = BitstampAdapter.standardTokenSymbolMap
 
