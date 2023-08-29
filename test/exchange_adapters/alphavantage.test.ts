@@ -85,7 +85,7 @@ describe('Alphavantage adapter', () => {
         lastPrice: new BigNumber(0.0015295),
         timestamp: 1691050416,
         baseVolume: new BigNumber(1),
-        quoteVolume: new BigNumber(1),
+        quoteVolume: new BigNumber(0.0015295),
       })
     })
 
