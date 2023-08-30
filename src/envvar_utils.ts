@@ -70,6 +70,7 @@ interface OrientedExchangePairConfig {
   exchange: string
   symbol: string
   toInvert: boolean
+  ignoreVolume?: boolean
 }
 
 type PriceSourceConfig = OrientedExchangePairConfig[]
@@ -83,10 +84,15 @@ function parseOrientedExchangePair(config: OrientedExchangePairConfig): Oriented
   assertPropertyType(config, 'exchange', 'string')
   assertPropertyType(config, 'symbol', 'string')
   assertPropertyType(config, 'toInvert', 'boolean')
+  if (config.ignoreVolume !== undefined) {
+    assertPropertyType(config, 'ignoreVolume', 'boolean')
+  }
+
   return {
     exchange: Exchange[config.exchange as keyof typeof Exchange],
     symbol: OracleCurrencyPair[config.symbol as keyof typeof OracleCurrencyPair],
     toInvert: config.toInvert,
+    ignoreVolume: config.ignoreVolume ?? false,
   }
 }
 

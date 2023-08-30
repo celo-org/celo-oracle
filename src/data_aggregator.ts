@@ -92,6 +92,7 @@ function priceSourceFromConfig(
     (pair: OrientedExchangePair): OrientedAdapter => ({
       adapter: adapterFactory(pair.exchange, pair.symbol),
       toInvert: pair.toInvert,
+      ignoreVolume: pair.ignoreVolume,
     })
   )
   return new ExchangePriceSource(adapters, maxPercentageBidAskSpread, metricCollector)

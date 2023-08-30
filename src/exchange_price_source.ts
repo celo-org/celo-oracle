@@ -1,7 +1,8 @@
-import { ExchangeAdapter, Ticker } from './exchange_adapters/base'
-import BigNumber from 'bignumber.js'
-import { PriceSource, WeightedPrice } from './price_source'
 import { Exchange, OracleCurrencyPair } from './utils'
+import { ExchangeAdapter, Ticker } from './exchange_adapters/base'
+import { PriceSource, WeightedPrice } from './price_source'
+
+import BigNumber from 'bignumber.js'
 import { MetricCollector } from './metric_collector'
 import { individualTickerChecks } from './aggregator_functions'
 
@@ -9,6 +10,7 @@ export interface OrientedExchangePair {
   exchange: Exchange
   symbol: OracleCurrencyPair
   toInvert: boolean
+  ignoreVolume: boolean
 }
 
 export interface ExchangePriceSourceConfig {
@@ -18,6 +20,7 @@ export interface ExchangePriceSourceConfig {
 export type OrientedAdapter = {
   adapter: ExchangeAdapter
   toInvert: boolean
+  ignoreVolume: boolean
 }
 
 export type PairData = {
@@ -25,6 +28,7 @@ export type PairData = {
   ask: BigNumber
   baseVolume: BigNumber
   quoteVolume: BigNumber
+  ignoreVolume?: boolean
 }
 
 function invertPair(pair: PairData): PairData {
@@ -33,6 +37,7 @@ function invertPair(pair: PairData): PairData {
     ask: pair.bid.exponentiatedBy(-1),
     baseVolume: pair.quoteVolume,
     quoteVolume: pair.baseVolume,
+    ignoreVolume: pair.ignoreVolume,
   }
 }
 
@@ -62,7 +67,10 @@ async function fetchPairData(
     metricCollector.ticker(ticker)
   }
 
-  const pair = tickerToPairData(ticker)
+  const pair = {
+    ...tickerToPairData(ticker),
+    ignoreVolume: orientedAdapter.ignoreVolume,
+  }
   return toInvert ? invertPair(pair) : pair
 }
 
@@ -113,8 +121,12 @@ export function impliedPair(pairs: PairData[]): PairData {
 
   const bid = bids.reduce((a, b) => a.multipliedBy(b), new BigNumber(1))
   const ask = asks.reduce((a, b) => a.multipliedBy(b), new BigNumber(1))
-  const baseVolume = BigNumber.min(...baseVolumes)
-  const quoteVolume = BigNumber.min(...quoteVolumes)
+
+  // Pairs configured with ignoreVolume=true are FX rates data which
+  // do not have a notion of volume, therefore we exclude them
+  const baseVolume = BigNumber.min(...baseVolumes.filter((_, i) => !pairs[i].ignoreVolume))
+  const quoteVolume = BigNumber.min(...quoteVolumes.filter((_, i) => !pairs[i].ignoreVolume))
+
   return { bid, ask, baseVolume, quoteVolume }
 }
 

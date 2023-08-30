@@ -119,9 +119,9 @@ describe('impliedPair()', () => {
     })
   })
 
-  describe('middle pair constraining', () => {
+  describe('volume constraints', () => {
     const pairs: PairData[] = [testPair3, testPair1, testPair2]
-    it('calculates implied pair', () => {
+    it('correctly caps the volume of the implied pair to the smallest overall', () => {
       const implied = impliedPair(pairs)
       expect(implied).toEqual({
         bid: new BigNumber(20.0),
@@ -129,6 +129,50 @@ describe('impliedPair()', () => {
         baseVolume: new BigNumber(10),
         quoteVolume: new BigNumber(10),
       })
+    })
+
+    it('correctly caps the volume of the implied pair to the smallest with ignoreVolume=false', () => {
+      const pairs: PairData[] = [testPair3, {...testPair1, ignoreVolume: true}, testPair2]
+      const implied = impliedPair(pairs)
+      expect(implied).toEqual({
+        bid: new BigNumber(20.0),
+        ask: new BigNumber(30.03),
+        baseVolume: new BigNumber(100),
+        quoteVolume: new BigNumber(100),
+      })
+    })
+
+    it('ignores volume data from pairs with ignoreVolume=true', () => {
+      const p1: PairData = {
+        bid: new BigNumber(0.00001638),
+        ask: new BigNumber(0.00001642),
+        baseVolume: new BigNumber(11520.69),
+        quoteVolume: new BigNumber(0.1881328677),
+      }
+      const p2: PairData = {
+        bid: new BigNumber(25236.28),
+        ask: new BigNumber(25236.29),
+        baseVolume: new BigNumber(990.60368),
+        quoteVolume: new BigNumber(24999151.8375104),
+      }
+      const p3: PairData = {
+        bid: new BigNumber(1.088705),
+        ask: new BigNumber(1.088785),
+        baseVolume: new BigNumber(1),
+        quoteVolume: new BigNumber(1.08874),
+        ignoreVolume: true,
+      }
+
+      const implied = impliedPair([p1, p2, p3])
+      expect(implied.bid).toEqual(new BigNumber(0.450038275881012))
+      expect(implied.ask).toEqual(new BigNumber(0.451170599605613))
+
+      // base volumes after conversion
+      //[11520.69, 60661584.8132271892222902590969984, 2.4265457167313368034292711109654493463624]
+      // quote volumes after conversion
+      // [5169.09116696800504344, 27217576.571571072896, 1.08874]
+      expect(implied.baseVolume).toEqual(new BigNumber(11520.69))
+      expect(implied.quoteVolume.precision(9)).toEqual(new BigNumber(5169.09117))
     })
   })
 })
@@ -138,7 +182,7 @@ describe('ExchangePriceSource', () => {
 
   function sourceFromTickers(tickers: Ticker[]): ExchangePriceSource {
     const adapters = tickers.map(
-      (ticker: Ticker): OrientedAdapter => ({ adapter: new MockAdapter(ticker), toInvert: false })
+      (ticker: Ticker): OrientedAdapter => ({ adapter: new MockAdapter(ticker), toInvert: false, ignoreVolume: false })
     )
     return new ExchangePriceSource(adapters, new BigNumber(0.2), metricCollector)
   }
