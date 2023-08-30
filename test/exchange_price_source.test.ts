@@ -120,8 +120,8 @@ describe('impliedPair()', () => {
   })
 
   describe('volume constraints', () => {
-    const pairs: PairData[] = [testPair3, testPair1, testPair2]
     it('correctly caps the volume of the implied pair to the smallest overall', () => {
+      const pairs: PairData[] = [testPair3, testPair1, testPair2]
       const implied = impliedPair(pairs)
       expect(implied).toEqual({
         bid: new BigNumber(20.0),
@@ -132,7 +132,7 @@ describe('impliedPair()', () => {
     })
 
     it('correctly caps the volume of the implied pair to the smallest with ignoreVolume=false', () => {
-      const pairs: PairData[] = [testPair3, {...testPair1, ignoreVolume: true}, testPair2]
+      const pairs: PairData[] = [testPair3, { ...testPair1, ignoreVolume: true }, testPair2]
       const implied = impliedPair(pairs)
       expect(implied).toEqual({
         bid: new BigNumber(20.0),
@@ -168,7 +168,7 @@ describe('impliedPair()', () => {
       expect(implied.ask).toEqual(new BigNumber(0.451170599605613))
 
       // base volumes after conversion
-      //[11520.69, 60661584.8132271892222902590969984, 2.4265457167313368034292711109654493463624]
+      // [11520.69, 60661584.8132271892222902590969984, 2.4265457167313368034292711109654493463624]
       // quote volumes after conversion
       // [5169.09116696800504344, 27217576.571571072896, 1.08874]
       expect(implied.baseVolume).toEqual(new BigNumber(11520.69))
@@ -182,7 +182,11 @@ describe('ExchangePriceSource', () => {
 
   function sourceFromTickers(tickers: Ticker[]): ExchangePriceSource {
     const adapters = tickers.map(
-      (ticker: Ticker): OrientedAdapter => ({ adapter: new MockAdapter(ticker), toInvert: false, ignoreVolume: false })
+      (ticker: Ticker): OrientedAdapter => ({
+        adapter: new MockAdapter(ticker),
+        toInvert: false,
+        ignoreVolume: false,
+      })
     )
     return new ExchangePriceSource(adapters, new BigNumber(0.2), metricCollector)
   }

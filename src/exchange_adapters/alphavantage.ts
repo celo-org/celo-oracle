@@ -80,7 +80,7 @@ export class AlphavantageAdapter extends BaseExchangeAdapter implements Exchange
       `To currency mismatch in response: ${to} != ${this.config.quoteCurrency}`
     )
 
-    assert (
+    assert(
       response[ResponseKeys.timezone] === 'UTC',
       `Timezone mismatch in response: ${response[ResponseKeys.timezone]} != UTC`
     )
@@ -90,7 +90,7 @@ export class AlphavantageAdapter extends BaseExchangeAdapter implements Exchange
       ...this.priceObjectMetadata,
       ask: this.safeBigNumberParse(response[ResponseKeys.ask])!,
       bid: this.safeBigNumberParse(response[ResponseKeys.bid])!,
-      lastPrice: lastPrice,
+      lastPrice,
       timestamp: this.safeDateParse(dateString)! / 1000,
       // These FX API's do not provide volume data,
       // therefore we set all of them to 1 to weight them equally.
