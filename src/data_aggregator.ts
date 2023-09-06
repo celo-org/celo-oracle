@@ -1,6 +1,6 @@
-import Logger from 'bunyan'
-import BigNumber from 'bignumber.js'
 import { strict as assert } from 'assert'
+import BigNumber from 'bignumber.js'
+import Logger from 'bunyan'
 
 import * as aggregators from './aggregator_functions'
 
