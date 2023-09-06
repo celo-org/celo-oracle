@@ -1,13 +1,15 @@
-import { CeloContract, newKit } from '@celo/contractkit'
-import { GasPriceMinimumWrapper } from '@celo/contractkit/lib/wrappers/GasPriceMinimum'
-import { ReportTarget, SortedOraclesWrapper } from '@celo/contractkit/lib/wrappers/SortedOracles'
-import { BigNumber as CKBigNumber } from '@celo/contractkit/node_modules/bignumber.js'
-import BigNumber from 'bignumber.js'
-import { DataAggregator } from '../../src/data_aggregator'
-import { baseLogger, defaultDataAggregatorConfig } from '../../src/default_config'
-import { Context, MetricCollector, ReportTrigger } from '../../src/metric_collector'
-import { BaseReporter, BaseReporterConfig } from '../../src/reporters/base'
 import * as utils from '../../src/utils'
+
+import { BaseReporter, BaseReporterConfig } from '../../src/reporters/base'
+import { CeloContract, newKit } from '@celo/contractkit'
+import { Context, MetricCollector, ReportTrigger } from '../../src/metric_collector'
+import { ReportTarget, SortedOraclesWrapper } from '@celo/contractkit/lib/wrappers/SortedOracles'
+import { baseLogger, defaultDataAggregatorConfig } from '../../src/default_config'
+
+import BigNumber from 'bignumber.js'
+import { BigNumber as CKBigNumber } from '@celo/contractkit/node_modules/bignumber.js'
+import { DataAggregator } from '../../src/data_aggregator'
+import { GasPriceMinimumWrapper } from '@celo/contractkit/lib/wrappers/GasPriceMinimum'
 
 const { ReportStrategy } = utils
 
@@ -54,6 +56,7 @@ describe('BaseReporter', () => {
   beforeEach(async () => {
     const dataAggregatorCfg = {
       ...defaultDataAggregatorConfig,
+      apiKeys: {},
       currencyPair: utils.OracleCurrencyPair.CELOUSD,
     }
     dataAggregator = new DataAggregator(dataAggregatorCfg)
