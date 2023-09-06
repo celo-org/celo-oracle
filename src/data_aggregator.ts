@@ -1,3 +1,7 @@
+import Logger from 'bunyan'
+import BigNumber from 'bignumber.js'
+import { strict as assert } from 'assert'
+
 import * as aggregators from './aggregator_functions'
 
 import {
@@ -19,7 +23,6 @@ import {
 import { PriceSource, WeightedPrice } from './price_source'
 
 import { AlphavantageAdapter } from './exchange_adapters/alphavantage'
-import BigNumber from 'bignumber.js'
 import { BinanceAdapter } from './exchange_adapters/binance'
 import { BinanceUSAdapter } from './exchange_adapters/binance_us'
 import { BitMartAdapter } from './exchange_adapters/bitmart'
@@ -31,7 +34,6 @@ import { CoinbaseAdapter } from './exchange_adapters/coinbase'
 import { GeminiAdapter } from './exchange_adapters/gemini'
 import { KrakenAdapter } from './exchange_adapters/kraken'
 import { KuCoinAdapter } from './exchange_adapters/kucoin'
-import Logger from 'bunyan'
 import { MercadoAdapter } from './exchange_adapters/mercado'
 import { MetricCollector } from './metric_collector'
 import { NovaDaxAdapter } from './exchange_adapters/novadax'
@@ -39,7 +41,6 @@ import { OKCoinAdapter } from './exchange_adapters/okcoin'
 import { OKXAdapter } from './exchange_adapters/okx'
 import { OracleApplicationConfig } from './app'
 import { WhitebitAdapter } from './exchange_adapters/whitebit'
-import { strict as assert } from 'assert'
 
 function adapterFromExchangeName(name: Exchange, config: ExchangeAdapterConfig): ExchangeAdapter {
   switch (name) {
