@@ -8,9 +8,9 @@ export class KrakenAdapter extends BaseExchangeAdapter implements ExchangeAdapte
 
   private static readonly tokenSymbolMap = KrakenAdapter.standardTokenSymbolMap
 
-  // Krakens's GTS CA 1P5 fingerprint.
+  // api.kraken.com - validity not after: 31/10/2023, 07:00:28 CET
   readonly _certFingerprint256 =
-    '97:D4:20:03:E1:32:55:29:46:09:7F:20:EF:95:5F:5B:1C:D5:70:AA:43:72:D7:80:03:3A:65:EF:BE:69:75:8D'
+    '9D:13:08:93:7F:E0:7B:D0:05:F0:6A:15:64:E6:9A:99:17:5D:19:FC:D1:FB:43:03:43:FF:0D:14:2E:71:E3:C6'
 
   protected generatePairSymbol(): string {
     const base = KrakenAdapter.tokenSymbolMap.get(this.config.baseCurrency)

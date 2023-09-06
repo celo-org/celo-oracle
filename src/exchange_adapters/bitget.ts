@@ -6,9 +6,9 @@ export class BitgetAdapter extends BaseExchangeAdapter {
   baseApiUrl = 'https://api.bitget.com/api'
 
   readonly _exchangeName = Exchange.BITGET
-  // cloudflare cert
+  // bitget.com - validity not after: 19/07/2024, 01:59:59 CEST
   readonly _certFingerprint256 =
-    '3A:BB:E6:3D:AF:75:6C:50:16:B6:B8:5F:52:01:5F:D8:E8:AC:BE:27:7C:50:87:B1:27:A6:05:63:A8:41:ED:8A'
+    'D3:E0:89:44:CC:C6:CD:F9:74:FB:A0:6D:2F:A3:8F:CF:DA:BF:76:C6:11:05:49:54:B4:58:CC:1F:AB:6B:29:3E'
 
   async fetchTicker(): Promise<Ticker> {
     return this.parseTicker(

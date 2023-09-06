@@ -5,8 +5,9 @@ import { Exchange } from '../utils'
 export class KuCoinAdapter extends BaseExchangeAdapter implements ExchangeAdapter {
   baseApiUrl = 'https://api.kucoin.com'
   readonly _exchangeName = Exchange.KUCOIN
+  // api.kucoin.com - validity not after: 09/02/2024, 00:59:59 CET
   readonly _certFingerprint256 =
-    '3A:BB:E6:3D:AF:75:6C:50:16:B6:B8:5F:52:01:5F:D8:E8:AC:BE:27:7C:50:87:B1:27:A6:05:63:A8:41:ED:8A'
+    '29:C6:B0:C0:DE:73:3C:CA:0B:57:7E:AF:C8:8F:19:D4:5E:15:51:24:76:6C:89:6D:D5:53:FC:B5:9C:FB:75:B9'
 
   private static readonly tokenSymbolMap = KuCoinAdapter.standardTokenSymbolMap
 

@@ -5,7 +5,7 @@ import { Exchange } from '../utils'
 export class NovaDaxAdapter extends BaseExchangeAdapter implements ExchangeAdapter {
   baseApiUrl = 'https://api.novadax.com/v1/market'
   readonly _exchangeName = Exchange.NOVADAX
-  // NovaDAX's certificate fingerprint.
+  // novadax.com - validity not after: 23/11/2023, 08:35:21 CET
   readonly _certFingerprint256 =
     'AE:22:03:A7:22:09:FD:6D:BA:3E:0B:BC:39:C8:67:5B:23:6E:32:A7:F5:95:EC:0E:6B:E1:8C:3B:D7:D3:1A:43'
 
