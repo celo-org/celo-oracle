@@ -6,7 +6,7 @@ export class BinanceAdapter extends BaseExchangeAdapter implements ExchangeAdapt
   baseApiUrl = 'https://api.binance.com/api/v3'
   readonly _exchangeName: Exchange = Exchange.BINANCE
   // *.binance.com - validity not after: 17/02/2024, 00:59:59 CET
-  readonly _certFingerprint256 =
+   _certFingerprint256 =
     '93:07:DE:DD:AF:3A:78:77:1D:B1:B7:68:3E:9F:18:8E:28:83:AE:A1:77:58:87:D4:5C:F6:F9:C8:71:1A:72:49'
 
   private static readonly tokenSymbolMap = BinanceAdapter.standardTokenSymbolMap
