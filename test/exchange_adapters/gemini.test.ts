@@ -1,8 +1,9 @@
+import { Exchange, ExternalCurrency } from '../../src/utils'
+
 import BigNumber from 'bignumber.js'
-import { baseLogger } from '../../src/default_config'
 import { ExchangeAdapterConfig } from '../../src/exchange_adapters/base'
 import { GeminiAdapter } from '../../src/exchange_adapters/gemini'
-import { Exchange, ExternalCurrency } from '../../src/utils'
+import { baseLogger } from '../../src/default_config'
 
 describe('GeminiAdapter', () => {
   let geminiAdapter: GeminiAdapter
@@ -29,13 +30,6 @@ describe('GeminiAdapter', () => {
       timestamp: 1483018200000,
     },
   }
-
-  describe('fetchTrades', () => {
-    it('returns an empty array', async () => {
-      const tradesFetched = await geminiAdapter.fetchTrades()
-      expect(tradesFetched).toEqual([])
-    })
-  })
 
   describe('parseTicker', () => {
     it('handles a response that matches the documentation', () => {

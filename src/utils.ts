@@ -1,10 +1,11 @@
 import { CeloContract, CeloToken, ContractKit } from '@celo/contractkit'
-import { ReportTarget } from '@celo/contractkit/lib/wrappers/SortedOracles'
+import { ErrorContext, MetricCollector } from './metric_collector'
+
 import BigNumber from 'bignumber.js'
 import Logger from 'bunyan'
-import { min } from 'mathjs'
+import { ReportTarget } from '@celo/contractkit/lib/wrappers/SortedOracles'
 import Web3 from 'web3'
-import { ErrorContext, MetricCollector } from './metric_collector'
+import { min } from 'mathjs'
 
 export const MS_PER_SECOND = 1000
 export const MS_PER_MINUTE = 60 * MS_PER_SECOND
@@ -38,6 +39,8 @@ export enum Exchange {
   OKX = 'OKX',
   WHITEBIT = 'WHITEBIT',
   BITGET = 'BITGET',
+  BITMART = 'BITMART',
+  ALPHAVANTAGE = 'ALPHAVANTAGE',
 }
 
 export enum ExternalCurrency {
@@ -48,6 +51,8 @@ export enum ExternalCurrency {
   BRL = 'BRL',
   BUSD = 'BUSD',
   USDC = 'USDC',
+  EUROC = 'EUROC',
+  XOF = 'XOF',
 }
 
 export type Currency = ExternalCurrency | CeloToken
@@ -57,6 +62,7 @@ export enum OracleCurrencyPair {
   CELOEUR = 'CELOEUR',
   CELOBTC = 'CELOBTC',
   CELOBRL = 'CELOBRL',
+  CELOXOF = 'CELOXOF',
   BTCEUR = 'BTCEUR',
   CELOUSDT = 'CELOUSDT',
   CELOBUSD = 'CELOBUSD',
@@ -77,12 +83,18 @@ export enum OracleCurrencyPair {
   USDCUSDT = 'USDCUSDT',
   EURUSD = 'EURUSD',
   BTCUSDC = 'BTCUSDC',
+  EUROCEUR = 'EUROCEUR',
+  EUROCUSDC = 'EUROCUSDC',
+  EUROCUSD = 'EUROCUSD',
+  EURXOF = 'EURXOF',
+  USDXOF = 'USDXOF',
 }
 
 export const CoreCurrencyPair: OracleCurrencyPair[] = [
   OracleCurrencyPair.CELOEUR,
   OracleCurrencyPair.CELOUSD,
   OracleCurrencyPair.CELOBRL,
+  OracleCurrencyPair.CELOXOF,
 ]
 
 export const CurrencyPairBaseQuote: Record<
@@ -93,6 +105,7 @@ export const CurrencyPairBaseQuote: Record<
   [OracleCurrencyPair.CELOBTC]: { base: CeloContract.GoldToken, quote: ExternalCurrency.BTC },
   [OracleCurrencyPair.CELOEUR]: { base: CeloContract.GoldToken, quote: ExternalCurrency.EUR },
   [OracleCurrencyPair.CELOBRL]: { base: CeloContract.GoldToken, quote: ExternalCurrency.BRL },
+  [OracleCurrencyPair.CELOXOF]: { base: CeloContract.GoldToken, quote: ExternalCurrency.XOF },
   [OracleCurrencyPair.BTCEUR]: { base: ExternalCurrency.BTC, quote: ExternalCurrency.EUR },
   [OracleCurrencyPair.CELOUSDT]: { base: CeloContract.GoldToken, quote: ExternalCurrency.USDT },
   [OracleCurrencyPair.CELOBUSD]: { base: CeloContract.GoldToken, quote: ExternalCurrency.BUSD },
@@ -113,6 +126,11 @@ export const CurrencyPairBaseQuote: Record<
   [OracleCurrencyPair.BTCUSDT]: { base: ExternalCurrency.BTC, quote: ExternalCurrency.USDT },
   [OracleCurrencyPair.USDCBRL]: { base: ExternalCurrency.USDC, quote: ExternalCurrency.BRL },
   [OracleCurrencyPair.BTCUSDC]: { base: ExternalCurrency.BTC, quote: ExternalCurrency.USDC },
+  [OracleCurrencyPair.EUROCEUR]: { base: ExternalCurrency.EUROC, quote: ExternalCurrency.EUR },
+  [OracleCurrencyPair.EUROCUSDC]: { base: ExternalCurrency.EUROC, quote: ExternalCurrency.USDC },
+  [OracleCurrencyPair.EUROCUSD]: { base: ExternalCurrency.EUROC, quote: ExternalCurrency.USD },
+  [OracleCurrencyPair.EURXOF]: { base: ExternalCurrency.EUR, quote: ExternalCurrency.XOF },
+  [OracleCurrencyPair.USDXOF]: { base: ExternalCurrency.USD, quote: ExternalCurrency.XOF },
 }
 
 export enum AggregationMethod {
@@ -153,6 +171,8 @@ export async function reportTargetForCurrencyPair(
   } else if (pair === OracleCurrencyPair.CELOBRL) {
     // Workaround until StableTokenBRL makes it fully to ContractKit.
     return kit.registry.addressFor('StableTokenBRL' as CeloContract)
+  } else if (pair === OracleCurrencyPair.CELOXOF) {
+    return kit.registry.addressFor('StableTokenXOF' as CeloContract)
   } else {
     throw new Error(`${pair} can not be converted to a ReportTarget`)
   }

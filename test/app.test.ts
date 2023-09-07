@@ -1,5 +1,12 @@
-import { CeloContract } from '@celo/contractkit'
-import BigNumber from 'bignumber.js'
+import {
+  AggregationMethod,
+  Exchange,
+  OracleCurrencyPair,
+  ReportStrategy,
+  WalletType,
+  minutesToMs,
+  secondsToMs,
+} from '../src/utils'
 import {
   BaseReporterConfigSubset,
   BlockBasedReporterConfigSubset,
@@ -7,18 +14,14 @@ import {
   OracleApplication,
   OracleApplicationConfig,
 } from '../src/app'
-import { DataAggregator } from '../src/data_aggregator'
-import { baseLogger } from '../src/default_config'
-import { MetricCollector } from '../src/metric_collector'
+
+import BigNumber from 'bignumber.js'
 import { BlockBasedReporter } from '../src/reporters/block_based_reporter'
-import {
-  AggregationMethod,
-  minutesToMs,
-  OracleCurrencyPair,
-  ReportStrategy,
-  secondsToMs,
-  WalletType,
-} from '../src/utils'
+import { CeloContract } from '@celo/contractkit'
+import { DataAggregator } from '../src/data_aggregator'
+import { MetricCollector } from '../src/metric_collector'
+import { baseLogger } from '../src/default_config'
+
 jest.mock('@celo/contractkit')
 jest.mock('@celo/wallet-hsm-azure')
 jest.mock('../src/metric_collector')
@@ -38,6 +41,10 @@ describe('OracleApplication', () => {
   const address = mockOracleAccount
   const aggregationMethod = AggregationMethod.MIDPRICES
   const aggregationWindowDuration = minutesToMs(6)
+  const apiKeys: Partial<Record<Exchange, string>> = {
+    BINANCE: 'mockBinanceApiKey',
+    COINBASE: 'mockCoinbaseApiKey',
+  }
   const awsKeyRegion = 'eu-central-1'
   const azureKeyVaultName = mockAzureKeyVaultName
   const azureHsmInitMaxRetryBackoffMs = secondsToMs(30)
@@ -98,6 +105,7 @@ describe('OracleApplication', () => {
 
   const appConfig: OracleApplicationConfig = {
     address,
+    apiKeys,
     awsKeyRegion,
     azureKeyVaultName,
     azureHsmInitMaxRetryBackoffMs,
@@ -127,6 +135,7 @@ describe('OracleApplication', () => {
   it('set up a data aggregator with the appropriate, passed-through config', () => {
     expect(DataAggregator).toHaveBeenCalledWith({
       ...dataAggregatorConfig,
+      apiKeys,
       currencyPair: 'CELOUSD',
       metricCollector: oracleApplication.metricCollector,
     })

@@ -1,9 +1,10 @@
-import { CeloContract } from '@celo/contractkit'
-import BigNumber from 'bignumber.js'
-import { baseLogger } from '../../src/default_config'
-import { ExchangeAdapterConfig, ExchangeDataType } from '../../src/exchange_adapters/base'
-import { CoinbaseAdapter } from '../../src/exchange_adapters/coinbase'
 import { Exchange, ExternalCurrency } from '../../src/utils'
+import { ExchangeAdapterConfig, ExchangeDataType } from '../../src/exchange_adapters/base'
+
+import BigNumber from 'bignumber.js'
+import { CeloContract } from '@celo/contractkit'
+import { CoinbaseAdapter } from '../../src/exchange_adapters/coinbase'
+import { baseLogger } from '../../src/default_config'
 
 describe('CoinbaseAdapter', () => {
   let coinbaseAdapter: CoinbaseAdapter
@@ -28,29 +29,6 @@ describe('CoinbaseAdapter', () => {
     volume: '2556.5805',
     time: '2020-05-26T12:49:05.049Z',
   }
-  const mockTradeJson = [
-    {
-      time: '2021-03-02T13:34:31.407Z',
-      trade_id: '1461835',
-      price: '4913.4',
-      size: '0.0099',
-      side: 'buy',
-    },
-    {
-      time: '2021-03-02T13:11:48.005Z',
-      trade_id: '1461771',
-      price: '4913.4',
-      size: '0.0099',
-      side: 'buy',
-    },
-    {
-      time: '2021-03-02T13:09:47.272Z',
-      trade_id: '1461736',
-      price: '4913.4',
-      size: '0.0099',
-      side: 'buy',
-    },
-  ]
 
   const mockStatusJson = {
     id: 'CGLD-USD',
@@ -85,30 +63,8 @@ describe('CoinbaseAdapter', () => {
         'products/CGLD-USD/ticker'
       )
     })
-    it('uses the right symbols when fetching trades', async () => {
-      fetchFromApiSpy.mockReturnValue(Promise.resolve(mockTradeJson))
-      await coinbaseAdapter.fetchTrades()
-      expect(fetchFromApiSpy).toHaveBeenCalledWith(
-        ExchangeDataType.TRADE,
-        'products/CGLD-USD/trades'
-      )
-    })
   })
-  describe('fetchTrades', () => {
-    it('returns the trades in the right order', async () => {
-      let fetchFromApiSpy: jest.SpyInstance
-      fetchFromApiSpy = jest.spyOn(coinbaseAdapter, 'fetchFromApi')
-      fetchFromApiSpy.mockReturnValue(Promise.resolve(mockTradeJson))
 
-      const sortedTradesResponse = [
-        mockTradeJson[2].trade_id,
-        mockTradeJson[1].trade_id,
-        mockTradeJson[0].trade_id,
-      ]
-      const tradesFetched = await coinbaseAdapter.fetchTrades()
-      expect(tradesFetched.map((t) => t.id)).toEqual(sortedTradesResponse)
-    })
-  })
   describe('parseTicker', () => {
     it('handles a response that matches the documentation', () => {
       const ticker = coinbaseAdapter.parseTicker(mockTickerJson)
@@ -145,63 +101,7 @@ describe('CoinbaseAdapter', () => {
       }).toThrowError('timestamp not defined')
     })
   })
-  describe('parseTrades', () => {
-    // Slightly modified example from their docs
-    const goodTrade1 = {
-      time: '2019-04-12T02:07:30.523Z',
-      trade_id: '1296412902',
-      price: '4913.4',
-      size: '0.0099',
-      side: 'buy',
-    }
-    const goodTrade2 = {
-      time: '2019-04-12T02:07:30.455Z',
-      trade_id: '1296412899',
-      price: '4913.2',
-      size: '0.17',
-      side: 'sell',
-    }
-    const goodTradeArray = [goodTrade1, goodTrade2]
 
-    it('handles correctly formatted trades', () => {
-      const result = coinbaseAdapter.parseTrades(goodTradeArray)
-      expect(result).toEqual([
-        {
-          amount: new BigNumber(0.0099),
-          cost: new BigNumber(48.64266),
-          id: '1296412902',
-          price: new BigNumber(4913.4),
-          side: 'buy',
-          source: Exchange.COINBASE,
-          symbol: coinbaseAdapter.standardPairSymbol,
-          timestamp: 1555034850523,
-        },
-        {
-          amount: new BigNumber(0.17),
-          cost: new BigNumber(835.244),
-          id: '1296412899',
-          price: new BigNumber(4913.2),
-          side: 'sell',
-          source: Exchange.COINBASE,
-          symbol: coinbaseAdapter.standardPairSymbol,
-          timestamp: 1555034850455,
-        },
-      ])
-    })
-    it('throws an error if a required field is missing on one trade', () => {
-      expect(() => {
-        coinbaseAdapter.parseTrades([
-          {
-            ...goodTrade1,
-            price: undefined,
-            trade_id: undefined,
-            size: undefined,
-          },
-          goodTrade2,
-        ])
-      }).toThrowError('id, price, amount, cost not defined')
-    })
-  })
   describe('isOrderbookLive', () => {
     const falseStatusIndicators = [
       { post_only: true },

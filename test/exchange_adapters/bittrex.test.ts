@@ -1,9 +1,10 @@
-import { CeloContract } from '@celo/contractkit'
-import BigNumber from 'bignumber.js'
-import { baseLogger } from '../../src/default_config'
-import { ExchangeAdapterConfig } from '../../src/exchange_adapters/base'
-import { BittrexAdapter } from '../../src/exchange_adapters/bittrex'
 import { Exchange, ExternalCurrency } from '../../src/utils'
+
+import BigNumber from 'bignumber.js'
+import { BittrexAdapter } from '../../src/exchange_adapters/bittrex'
+import { CeloContract } from '@celo/contractkit'
+import { ExchangeAdapterConfig } from '../../src/exchange_adapters/base'
+import { baseLogger } from '../../src/default_config'
 
 describe('BittrexAdapter', () => {
   let bittrexAdapter: BittrexAdapter
@@ -75,70 +76,7 @@ describe('BittrexAdapter', () => {
       }).toThrowError('timestamp not defined')
     })
   })
-  describe('parseTrades', () => {
-    const goodTrade1 = {
-      id: '8b9fc1be-3f62-480a-bb06-d91cac27fed9',
-      executedAt: '2020-05-20T12:45:03.71Z',
-      quantity: '1.00000000',
-      rate: '214.30100000',
-      takerSide: 'BUY',
-    }
-    const goodTrade2 = {
-      id: '81993afb-06f3-4f41-a32b-60f0d4ec9d4c',
-      executedAt: '2020-05-20T12:39:09.85Z',
-      quantity: '0.04824285',
-      rate: '214.02100000',
-      takerSide: 'SELL',
-    }
-    const goodTradeArray = [goodTrade1, goodTrade2]
 
-    it('handles correctly formatted trades', () => {
-      const result = bittrexAdapter.parseTrades(goodTradeArray)
-      expect(result).toEqual([
-        {
-          source: Exchange.BITTREX,
-          id: '8b9fc1be-3f62-480a-bb06-d91cac27fed9',
-          timestamp: 1589978703710,
-          symbol: bittrexAdapter.standardPairSymbol,
-          side: 'BUY',
-          price: new BigNumber(214.301),
-          amount: new BigNumber(1),
-          cost: new BigNumber(214.301),
-        },
-        {
-          source: Exchange.BITTREX,
-          id: '81993afb-06f3-4f41-a32b-60f0d4ec9d4c',
-          timestamp: 1589978349850,
-          symbol: bittrexAdapter.standardPairSymbol,
-          side: 'SELL',
-          price: new BigNumber(214.021),
-          amount: new BigNumber(0.04824285),
-          cost: new BigNumber(10.32498299985),
-        },
-      ])
-    })
-    it('throws an error if a number field was not reasonably parsed', () => {
-      expect(() => {
-        bittrexAdapter.parseTrades([
-          {
-            ...goodTrade1,
-            rate: 'two_hundred_something!',
-          },
-          goodTrade2,
-        ])
-      }).toThrow('price, cost not defined')
-    })
-    it('throws an error if the date could not be parsed', () => {
-      expect(() => {
-        bittrexAdapter.parseTrades([
-          {
-            ...goodTrade2,
-            executedAt: '71st March, 2020, 25:06',
-          },
-        ])
-      }).toThrowError('timestamp not defined')
-    })
-  })
   describe('isOrderbookLive', () => {
     const mockStatusJson = {
       symbol: 'CELO-USD',
