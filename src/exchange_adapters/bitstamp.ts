@@ -15,7 +15,6 @@ export class BitstampAdapter extends BaseExchangeAdapter implements ExchangeAdap
     const base = BitstampAdapter.tokenSymbolMap.get(this.config.baseCurrency)
     const quote = BitstampAdapter.tokenSymbolMap.get(this.config.quoteCurrency)
     return `${base}${quote}`.toLowerCase()
-    return `${base}${quote}`.toLowerCase()
   }
 
   async fetchTicker(): Promise<Ticker> {
