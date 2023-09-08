@@ -34,36 +34,35 @@ export class CurrencyApiAdapter extends BaseExchangeAdapter implements ExchangeA
   /**
    *
    * @param json parsed response from CurrencyApi latest endpoint
-    {
-      "meta": {
-        "last_updated_at": "2023-09-08T09:36:59Z"
-      },
-      "data": {
-        "XOF": {
-          "code": "XOF",
-          "value": 655.8426513119
-        }
-      }
-    }
+   * {
+   *   "meta": {
+   *    "last_updated_at": "2023-09-08T09:36:59Z"
+   *   },
+   *   "data": {
+   *     "XOF": {
+   *       "code": "XOF",
+   *       "value": 655.8426513119
+   *     }
+   *   }
+   * }
    */
   parseTicker(json: any): Ticker {
-    const response = json['data']
     assert(
-      Object.keys(response).includes(this.config.quoteCurrency),
+      Object.keys(json.data).includes(this.config.quoteCurrency),
       'CurrencyApi response does not contain quote currency'
     )
     assert(
-      json['meta']['last_updated_at'] !== undefined,
+      json.meta.last_updated_at !== undefined,
       'CurrencyApi response does not contain timestamp'
     )
 
-    const price = this.safeBigNumberParse(response[this.config.quoteCurrency]['value'])!
+    const price = this.safeBigNumberParse(json.data[this.config.quoteCurrency].value)!
     const ticker = {
       ...this.priceObjectMetadata,
       ask: price,
       bid: price,
       lastPrice: price,
-      timestamp: this.safeDateParse(json['meta']['last_updated_at'])! / 1000,
+      timestamp: this.safeDateParse(json.meta.last_updated_at)! / 1000,
       // These FX API's do not provide volume data,
       // therefore we set all of them to 1 to weight them equally.
       baseVolume: new BigNumber(1),
