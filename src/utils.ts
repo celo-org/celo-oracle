@@ -41,6 +41,7 @@ export enum Exchange {
   BITGET = 'BITGET',
   BITMART = 'BITMART',
   ALPHAVANTAGE = 'ALPHAVANTAGE',
+  CURRENCYAPI = 'CURRENCYAPI',
 }
 
 export enum ExternalCurrency {
