@@ -41,6 +41,7 @@ export enum Exchange {
   BITGET = 'BITGET',
   BITMART = 'BITMART',
   ALPHAVANTAGE = 'ALPHAVANTAGE',
+  CURRENCYAPI = 'CURRENCYAPI',
 }
 
 export enum ExternalCurrency {
@@ -88,6 +89,7 @@ export enum OracleCurrencyPair {
   EUROCUSD = 'EUROCUSD',
   EURXOF = 'EURXOF',
   USDXOF = 'USDXOF',
+  EUROCXOF = 'EUROCXOF',
 }
 
 export const CoreCurrencyPair: OracleCurrencyPair[] = [
@@ -131,6 +133,7 @@ export const CurrencyPairBaseQuote: Record<
   [OracleCurrencyPair.EUROCUSD]: { base: ExternalCurrency.EUROC, quote: ExternalCurrency.USD },
   [OracleCurrencyPair.EURXOF]: { base: ExternalCurrency.EUR, quote: ExternalCurrency.XOF },
   [OracleCurrencyPair.USDXOF]: { base: ExternalCurrency.USD, quote: ExternalCurrency.XOF },
+  [OracleCurrencyPair.EUROCXOF]: { base: ExternalCurrency.EUROC, quote: ExternalCurrency.XOF },
 }
 
 export enum AggregationMethod {
