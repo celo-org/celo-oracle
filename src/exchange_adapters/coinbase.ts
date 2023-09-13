@@ -5,9 +5,9 @@ import { CeloContract } from '@celo/contractkit'
 
 export class CoinbaseAdapter extends BaseExchangeAdapter implements ExchangeAdapter {
   baseApiUrl = 'https://api.pro.coinbase.com'
-  // Cloudflare Inc ECC CA-3
+  // pro.coinbase.com - validity not after: 11/05/2024, 01:59:59 CEST
   readonly _certFingerprint256 =
-    '3A:BB:E6:3D:AF:75:6C:50:16:B6:B8:5F:52:01:5F:D8:E8:AC:BE:27:7C:50:87:B1:27:A6:05:63:A8:41:ED:8A'
+    '7B:F6:47:3E:A0:5F:92:B1:9D:7B:03:6B:68:7F:FF:F7:34:69:45:A0:AB:5D:76:D6:94:63:2D:06:C0:65:3B:39'
 
   readonly _exchangeName = Exchange.COINBASE
 

@@ -5,6 +5,7 @@ import { Exchange } from '../utils'
 export class BitMartAdapter extends BaseExchangeAdapter implements ExchangeAdapter {
   baseApiUrl = 'https://api-cloud.bitmart.com'
   readonly _exchangeName = Exchange.BITMART
+  // *.bitmart.com - validity not after: 16/01/2024, 07:29:21 CET
   readonly _certFingerprint256 =
     '9D:44:FC:FB:7F:D3:14:1E:3C:E7:DB:B1:BF:E2:60:6A:D2:96:C6:7C:10:C5:A9:1F:58:D3:58:C0:19:82:85:5A'
   private static readonly tokenSymbolMap = BitMartAdapter.standardTokenSymbolMap
