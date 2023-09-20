@@ -5,11 +5,11 @@ import { Exchange } from '../utils'
 import { strict as assert } from 'assert'
 
 export class CurrencyApiAdapter extends BaseExchangeAdapter implements ExchangeAdapter {
-  baseApiUrl = 'https://api.currencyapi.com/v3'
+  baseApiUrl = 'https://currencyapi.net/api/v1'
   readonly _exchangeName: Exchange = Exchange.CURRENCYAPI
-  // currencyapi.com - validity not after: 21/11/2023, 22:54:40 CET
+  // currencyapi.net - validity not after: 05/12/2023, 10:03:39 CET
   readonly _certFingerprint256 =
-    '06:70:90:2E:07:43:A3:8C:25:2F:C4:35:F7:C4:F5:3A:12:9D:66:9A:95:6B:DC:C1:54:C1:FC:6A:BA:3B:B5:36'
+    '8D:75:15:7A:96:A9:DD:A6:1D:A8:EE:58:6D:7A:A2:8D:71:E4:9B:1B:3D:09:D8:F2:F2:C2:31:6E:CC:0A:82:A7'
 
   protected generatePairSymbol(): string {
     const base = CurrencyApiAdapter.standardTokenSymbolMap.get(this.config.baseCurrency)
@@ -26,7 +26,7 @@ export class CurrencyApiAdapter extends BaseExchangeAdapter implements ExchangeA
 
     const tickerJson: Response = await this.fetchFromApi(
       ExchangeDataType.TICKER,
-      `latest?base_currency=${base}&currencies=${quote}&apikey=${this.config.apiKey}`
+      `convert?key=${this.config.apiKey}&amount=1&from=${base}&to=${quote}&output=JSON`
     )
     return this.parseTicker(tickerJson)
   }
@@ -35,34 +35,35 @@ export class CurrencyApiAdapter extends BaseExchangeAdapter implements ExchangeA
    *
    * @param json parsed response from CurrencyApi latest endpoint
    * {
-   *   "meta": {
-   *    "last_updated_at": "2023-09-08T09:36:59Z"
-   *   },
-   *   "data": {
-   *     "XOF": {
-   *       "code": "XOF",
-   *       "value": 655.8426513119
-   *     }
+   *   "valid": true,
+   *   "updated": 1695168063,
+   *   "conversion": {
+   *     "amount": 1,
+   *     "from": "EUR",
+   *     "to": "XOF",
+   *     "result": 655.315694
    *   }
    * }
    */
   parseTicker(json: any): Ticker {
-    assert(
-      Object.keys(json.data).includes(this.config.quoteCurrency),
-      'CurrencyApi response does not contain quote currency'
-    )
-    assert(
-      json.meta.last_updated_at !== undefined,
-      'CurrencyApi response does not contain timestamp'
+    assert (json.valid, 'CurrencyApi response object contains false valid field');
+    assert (json.conversion.amount === 1, 'CurrencyApi response object amount field is not 1')
+    assert (
+      json.conversion.from === this.config.baseCurrency,
+      'CurrencyApi response object from field does not match base currency'
+    );
+    assert (
+      json.conversion.to === this.config.quoteCurrency,
+      'CurrencyApi response object to field does not match quote currency'
     )
 
-    const price = this.safeBigNumberParse(json.data[this.config.quoteCurrency].value)!
+    const price = this.safeBigNumberParse(json.conversion.result)!
     const ticker = {
       ...this.priceObjectMetadata,
       ask: price,
       bid: price,
       lastPrice: price,
-      timestamp: this.safeDateParse(json.meta.last_updated_at)! / 1000,
+      timestamp: this.safeBigNumberParse(json.updated)?.toNumber()!,
       // These FX API's do not provide volume data,
       // therefore we set all of them to 1 to weight them equally.
       baseVolume: new BigNumber(1),
