@@ -46,13 +46,13 @@ export class CurrencyApiAdapter extends BaseExchangeAdapter implements ExchangeA
    * }
    */
   parseTicker(json: any): Ticker {
-    assert (json.valid, 'CurrencyApi response object contains false valid field');
-    assert (json.conversion.amount === 1, 'CurrencyApi response object amount field is not 1')
-    assert (
+    assert(json.valid, 'CurrencyApi response object contains false valid field')
+    assert(json.conversion.amount === 1, 'CurrencyApi response object amount field is not 1')
+    assert(
       json.conversion.from === this.config.baseCurrency,
       'CurrencyApi response object from field does not match base currency'
-    );
-    assert (
+    )
+    assert(
       json.conversion.to === this.config.quoteCurrency,
       'CurrencyApi response object to field does not match quote currency'
     )

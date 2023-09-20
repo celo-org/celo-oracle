@@ -24,14 +24,14 @@ describe('CurrencyApi adapter', () => {
   })
 
   const validMockTickerJson = {
-    "valid": true,
-    "updated": 1695168063,
-    "conversion": {
-      "amount": 1,
-      "from": "EUR",
-      "to": "XOF",
-      "result": 655.315694
-    }
+    valid: true,
+    updated: 1695168063,
+    conversion: {
+      amount: 1,
+      from: 'EUR',
+      to: 'XOF',
+      result: 655.315694,
+    },
   }
 
   const invalidJsonWithFalseValid = {
