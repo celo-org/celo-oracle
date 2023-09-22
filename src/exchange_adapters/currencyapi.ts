@@ -20,6 +20,7 @@ export class CurrencyApiAdapter extends BaseExchangeAdapter implements ExchangeA
 
   async fetchTicker(): Promise<Ticker> {
     assert(this.config.apiKey !== undefined, 'CurrencyApi API key was not set')
+    this.setFxMarketStatus()
 
     const base = this.config.baseCurrency
     const quote = this.config.quoteCurrency
@@ -71,6 +72,13 @@ export class CurrencyApiAdapter extends BaseExchangeAdapter implements ExchangeA
     }
     this.verifyTicker(ticker)
     return ticker
+  }
+
+  private setFxMarketStatus(): void {
+    const pair = this.generatePairSymbol()
+    const isMarketOpen = !BaseExchangeAdapter.fxMarketsClosed(Date.now())
+
+    this.config.metricCollector?.fxMarketsOpen(pair, isMarketOpen)
   }
 
   async isOrderbookLive(): Promise<boolean> {
