@@ -103,6 +103,6 @@ export class AlphavantageAdapter extends BaseExchangeAdapter implements Exchange
   }
 
   async isOrderbookLive(): Promise<boolean> {
-    return true
+    return !BaseExchangeAdapter.fxMarketsClosed(Date.now())
   }
 }

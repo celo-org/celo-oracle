@@ -142,4 +142,48 @@ describe('BaseExchangeAdapter', () => {
       })
     })
   })
+
+  describe('fxMarketsClosed', () => {
+    describe('in markets closed hours', () => {
+      it('returns true on Fridays after 22h', () => {
+        expect(BaseExchangeAdapter.fxMarketsClosed(1680906067000)).toBe(true) // Fri, 07 Apr 2023 22:21:07
+        expect(BaseExchangeAdapter.fxMarketsClosed(1695420000000)).toBe(true) // Fri, 22 Sep 2023 22:00:00
+        expect(BaseExchangeAdapter.fxMarketsClosed(1680909071000)).toBe(true) // Fri, 07 Apr 2023 23:11:11
+        expect(BaseExchangeAdapter.fxMarketsClosed(1695427199000)).toBe(true) // Fri, 22 Sep 2023 23:59:59
+      })
+      it('returns true the whole day on Saturday', () => {
+        expect(BaseExchangeAdapter.fxMarketsClosed(1683331200000)).toBe(true) // Sat, 06 May 2023 00:00:00
+        expect(BaseExchangeAdapter.fxMarketsClosed(1674290736000)).toBe(true) // Sat, 21 Jan 2023 08:45:36
+        expect(BaseExchangeAdapter.fxMarketsClosed(1679750316000)).toBe(true) // Sat, 25 Mar 2023 13:18:36
+        expect(BaseExchangeAdapter.fxMarketsClosed(1680393599000)).toBe(true) // Sat, 01 Apr 2023 23:59:59
+      })
+      it('returns true on Sunday before 22h', () => {
+        expect(BaseExchangeAdapter.fxMarketsClosed(1683417615000)).toBe(true) // Sun, 07 May 2023 00:00:15
+        expect(BaseExchangeAdapter.fxMarketsClosed(1687682715000)).toBe(true) // Sun, 25 Jun 2023 08:45:15
+        expect(BaseExchangeAdapter.fxMarketsClosed(1690148715000)).toBe(true) // Sun, 23 Jul 2023 21:45:15
+      })
+    })
+
+    describe('in markets open hours', () => {
+      it('returns false on Friday before 22h', () => {
+        expect(BaseExchangeAdapter.fxMarketsClosed(1679011200000)).toBe(false) // Fri, 17 Mar 2023 00:00:00
+        expect(BaseExchangeAdapter.fxMarketsClosed(1679649322000)).toBe(false) // Fri, 24 Mar 2023 09:15:22
+        expect(BaseExchangeAdapter.fxMarketsClosed(1687540510000)).toBe(false) // Fri, 22 Jun 2023 17:15:10
+        expect(BaseExchangeAdapter.fxMarketsClosed(1682114399000)).toBe(false) // Fri, 21 Apr 2023 21:59:59
+      })
+      it('returns false on Sunday after 22h', () => {
+        expect(BaseExchangeAdapter.fxMarketsClosed(1687730400000)).toBe(false) // Sun, 25 Jun 2023 22:00:00
+        expect(BaseExchangeAdapter.fxMarketsClosed(1696803439000)).toBe(false) // Sun, 08 Oct 2023 22:17:19
+        expect(BaseExchangeAdapter.fxMarketsClosed(1675641599000)).toBe(false) // Sun, 05 Feb 2023 23:59:59
+        expect(BaseExchangeAdapter.fxMarketsClosed(1679872500000)).toBe(false) // Sun, 26 Mar 2023 23:15:00
+      })
+      it('returns false other days of the week', () => {
+        expect(BaseExchangeAdapter.fxMarketsClosed(1696889159000)).toBe(false) // Mon, 09 Oct 2023 22:05:59
+        expect(BaseExchangeAdapter.fxMarketsClosed(1672784239000)).toBe(false) // Tue, 03 Jan 2023 22:17:19
+        expect(BaseExchangeAdapter.fxMarketsClosed(1693973159000)).toBe(false) // Wed, 06 Sep 2023 04:05:59
+        expect(BaseExchangeAdapter.fxMarketsClosed(1686268799000)).toBe(false) // Thu, 08 Jun 2023 23:59:59
+        expect(BaseExchangeAdapter.fxMarketsClosed(1676038639000)).toBe(false) // Fri, 10 Feb 2023 14:17:19
+      })
+    })
+  })
 })

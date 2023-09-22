@@ -374,4 +374,25 @@ export abstract class BaseExchangeAdapter {
       },
     })
   }
+
+  /**
+   * A helper function that returns whether a given timestamp is within FX markets closing hours, meaning that
+   * they are closed and clients shouldn't report FX rates.
+   *
+   * The closing hours are: [Friday 22:00 UTC, Sunday 22:00 UTC)
+   *
+   * @param timestampInMs the timestamp in milliseconds to check
+   * @returns whether the FX markets are closed or not
+   */
+  static fxMarketsClosed(timestampInMs: number): boolean {
+    const date = new Date(timestampInMs)
+    const day = date.getUTCDay() // 0 for Sunday, 1 for Monday, 2 for Tuesday, and so on
+    const hour = date.getUTCHours() // 24h format
+
+    const isFridayEvening = day === 5 && hour >= 22
+    const isSaturday = day === 6
+    const isSundayBeforeEvening = day === 0 && hour < 22
+
+    return isFridayEvening || isSaturday || isSundayBeforeEvening
+  }
 }
