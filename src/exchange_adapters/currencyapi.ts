@@ -74,7 +74,6 @@ export class CurrencyApiAdapter extends BaseExchangeAdapter implements ExchangeA
   }
 
   async isOrderbookLive(): Promise<boolean> {
-    // TODO: implement later once we have defined the weekend conditions for FX adapters.
-    return true
+    return !BaseExchangeAdapter.fxMarketsClosed(Date.now())
   }
 }
