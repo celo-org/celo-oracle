@@ -57,8 +57,6 @@ export class MetricCollector {
 
   private lastBlockHeaderNumberGauge: Gauge<string>
 
-  private fxMarketsOpenGauge: Gauge<string>
-
   private oracleBalanceValueGauge: Gauge<string>
 
   private potentialReportValueGauge: Gauge<string>
@@ -115,12 +113,6 @@ export class MetricCollector {
       name: 'oracle_last_block_header_number',
       help: 'Gauge to indicate the last block number seen when using block based reporting',
       labelNames: ['type'],
-    })
-
-    this.fxMarketsOpenGauge = new Gauge({
-      name: 'oracle_fx_markets_open',
-      help: 'Gauge to indicate whether FX markets are open (1) or not (0)',
-      labelNames: ['pair'],
     })
 
     this.oracleBalanceValueGauge = new Gauge({
@@ -344,10 +336,6 @@ export class MetricCollector {
    */
   blockHeaderNumber(type: BlockType, blockNumber: number) {
     this.lastBlockHeaderNumberGauge.set({ type }, blockNumber)
-  }
-
-  fxMarketsOpen(pair: string, value: boolean) {
-    this.fxMarketsOpenGauge.set({ pair }, Number(value))
   }
 
   oracleBalanceValue(oracleAddress: string, balance: number) {
