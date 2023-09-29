@@ -1,18 +1,16 @@
-import { CeloContract } from '@celo/contractkit'
+import { Currency, Exchange, ExternalCurrency, megabytesToBytes, requireVariables } from '../utils'
+import { ExchangeApiRequestError, MetricCollector } from '../metric_collector'
+import fetch, { Response } from 'node-fetch'
+
 import BigNumber from 'bignumber.js'
+import { CeloContract } from '@celo/contractkit'
 import Logger from 'bunyan'
 import https from 'https'
-import fetch, { Response } from 'node-fetch'
 import tls from 'tls'
-import { ExchangeApiRequestError, MetricCollector } from '../metric_collector'
-import { Currency, Exchange, ExternalCurrency, megabytesToBytes, requireVariables } from '../utils'
 
 export enum DataType {
   TICKER = 'Ticker',
-  TRADE = 'Trade',
 }
-
-export type RawPriceData = Ticker | Trade
 
 type PriceMetadata = {
   /** the exchange this price data object came from */
@@ -53,29 +51,22 @@ export type Ticker = PriceMetadata & {
   timestamp: number
 }
 
-export type Trade = PriceMetadata & {
-  amount: BigNumber
-  cost: BigNumber
-  id: string
-  price: BigNumber
-  side?: string
-  timestamp: number
-}
-
 export enum ExchangeDataType {
   ORDERBOOK_STATUS = 'orderbook_status',
-  TRADE = 'trade',
   TICKER = 'ticker',
 }
 
 export interface ExchangeAdapter {
   exchangeName: Exchange
   pairSymbol: string
-  fetchTrades: () => Promise<Trade[]>
   fetchTicker: () => Promise<Ticker>
 }
 
 export interface ExchangeAdapterConfig {
+  /*
+    API key for the exchange (if required)
+  */
+  apiKey?: string
   apiRequestTimeout?: number
   /** The currency to get the price of */
   baseCurrency: Currency
@@ -151,6 +142,8 @@ export abstract class BaseExchangeAdapter {
     [ExternalCurrency.USDT, 'USDT'],
     [ExternalCurrency.BUSD, 'BUSD'],
     [ExternalCurrency.USDC, 'USDC'],
+    [ExternalCurrency.EUROC, 'EUROC'],
+    [ExternalCurrency.XOF, 'XOF'],
   ])
 
   protected readonly logger: Logger
@@ -190,13 +183,6 @@ export abstract class BaseExchangeAdapter {
    * This may involve calls to more than one endpoint to get the needed info.
    */
   abstract fetchTicker(): Promise<Ticker>
-
-  /**
-   * Fetches trades from the exchange, normalizes their format, and returns them
-   * in chronological order.
-   * It's not currently used by any BaseExchangeAdapter client.
-   */
-  abstract fetchTrades(): Promise<Trade[]>
 
   /**
    * Fetches from an exchange api endpoint and returns the json-parsed result.
@@ -314,15 +300,6 @@ export abstract class BaseExchangeAdapter {
   }
 
   /**
-   * Protect against bad or missing values from the api
-   * @param trade
-   */
-  protected verifyTrade(trade: Partial<Trade>): void {
-    const { id, timestamp, price, amount, cost } = trade
-    requireVariables({ id, timestamp, price, amount, cost })
-  }
-
-  /**
    * Parses a value as a BigNumber and avoids the NaN or infinite case by
    * returning undefined instead
    * @param value the value to be parsed as a BigNumber
@@ -396,5 +373,26 @@ export abstract class BaseExchangeAdapter {
         }
       },
     })
+  }
+
+  /**
+   * A helper function that returns whether a given timestamp is within FX markets closing hours, meaning that
+   * they are closed and clients shouldn't report FX rates.
+   *
+   * The closing hours are: [Friday 22:00 UTC, Sunday 22:00 UTC)
+   *
+   * @param timestampInMs the timestamp in milliseconds to check
+   * @returns whether the FX markets are closed or not
+   */
+  static fxMarketsClosed(timestampInMs: number): boolean {
+    const date = new Date(timestampInMs)
+    const day = date.getUTCDay() // 0 for Sunday, 1 for Monday, 2 for Tuesday, and so on
+    const hour = date.getUTCHours() // 24h format
+
+    const isFridayEvening = day === 5 && hour >= 22
+    const isSaturday = day === 6
+    const isSundayBeforeEvening = day === 0 && hour < 22
+
+    return isFridayEvening || isSaturday || isSundayBeforeEvening
   }
 }

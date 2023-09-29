@@ -1,26 +1,19 @@
+import { BaseExchangeAdapter, ExchangeDataType, Ticker } from './base'
+
 import { Exchange } from '../utils'
-import { BaseExchangeAdapter, ExchangeDataType, Ticker, Trade } from './base'
 
 export class GeminiAdapter extends BaseExchangeAdapter {
   baseApiUrl = 'https://api.gemini.com/v1/'
 
   readonly _exchangeName = Exchange.GEMINI
-  // Amazon cert
+  // exchange.gemini.com - validity not after: 01/08/2024, 01:59:59 CEST
   readonly _certFingerprint256 =
-    'F5:5F:9F:FC:B8:3C:73:45:32:61:60:1C:7E:04:4D:B1:5A:0F:03:4B:93:C0:58:30:F2:86:35:EF:88:9C:F6:70'
+    'AD:D8:46:BA:A8:98:AA:55:D6:76:4A:7C:87:B2:5B:A2:9D:FC:AC:53:78:AB:E9:70:2B:6B:BF:2D:AF:A2:7C:D9'
 
   async fetchTicker(): Promise<Ticker> {
     return this.parseTicker(
       await this.fetchFromApi(ExchangeDataType.TICKER, `pubticker/${this.pairSymbol}`)
     )
-  }
-
-  async fetchTrades(): Promise<Trade[]> {
-    /**
-     * Trades are cool, but empty arrays are cooler.
-     *                          @bogdan, 01/2023
-     */
-    return []
   }
 
   protected generatePairSymbol(): string {
@@ -68,7 +61,7 @@ export class GeminiAdapter extends BaseExchangeAdapter {
 
   /**
    * Checks if the orderbook for the relevant pair is live. If it's not, the price
-   * data from Ticker + Trade endpoints may be inaccurate.
+   * data from ticker endpoint may be inaccurate.
    *
    * API response example:
    * {

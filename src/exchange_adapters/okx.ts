@@ -1,11 +1,13 @@
+import { BaseExchangeAdapter, ExchangeAdapter, ExchangeDataType, Ticker } from './base'
+
 import { Exchange } from '../utils'
-import { BaseExchangeAdapter, ExchangeAdapter, ExchangeDataType, Ticker, Trade } from './base'
 
 export class OKXAdapter extends BaseExchangeAdapter implements ExchangeAdapter {
   baseApiUrl = 'https://www.okx.com/api/v5'
   readonly _exchangeName = Exchange.OKX
+  // www.okx.com - validity not after: 02/11/2023, 00:59:59 CET
   readonly _certFingerprint256 =
-    '3A:BB:E6:3D:AF:75:6C:50:16:B6:B8:5F:52:01:5F:D8:E8:AC:BE:27:7C:50:87:B1:27:A6:05:63:A8:41:ED:8A'
+    '2A:31:F1:82:DB:EA:F4:E0:C7:B0:9F:60:25:0A:D3:F3:85:04:AE:9B:92:F1:B9:8E:C8:22:1F:E7:7B:C3:A6:66'
 
   private static readonly tokenSymbolMap = OKXAdapter.standardTokenSymbolMap
 
@@ -22,14 +24,6 @@ export class OKXAdapter extends BaseExchangeAdapter implements ExchangeAdapter {
     )
 
     return this.parseTicker(tickerJson)
-  }
-
-  async fetchTrades(): Promise<Trade[]> {
-    // Trade data is not needed by oracle but is required by the parent class.
-    // This function along with all other functions that are not needed by the oracle will
-    // be removed in a future PR.
-    // -- @bayological ;) --
-    return []
   }
 
   /**

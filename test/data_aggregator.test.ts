@@ -1,22 +1,24 @@
-import { CeloContract } from '@celo/contractkit'
-import BigNumber from 'bignumber.js'
 import * as aggregators from '../src/aggregator_functions'
-import { DataAggregator } from '../src/data_aggregator'
-import { baseLogger } from '../src/default_config'
-import { BittrexAdapter } from '../src/exchange_adapters/bittrex'
-import { CoinbaseAdapter } from '../src/exchange_adapters/coinbase'
-import { OKCoinAdapter } from '../src/exchange_adapters/okcoin'
-import { MetricCollector } from '../src/metric_collector'
+
 import {
   AggregationMethod,
   Exchange,
   ExternalCurrency,
-  minutesToMs,
   OracleCurrencyPair,
+  minutesToMs,
   secondsToMs,
 } from '../src/utils'
-import { WeightedPrice } from '../src/price_source'
+
+import BigNumber from 'bignumber.js'
+import { BittrexAdapter } from '../src/exchange_adapters/bittrex'
+import { CeloContract } from '@celo/contractkit'
+import { CoinbaseAdapter } from '../src/exchange_adapters/coinbase'
+import { DataAggregator } from '../src/data_aggregator'
 import { ExchangePriceSourceConfig } from '../src/exchange_price_source'
+import { MetricCollector } from '../src/metric_collector'
+import { OKCoinAdapter } from '../src/exchange_adapters/okcoin'
+import { WeightedPrice } from '../src/price_source'
+import { baseLogger } from '../src/default_config'
 
 jest.mock('../src/metric_collector')
 
@@ -31,6 +33,10 @@ describe('DataAggregator', () => {
   const apiRequestTimeout = secondsToMs(5)
   const metricCollector = new MetricCollector(baseLogger)
 
+  const apiKeys: Partial<Record<Exchange, string>> = {
+    BINANCE: 'mockBinanceApiKey',
+    COINBASE: 'mockCoinbaseApiKey',
+  }
   let currencyPair = OracleCurrencyPair.CELOUSD
   let minPriceSourceCount = 1
   const minAggregatedVolume = new BigNumber(1000)
@@ -56,6 +62,7 @@ describe('DataAggregator', () => {
     dataAggregator = new DataAggregator({
       aggregationMethod,
       aggregationWindowDuration,
+      apiKeys,
       apiRequestTimeout,
       baseLogger,
       currencyPair,
@@ -199,6 +206,7 @@ describe('DataAggregator', () => {
     for (const [currencyPairToTest, expectedBaseCurrency, expectedQuoteCurrency] of configsToTest) {
       describe(`for ${currencyPairToTest}`, () => {
         const expectedConfig = {
+          apiKey: undefined,
           apiRequestTimeout,
           baseCurrency: expectedBaseCurrency,
           baseLogger: expect.anything(),
@@ -215,6 +223,7 @@ describe('DataAggregator', () => {
                     exchange: Exchange.BITTREX,
                     symbol: currencyPairToTest,
                     toInvert: false,
+                    ignoreVolume: false,
                   },
                 ],
               },
@@ -224,6 +233,7 @@ describe('DataAggregator', () => {
                     exchange: Exchange.OKCOIN,
                     symbol: currencyPairToTest,
                     toInvert: false,
+                    ignoreVolume: false,
                   },
                 ],
               },
@@ -240,6 +250,32 @@ describe('DataAggregator', () => {
           })
           it('adds only those price sources to the set', () => {
             expect(dataAggregator.priceSources.length).toEqual(2)
+          })
+        })
+
+        describe('when the adapter has available api keys', () => {
+          beforeEach(() => {
+            priceSourceConfigs = [
+              {
+                pairs: [
+                  {
+                    exchange: Exchange.COINBASE,
+                    symbol: currencyPairToTest,
+                    toInvert: false,
+                    ignoreVolume: false,
+                  },
+                ],
+              },
+            ]
+            currencyPair = currencyPairToTest
+            setupDataAggregatorWithCurrentConfig()
+          })
+
+          it('initializes the adapter with the api key', () => {
+            expect(CoinbaseAdapter).toHaveBeenCalledWith({
+              ...expectedConfig,
+              apiKey: apiKeys.COINBASE,
+            })
           })
         })
       })
@@ -261,6 +297,7 @@ describe('DataAggregator', () => {
               exchange: Exchange.COINBASE,
               symbol: OracleCurrencyPair.CELOUSD,
               toInvert: false,
+              ignoreVolume: false,
             },
           ],
         },
@@ -270,6 +307,7 @@ describe('DataAggregator', () => {
               exchange: Exchange.OKCOIN,
               symbol: OracleCurrencyPair.CELOUSD,
               toInvert: false,
+              ignoreVolume: false,
             },
           ],
         },
@@ -279,6 +317,7 @@ describe('DataAggregator', () => {
               exchange: Exchange.BITTREX,
               symbol: OracleCurrencyPair.CELOUSD,
               toInvert: false,
+              ignoreVolume: false,
             },
           ],
         },
@@ -288,6 +327,7 @@ describe('DataAggregator', () => {
               exchange: Exchange.BINANCE,
               symbol: OracleCurrencyPair.CELOUSD,
               toInvert: false,
+              ignoreVolume: false,
             },
           ],
         },
@@ -297,6 +337,7 @@ describe('DataAggregator', () => {
               exchange: Exchange.BITSO,
               symbol: OracleCurrencyPair.CELOUSD,
               toInvert: false,
+              ignoreVolume: false,
             },
           ],
         },

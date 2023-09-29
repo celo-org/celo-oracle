@@ -1,11 +1,13 @@
+import { BaseExchangeAdapter, ExchangeAdapter, ExchangeDataType, Ticker } from './base'
+
 import { Exchange } from '../utils'
-import { BaseExchangeAdapter, ExchangeAdapter, ExchangeDataType, Ticker, Trade } from './base'
 
 export class KuCoinAdapter extends BaseExchangeAdapter implements ExchangeAdapter {
   baseApiUrl = 'https://api.kucoin.com'
   readonly _exchangeName = Exchange.KUCOIN
+  // api.kucoin.com - validity not after: 09/02/2024, 00:59:59 CET
   readonly _certFingerprint256 =
-    '3A:BB:E6:3D:AF:75:6C:50:16:B6:B8:5F:52:01:5F:D8:E8:AC:BE:27:7C:50:87:B1:27:A6:05:63:A8:41:ED:8A'
+    '3C:97:F9:C7:2D:C6:30:AF:FD:5A:91:8A:E8:3C:CE:75:70:C4:35:31:B3:46:61:54:B8:C1:1D:7F:81:2E:DB:58'
 
   private static readonly tokenSymbolMap = KuCoinAdapter.standardTokenSymbolMap
 
@@ -19,14 +21,6 @@ export class KuCoinAdapter extends BaseExchangeAdapter implements ExchangeAdapte
     const tickerJson = await this.fetchFromApi(ExchangeDataType.TICKER, `api/v1/market/allTickers`)
 
     return this.parseTicker(tickerJson)
-  }
-
-  async fetchTrades(): Promise<Trade[]> {
-    // Trade data is not needed by oracle but is required by the parent class.
-    // This function along with all other functions that are not needed by the oracle will
-    // be removed in a future PR.
-    // -- @bayological ;) --
-    return []
   }
 
   /**

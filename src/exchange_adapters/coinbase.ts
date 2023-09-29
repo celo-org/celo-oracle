@@ -1,12 +1,13 @@
-import { CeloContract } from '@celo/contractkit'
+import { BaseExchangeAdapter, ExchangeAdapter, ExchangeDataType, Ticker } from './base'
 import { Currency, Exchange } from '../utils'
-import { BaseExchangeAdapter, ExchangeAdapter, ExchangeDataType, Ticker, Trade } from './base'
+
+import { CeloContract } from '@celo/contractkit'
 
 export class CoinbaseAdapter extends BaseExchangeAdapter implements ExchangeAdapter {
   baseApiUrl = 'https://api.pro.coinbase.com'
-  // Cloudflare Inc ECC CA-3
+  // pro.coinbase.com - validity not after: 11/05/2024, 01:59:59 CEST
   readonly _certFingerprint256 =
-    '3A:BB:E6:3D:AF:75:6C:50:16:B6:B8:5F:52:01:5F:D8:E8:AC:BE:27:7C:50:87:B1:27:A6:05:63:A8:41:ED:8A'
+    '7B:F6:47:3E:A0:5F:92:B1:9D:7B:03:6B:68:7F:FF:F7:34:69:45:A0:AB:5D:76:D6:94:63:2D:06:C0:65:3B:39'
 
   readonly _exchangeName = Exchange.COINBASE
 
@@ -31,18 +32,6 @@ export class CoinbaseAdapter extends BaseExchangeAdapter implements ExchangeAdap
       `products/${this.pairSymbol}/ticker`
     )
     return this.parseTicker(res)
-  }
-
-  /**
-   * fetches recent trades from coinbase's api
-   * returns trades in chronological order (oldest first, newest last)
-   */
-  async fetchTrades(): Promise<Trade[]> {
-    const res = await this.fetchFromApi(
-      ExchangeDataType.TRADE,
-      `products/${this.pairSymbol}/trades`
-    )
-    return this.parseTrades(res).sort((a, b) => a.timestamp - b.timestamp)
   }
 
   /**
@@ -86,45 +75,8 @@ export class CoinbaseAdapter extends BaseExchangeAdapter implements ExchangeAdap
   }
 
   /**
-   * @param json a json object from Coinbase's API
-   * Expected format, as described in the docs
-   * source: https://docs.pro.coinbase.com/#get-trades
-   *
-   *    [{
-   *        time: "2014-11-07T22:19:28.578544Z",
-   *        trade_id: 74,
-   *        price: "10.00000000",
-   *        size: "0.01000000",
-   *        side: "buy"
-   *    }, {
-   *        time: "2014-11-07T01:08:43.642366Z",
-   *        trade_id: 73,
-   *        price: "100.00000000",
-   *        size: "0.01000000",
-   *        side: "sell"
-   *    }]
-   */
-  parseTrades(json: any): Trade[] {
-    return json.map((trade: any) => {
-      const price = this.safeBigNumberParse(trade.price)
-      const amount = this.safeBigNumberParse(trade.size)
-      const normalizedTrade = {
-        ...this.priceObjectMetadata,
-        amount,
-        cost: amount ? price?.times(amount) : undefined,
-        id: trade.trade_id,
-        price,
-        side: trade.side,
-        timestamp: this.safeDateParse(trade.time)!,
-      }
-      this.verifyTrade(normalizedTrade)
-      return normalizedTrade
-    })
-  }
-
-  /**
    * Checks if the orderbook for the relevant pair is live. If it's not, the price
-   * data from Ticker + Trade endpoints may be inaccurate.
+   * data from ticker endpoint may be inaccurate.
    *
    *  {
    *    id: "CGLD-USD",

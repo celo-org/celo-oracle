@@ -5,13 +5,14 @@ import {
   OracleApplication,
   OracleApplicationConfig,
 } from './app'
+import { EnvVar, fetchParseValidateEnvVar } from './envvar_utils'
 import {
   baseLogger,
   defaultApplicationConfig,
   defaultBlockBasedReporterConfig,
   defaultDataAggregatorConfig,
 } from './default_config'
-import { EnvVar, fetchParseValidateEnvVar } from './envvar_utils'
+
 import { ReportStrategy } from './utils'
 
 type EnvVarMap<T> = { [key in keyof Partial<T>]: EnvVar }
@@ -21,6 +22,7 @@ type EnvVarMap<T> = { [key in keyof Partial<T>]: EnvVar }
  * configurable via env vars.
  */
 export const applicationConfigEnvVars: EnvVarMap<OracleApplicationConfig> = {
+  apiKeys: EnvVar.API_KEYS,
   address: EnvVar.ADDRESS,
   awsKeyRegion: EnvVar.AWS_KEY_REGION,
   azureHsmInitMaxRetryBackoffMs: EnvVar.AZURE_HSM_INIT_MAX_RETRY_BACKOFF_MS,

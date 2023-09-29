@@ -1,10 +1,13 @@
+import { BaseExchangeAdapter, ExchangeAdapter, ExchangeDataType, Ticker } from './base'
+
 import { Exchange } from '../utils'
-import { BaseExchangeAdapter, ExchangeAdapter, ExchangeDataType, Ticker, Trade } from './base'
+
 export class MercadoAdapter extends BaseExchangeAdapter implements ExchangeAdapter {
   baseApiUrl = 'https://api.mercadobitcoin.net/api/v4'
   readonly _exchangeName = Exchange.MERCADO
+  // sni.cloudflaressl.com - validity not after: 15/05/2024, 01:59:59 CEST
   readonly _certFingerprint256 =
-    '3A:BB:E6:3D:AF:75:6C:50:16:B6:B8:5F:52:01:5F:D8:E8:AC:BE:27:7C:50:87:B1:27:A6:05:63:A8:41:ED:8A'
+    '7F:6A:C9:B9:72:50:32:78:06:49:38:B1:FC:85:0D:DA:FB:C8:90:1B:FD:A1:E1:B2:17:77:D8:E4:AD:26:0E:3E'
 
   private static readonly tokenSymbolMap = MercadoAdapter.standardTokenSymbolMap
 
@@ -20,14 +23,6 @@ export class MercadoAdapter extends BaseExchangeAdapter implements ExchangeAdapt
       this.fetchFromApi(ExchangeDataType.TICKER, `${this.pairSymbol}/orderbook`),
     ])
     return this.parseTicker(tickerJson, orderbookJson)
-  }
-
-  async fetchTrades(): Promise<Trade[]> {
-    // Trade data is not needed by oracle but is required by the parent class.
-    // This function along with all other functions that are not needed by the oracle will
-    // be removed in a future PR.
-    // -- @bayological ;) --
-    return []
   }
 
   /**

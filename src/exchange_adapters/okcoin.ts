@@ -1,12 +1,13 @@
+import { BaseExchangeAdapter, ExchangeDataType, Ticker } from './base'
+
 import { Exchange } from '../utils'
-import { BaseExchangeAdapter, ExchangeDataType, Ticker, Trade } from './base'
 
 export class OKCoinAdapter extends BaseExchangeAdapter {
   baseApiUrl = 'https://www.okcoin.com/api'
 
-  // Cloudflare Inc ECC CA-3
+  // sni.cloudflaressl.com - validity not after: 29/04/2024, 01:59:59 CEST
   readonly _certFingerprint256 =
-    '3A:BB:E6:3D:AF:75:6C:50:16:B6:B8:5F:52:01:5F:D8:E8:AC:BE:27:7C:50:87:B1:27:A6:05:63:A8:41:ED:8A'
+    '30:EB:DD:1F:AD:08:6E:6B:23:D1:94:03:99:BE:B7:CB:15:A5:F1:F8:AB:74:75:FF:B0:00:39:B7:73:9A:FE:BB'
 
   readonly _exchangeName = Exchange.OKCOIN
 
@@ -19,14 +20,6 @@ export class OKCoinAdapter extends BaseExchangeAdapter {
       `spot/v3/instruments/${this.pairSymbol}/ticker`
     )
     return this.parseTicker(json)
-  }
-
-  async fetchTrades(): Promise<Trade[]> {
-    const tradeJson = await this.fetchFromApi(
-      ExchangeDataType.TRADE,
-      `spot/v3/instruments/${this.pairSymbol}/trades`
-    )
-    return this.parseTrades(tradeJson)
   }
 
   /**
@@ -69,44 +62,6 @@ export class OKCoinAdapter extends BaseExchangeAdapter {
     }
     this.verifyTicker(ticker)
     return ticker
-  }
-
-  /**
-   * Parses the response from the trades endpoint and returns an array of standard
-   * Trade objects.
-   *
-   * @param json response from /spot/v3/instruments/${this.pairSymbol}/trades
-   *
-   *    Example response from OKCoin Docs: https://www.okcoin.com/docs/en/#spot-deal_information
-   *
-   *    [
-   *      {
-   *        "time":"2019-04-12T02:07:30.523Z",
-   *        "timestamp":"2019-04-12T02:07:30.523Z",
-   *        "trade_id":"1296412902",
-   *        "price":"4913.4",
-   *        "size":"0.00990734",
-   *        "side":"buy"
-   *      }
-   *    ]
-   */
-  parseTrades(json: any): Trade[] {
-    return json.map((trade: any) => {
-      const price = this.safeBigNumberParse(trade.price)
-      const amount = this.safeBigNumberParse(trade.size)
-      const cost = amount ? price?.times(amount) : undefined
-      const normalizedTrade = {
-        ...this.priceObjectMetadata,
-        amount,
-        cost,
-        id: trade.trade_id,
-        price,
-        side: trade.side,
-        timestamp: this.safeDateParse(trade.timestamp),
-      }
-      this.verifyTrade(normalizedTrade)
-      return normalizedTrade
-    })
   }
 
   protected generatePairSymbol(): string {

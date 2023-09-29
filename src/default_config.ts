@@ -58,6 +58,7 @@ export const defaultBlockBasedReporterConfig: BlockBasedReporterConfigSubset = {
 }
 
 export const defaultApplicationConfig: OracleApplicationConfig = {
+  apiKeys: {},
   awsKeyRegion: 'eu-central-1',
   azureHsmInitMaxRetryBackoffMs: secondsToMs(30),
   azureHsmInitTryCount: 5,

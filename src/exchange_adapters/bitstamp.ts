@@ -1,11 +1,13 @@
+import { BaseExchangeAdapter, ExchangeAdapter, ExchangeDataType, Ticker } from './base'
+
 import { Exchange } from '../utils'
-import { BaseExchangeAdapter, ExchangeAdapter, ExchangeDataType, Ticker, Trade } from './base'
 
 export class BitstampAdapter extends BaseExchangeAdapter implements ExchangeAdapter {
   baseApiUrl = 'https://www.bitstamp.net/api/v2'
   readonly _exchangeName = Exchange.BITSTAMP
+  // www.bitstamp.net - validity not after: 11/04/2024, 01:59:59 CEST
   readonly _certFingerprint256 =
-    '40:3E:06:2A:26:53:05:91:13:28:5B:AF:80:A0:D4:AE:42:2C:84:8C:9F:78:FA:D0:1F:C9:4B:C5:B8:7F:EF:1A'
+    'B2:FC:1C:C5:2A:4A:B4:B0:26:4E:C4:32:B8:F4:F0:34:87:66:2B:FD:CE:A0:35:47:0D:F1:0B:1B:97:68:2B:1A'
 
   private static readonly tokenSymbolMap = BitstampAdapter.standardTokenSymbolMap
 
@@ -18,14 +20,6 @@ export class BitstampAdapter extends BaseExchangeAdapter implements ExchangeAdap
   async fetchTicker(): Promise<Ticker> {
     const tickerJson = await this.fetchFromApi(ExchangeDataType.TICKER, `ticker/${this.pairSymbol}`)
     return this.parseTicker(tickerJson)
-  }
-
-  async fetchTrades(): Promise<Trade[]> {
-    // Trade data is not needed by oracle but is required by the parent class.
-    // This function along with all other functions that are not needed by the oracle will
-    // be removed in a future PR.
-    // -- @bayological ;) --
-    return []
   }
 
   /**

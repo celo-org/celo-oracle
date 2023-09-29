@@ -1,12 +1,13 @@
+import { BaseExchangeAdapter, ExchangeDataType, Ticker } from './base'
+
 import { Exchange } from '../utils'
-import { BaseExchangeAdapter, ExchangeDataType, Ticker, Trade } from './base'
 
 export class BittrexAdapter extends BaseExchangeAdapter {
   baseApiUrl = 'https://api.bittrex.com/v3'
   readonly _exchangeName = Exchange.BITTREX
-  // Cloudflare Inc ECC CA-3
+  // sni.cloudflaressl.com - validity not after: 29/04/2024, 01:59:59 CEST
   readonly _certFingerprint256 =
-    '3A:BB:E6:3D:AF:75:6C:50:16:B6:B8:5F:52:01:5F:D8:E8:AC:BE:27:7C:50:87:B1:27:A6:05:63:A8:41:ED:8A'
+    '2C:50:CC:AA:9B:2E:BB:B7:E0:7B:3D:0A:5A:09:1D:33:4F:B2:AB:F2:C4:D3:76:5E:9E:AA:C8:0E:99:A3:30:F6'
 
   private static readonly tokenSymbolMap = BittrexAdapter.standardTokenSymbolMap
 
@@ -17,14 +18,6 @@ export class BittrexAdapter extends BaseExchangeAdapter {
     ])
 
     return this.parseTicker(tickerJson, summaryJson)
-  }
-
-  async fetchTrades(): Promise<Trade[]> {
-    const tradeJson = await this.fetchFromApi(
-      ExchangeDataType.TRADE,
-      `markets/${this.pairSymbol}/trades`
-    )
-    return this.parseTrades(tradeJson)
   }
 
   protected generatePairSymbol(): string {
@@ -76,41 +69,6 @@ export class BittrexAdapter extends BaseExchangeAdapter {
     }
     this.verifyTicker(ticker)
     return ticker
-  }
-
-  /**
-   * Translates the json response from the Bittrex API into the standard Trade object
-   *
-   * @param json response from the trades endpoint
-   *    https://api.bittrex.com/v3/markets/{marketSymbol}/trades
-   *
-   *    [
-   *      {
-   *        id: "string (uuid)",
-   *        executedAt: "string (date-time)",
-   *        quantity: "number (double)",
-   *        rate: "number (double)",
-   *        takerSide: "string"
-   *      }
-   *    ]
-   */
-  parseTrades(json: any): Trade[] {
-    return json.map((trade: any) => {
-      const price = this.safeBigNumberParse(trade.rate)
-      const amount = this.safeBigNumberParse(trade.quantity)
-      const cost = amount ? price?.times(amount) : undefined
-      const normalizedTrade = {
-        ...this.priceObjectMetadata,
-        amount,
-        cost,
-        id: trade.id,
-        price,
-        side: trade.takerSide,
-        timestamp: this.safeDateParse(trade.executedAt)!,
-      }
-      this.verifyTrade(normalizedTrade)
-      return normalizedTrade
-    })
   }
 
   /**

@@ -1,9 +1,10 @@
-import Web3 from 'web3'
-import { OracleApplicationConfig } from '../src/app'
-import { defaultApplicationConfig } from '../src/default_config'
-import { EnvVar } from '../src/envvar_utils'
-import { getApplicationConfig } from '../src/run_app'
 import { AggregationMethod, Exchange, OracleCurrencyPair, WalletType } from '../src/utils'
+
+import { EnvVar } from '../src/envvar_utils'
+import { OracleApplicationConfig } from '../src/app'
+import Web3 from 'web3'
+import { defaultApplicationConfig } from '../src/default_config'
+import { getApplicationConfig } from '../src/run_app'
 
 const env = { ...process.env }
 
@@ -121,7 +122,8 @@ describe('run_app', () => {
         [EnvVar.AGGREGATION_METHOD]: 'MIDPRICES',
         [EnvVar.PRICE_SOURCES]:
           '[[{ exchange: "COINBASE", symbol: "CELOBTC", toInvert: false }], \
-            [{ exchange: "BITTREX", symbol: "CELOBTC", toInvert: false }]]',
+            [{ exchange: "BITTREX", symbol: "CELOBTC", toInvert: true, ignoreVolume: false }], \
+            [{ exchange: "KRAKEN", symbol: "CELOBTC", toInvert: false, ignoreVolume: true }]]',
         [EnvVar.HTTP_RPC_PROVIDER_URL]: 'http://bar.foo',
         [EnvVar.MINIMUM_PRICE_SOURCES]: '2',
         [EnvVar.PRIVATE_KEY_PATH]: 'testPkeyPath',
@@ -147,6 +149,7 @@ describe('run_app', () => {
                   exchange: Exchange.COINBASE,
                   symbol: OracleCurrencyPair.CELOBTC,
                   toInvert: false,
+                  ignoreVolume: false,
                 },
               ],
             },
@@ -155,7 +158,18 @@ describe('run_app', () => {
                 {
                   exchange: Exchange.BITTREX,
                   symbol: OracleCurrencyPair.CELOBTC,
+                  toInvert: true,
+                  ignoreVolume: false,
+                },
+              ],
+            },
+            {
+              pairs: [
+                {
+                  exchange: Exchange.KRAKEN,
+                  symbol: OracleCurrencyPair.CELOBTC,
                   toInvert: false,
+                  ignoreVolume: true,
                 },
               ],
             },

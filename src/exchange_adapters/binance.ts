@@ -1,12 +1,13 @@
+import { BaseExchangeAdapter, ExchangeAdapter, ExchangeDataType, Ticker } from './base'
+
 import { Exchange } from '../utils'
-import { BaseExchangeAdapter, ExchangeAdapter, ExchangeDataType, Ticker, Trade } from './base'
 
 export class BinanceAdapter extends BaseExchangeAdapter implements ExchangeAdapter {
   baseApiUrl = 'https://api.binance.com/api/v3'
   readonly _exchangeName: Exchange = Exchange.BINANCE
-  // GeoTrust RSA CA 2018
-  readonly _certFingerprint256 =
-    '8C:C3:4E:11:C1:67:04:58:24:AD:E6:1C:49:07:A6:44:0E:DB:2C:43:98:E9:9C:11:2A:85:9D:66:1F:8E:2B:C7'
+  // *.binance.com - validity not after: 17/02/2024, 00:59:59 CET
+  _certFingerprint256 =
+    '93:07:DE:DD:AF:3A:78:77:1D:B1:B7:68:3E:9F:18:8E:28:83:AE:A1:77:58:87:D4:5C:F6:F9:C8:71:1A:72:49'
 
   private static readonly tokenSymbolMap = BinanceAdapter.standardTokenSymbolMap
 
@@ -22,15 +23,6 @@ export class BinanceAdapter extends BaseExchangeAdapter implements ExchangeAdapt
       `ticker/24hr?symbol=${this.pairSymbol}`
     )
     return this.parseTicker(tickerJson)
-  }
-
-  async fetchTrades(): Promise<Trade[]> {
-    const tradesJson = await this.fetchFromApi(
-      ExchangeDataType.TRADE,
-      `aggTrades?symbol=${this.pairSymbol}`
-    )
-    // sort order from API is chronological
-    return this.parseTrades(tradesJson)
   }
 
   /**
@@ -76,41 +68,6 @@ export class BinanceAdapter extends BaseExchangeAdapter implements ExchangeAdapt
     }
     this.verifyTicker(ticker)
     return ticker
-  }
-
-  /**
-   *
-   * @param json response from Binance's trades endpoint
-   *
-   * [
-   *   {
-   *     "a": 683882,               // Aggregate tradeId
-   *     "p": "0.00008185",        // Price
-   *     "q": "5.30000000",       // Quantity
-   *     "f": 854278,            // First tradeId
-   *     "l": 854278,           // Last tradeId
-   *     "T": 1614665220705,   // Timestamp
-   *     "m": true,           // Was the buyer the maker?
-   *     "M": true           // Was the trade the best price match?
-   *   }
-   * ]
-   */
-  parseTrades(json: any): Trade[] {
-    return json.map((trade: any) => {
-      const price = this.safeBigNumberParse(trade.p)
-      const amount = this.safeBigNumberParse(trade.q)
-      const normalizedTrade = {
-        ...this.priceObjectMetadata,
-        amount,
-        cost: amount ? price?.times(amount) : undefined,
-        id: trade.a,
-        price,
-        side: trade.m ? 'sell' : 'buy',
-        timestamp: this.safeBigNumberParse(trade.T)?.toNumber()!,
-      }
-      this.verifyTrade(normalizedTrade)
-      return normalizedTrade
-    })
   }
 
   async isOrderbookLive(): Promise<boolean> {

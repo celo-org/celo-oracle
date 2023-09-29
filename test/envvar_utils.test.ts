@@ -1,6 +1,7 @@
-import BigNumber from 'bignumber.js'
 import { EnvVar, fetchParseValidateEnvVar } from '../src/envvar_utils'
+
 import { AggregationMethod } from '../src/utils'
+import BigNumber from 'bignumber.js'
 
 describe('fetchParseValidateEnvVar()', () => {
   const env = { ...process.env }
@@ -43,6 +44,102 @@ describe('fetchParseValidateEnvVar()', () => {
     process.env[EnvVar.CURRENCY_PAIR] = 'CELOBTC'
     expect(fetchParseValidateEnvVar(EnvVar.CURRENCY_PAIR)).toEqual('CELOBTC')
   })
+  it('correctly handles API_KEYS', () => {
+    process.env[EnvVar.API_KEYS] = 'COINBASE:foo,BINANCE:bar'
+    expect(fetchParseValidateEnvVar(EnvVar.API_KEYS)).toEqual({ COINBASE: 'foo', BINANCE: 'bar' })
+
+    process.env[EnvVar.API_KEYS] = 'BITSTAMP:foo'
+    expect(fetchParseValidateEnvVar(EnvVar.API_KEYS)).toEqual({ BITSTAMP: 'foo' })
+
+    process.env[EnvVar.API_KEYS] = 'invalidExchange:foo'
+    expect(() => fetchParseValidateEnvVar(EnvVar.API_KEYS)).toThrow()
+  })
+
+  describe('correctly handles PRICE_SOURCES', () => {
+    it('parses a single source correctly', () => {
+      process.env[EnvVar.PRICE_SOURCES] =
+        '[[{ exchange: "COINBASE", symbol: "CELOBTC", toInvert: false }]]'
+      const parsed = fetchParseValidateEnvVar(EnvVar.PRICE_SOURCES)
+
+      expect(parsed.length).toEqual(1)
+      expect(parsed[0].pairs.length).toEqual(1)
+      expect(parsed[0].pairs[0]).toEqual({
+        exchange: 'COINBASE',
+        symbol: 'CELOBTC',
+        toInvert: false,
+        ignoreVolume: false,
+      })
+    })
+    it('handles ignoreVolume property correctly', () => {
+      process.env[EnvVar.PRICE_SOURCES] =
+        '[[{ exchange: "COINBASE", symbol: "CELOBTC", toInvert: false, ignoreVolume: true }]]'
+      const parsed = fetchParseValidateEnvVar(EnvVar.PRICE_SOURCES)
+      expect(parsed[0].pairs[0].ignoreVolume).toBeTruthy()
+
+      process.env[EnvVar.PRICE_SOURCES] =
+        '[[{ exchange: "BINANCE", symbol: "CELOBTC", toInvert: false, ignoreVolume: false }]]'
+      const parsed2 = fetchParseValidateEnvVar(EnvVar.PRICE_SOURCES)
+      expect(parsed2[0].pairs[0].ignoreVolume).toBeFalsy()
+
+      process.env[EnvVar.PRICE_SOURCES] =
+        '[[{ exchange: "KRAKEN", symbol: "CELOBTC", toInvert: false}]]'
+      const parsed3 = fetchParseValidateEnvVar(EnvVar.PRICE_SOURCES)
+      expect(parsed3[0].pairs[0].ignoreVolume).toBeFalsy()
+    })
+    it('throws when any property has an invalid value', () => {
+      process.env[EnvVar.PRICE_SOURCES] = '[[{ exchange: 123, symbol: "CELOBTC", toInvert: false}]]'
+      expect(() => fetchParseValidateEnvVar(EnvVar.PRICE_SOURCES)).toThrow(
+        'exchange is 123 and not of type string'
+      )
+
+      process.env[EnvVar.PRICE_SOURCES] =
+        '[[{ exchange: "BINANCE", symbol: true, toInvert: false}]]'
+      expect(() => fetchParseValidateEnvVar(EnvVar.PRICE_SOURCES)).toThrow(
+        'symbol is true and not of type string'
+      )
+
+      process.env[EnvVar.PRICE_SOURCES] =
+        '[[{ exchange: "BINANCE", symbol: "CELOBTC", toInvert: 345}]]'
+      expect(() => fetchParseValidateEnvVar(EnvVar.PRICE_SOURCES)).toThrow(
+        'toInvert is 345 and not of type boolean'
+      )
+
+      process.env[EnvVar.PRICE_SOURCES] =
+        '[[{ exchange: "BINANCE", symbol: "CELOBTC", toInvert: false, ignoreVolume: "BTC"}]]'
+      expect(() => fetchParseValidateEnvVar(EnvVar.PRICE_SOURCES)).toThrow(
+        'ignoreVolume is BTC and not of type boolean'
+      )
+    })
+    it('parses multiple source correctly', () => {
+      process.env[EnvVar.PRICE_SOURCES] = `
+        [
+          [
+            { exchange: "COINBASE", symbol: "CELOBTC", toInvert: false},
+            { exchange: "BINANCE", symbol: "CELOBTC", toInvert: false, ignoreVolume: true}
+          ],
+          [
+            { exchange: "BITTREX", symbol: "CELOBTC", toInvert: true, ignoreVolume: false }
+          ]
+        ]
+      `
+      const parsed = fetchParseValidateEnvVar(EnvVar.PRICE_SOURCES)
+
+      expect(parsed.length).toEqual(2)
+      expect(parsed[0].pairs.length).toEqual(2)
+      expect(parsed[1].pairs.length).toEqual(1)
+      expect(parsed[0].pairs).toEqual([
+        { exchange: 'COINBASE', symbol: 'CELOBTC', toInvert: false, ignoreVolume: false },
+        { exchange: 'BINANCE', symbol: 'CELOBTC', toInvert: false, ignoreVolume: true },
+      ])
+      expect(parsed[1].pairs[0]).toEqual({
+        exchange: 'BITTREX',
+        symbol: 'CELOBTC',
+        toInvert: true,
+        ignoreVolume: false,
+      })
+    })
+  })
+
   it('parses aggregation method correctly', () => {
     process.env[EnvVar.AGGREGATION_METHOD] = 'Midprices'
     expect(fetchParseValidateEnvVar(EnvVar.AGGREGATION_METHOD)).toEqual(AggregationMethod.MIDPRICES)

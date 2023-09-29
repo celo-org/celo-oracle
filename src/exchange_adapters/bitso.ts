@@ -1,12 +1,13 @@
+import { BaseExchangeAdapter, ExchangeAdapter, ExchangeDataType, Ticker } from './base'
+
 import { Exchange } from '../utils'
-import { BaseExchangeAdapter, ExchangeAdapter, ExchangeDataType, Ticker, Trade } from './base'
 
 export class BitsoAdapter extends BaseExchangeAdapter implements ExchangeAdapter {
   baseApiUrl = 'https://api.bitso.com/api/v3'
   readonly _exchangeName = Exchange.BITSO
-  // Cloudflare Inc ECC CA-3
+  // bitso.com - validity not after: 24/04/2024, 01:59:59 CEST
   readonly _certFingerprint256 =
-    '3A:BB:E6:3D:AF:75:6C:50:16:B6:B8:5F:52:01:5F:D8:E8:AC:BE:27:7C:50:87:B1:27:A6:05:63:A8:41:ED:8A'
+    'C3:BB:BC:A5:E0:10:2F:02:2C:46:A2:69:C2:EF:F7:29:D8:76:23:7E:69:AA:4B:1E:92:23:56:34:2A:3E:DB:91'
 
   private static readonly tokenSymbolMap = BitsoAdapter.standardTokenSymbolMap
 
@@ -22,14 +23,6 @@ export class BitsoAdapter extends BaseExchangeAdapter implements ExchangeAdapter
       `ticker?book=${this.pairSymbol}`
     )
     return this.parseTicker(tickerJson.payload)
-  }
-
-  async fetchTrades(): Promise<Trade[]> {
-    const tradesJson = await this.fetchFromApi(
-      ExchangeDataType.TRADE,
-      `trades?book=${this.pairSymbol}`
-    )
-    return this.parseTrades(tradesJson.payload).sort((a, b) => a.timestamp - b.timestamp)
   }
 
   /**
@@ -68,39 +61,6 @@ export class BitsoAdapter extends BaseExchangeAdapter implements ExchangeAdapter
     }
     this.verifyTicker(ticker)
     return ticker
-  }
-
-  /**
-   *
-   * @param json response from Bitso's trades endpoint
-   *
-   * [
-   *     {
-   *         "book": "btc_mxn",
-   *         "created_at": "2021-07-02T05:54:45+0000",
-   *         "amount": "0.00127843",
-   *         "maker_side": "buy",
-   *         "price": "659436.40",
-   *         "tid": 41827090
-   *     }
-   * ]
-   */
-  parseTrades(json: any): Trade[] {
-    return json.map((trade: any) => {
-      const price = this.safeBigNumberParse(trade.price)
-      const amount = this.safeBigNumberParse(trade.amount)
-      const normalizedTrade = {
-        ...this.priceObjectMetadata,
-        amount,
-        cost: amount ? price?.times(amount) : undefined,
-        id: trade.tid,
-        price,
-        side: trade.maker_side,
-        timestamp: this.safeDateParse(trade.created_at)!,
-      }
-      this.verifyTrade(normalizedTrade)
-      return normalizedTrade
-    })
   }
 
   /**
