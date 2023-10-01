@@ -40,6 +40,7 @@ import { OKCoinAdapter } from './exchange_adapters/okcoin'
 import { OKXAdapter } from './exchange_adapters/okx'
 import { OracleApplicationConfig } from './app'
 import { WhitebitAdapter } from './exchange_adapters/whitebit'
+import { XigniteAdapter } from './exchange_adapters/xignite'
 import { strict as assert } from 'assert'
 
 function adapterFromExchangeName(name: Exchange, config: ExchangeAdapterConfig): ExchangeAdapter {
@@ -80,6 +81,8 @@ function adapterFromExchangeName(name: Exchange, config: ExchangeAdapterConfig):
       return new AlphavantageAdapter(config)
     case Exchange.CURRENCYAPI:
       return new CurrencyApiAdapter(config)
+    case Exchange.XIGNITE:
+      return new XigniteAdapter(config)
   }
 }
 
