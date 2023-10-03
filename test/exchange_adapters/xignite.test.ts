@@ -18,11 +18,6 @@ describe('Xignite adapter', () => {
     adapter = new XigniteAdapter(config)
   })
 
-  afterEach(() => {
-    jest.clearAllTimers()
-    jest.clearAllMocks()
-  })
-
   const validMockTickerJson = {
     BaseCurrency: 'EUR',
     QuoteCurrency: 'XOF',
