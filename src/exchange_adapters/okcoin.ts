@@ -5,9 +5,9 @@ import { Exchange } from '../utils'
 export class OKCoinAdapter extends BaseExchangeAdapter {
   baseApiUrl = 'https://www.okcoin.com/api'
 
-  // sni.cloudflaressl.com - validity not after: 29/04/2024, 01:59:59 CEST
+  // Cloudflare Inc ECC CA-3 - validity not after: 31/12/2024, 19:59:59 GMT-4
   readonly _certFingerprint256 =
-    '30:EB:DD:1F:AD:08:6E:6B:23:D1:94:03:99:BE:B7:CB:15:A5:F1:F8:AB:74:75:FF:B0:00:39:B7:73:9A:FE:BB'
+    '3A:BB:E6:3D:AF:75:6C:50:16:B6:B8:5F:52:01:5F:D8:E8:AC:BE:27:7C:50:87:B1:27:A6:05:63:A8:41:ED:8A'
 
   readonly _exchangeName = Exchange.OKCOIN
 

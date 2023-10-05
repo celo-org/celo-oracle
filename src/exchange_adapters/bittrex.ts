@@ -5,9 +5,9 @@ import { Exchange } from '../utils'
 export class BittrexAdapter extends BaseExchangeAdapter {
   baseApiUrl = 'https://api.bittrex.com/v3'
   readonly _exchangeName = Exchange.BITTREX
-  // sni.cloudflaressl.com - validity not after: 29/04/2024, 01:59:59 CEST
+  // Cloudflare Inc ECC CA-3 - validity not after: 31/12/2024, 19:59:59 GMT-4
   readonly _certFingerprint256 =
-    '2C:50:CC:AA:9B:2E:BB:B7:E0:7B:3D:0A:5A:09:1D:33:4F:B2:AB:F2:C4:D3:76:5E:9E:AA:C8:0E:99:A3:30:F6'
+    '3A:BB:E6:3D:AF:75:6C:50:16:B6:B8:5F:52:01:5F:D8:E8:AC:BE:27:7C:50:87:B1:27:A6:05:63:A8:41:ED:8A'
 
   private static readonly tokenSymbolMap = BittrexAdapter.standardTokenSymbolMap
 
