@@ -5,7 +5,7 @@ import { BinanceAdapter } from './binance'
 export class BinanceUSAdapter extends BinanceAdapter implements ExchangeAdapter {
   baseApiUrl = 'https://api.binance.us/api/v3'
   readonly _exchangeName = Exchange.BINANCEUS
-  // *.binance.us - validity not after: 11/09/2024, 01:59:59 CEST
+  // GeoTrust TLS RSA CA G1 - validity not after: 02/11/2027, 09:23:37 GMT-3
   _certFingerprint256 =
-    '45:48:18:31:2F:B1:60:5F:70:EA:FA:B8:67:B1:A5:5A:05:96:BE:74:66:C7:60:E4:F7:AF:D3:3F:0A:2E:D9:32'
+    'C0:6E:30:7F:7C:FC:1D:32:FA:72:A4:C0:33:C8:7B:90:01:9A:F2:16:F0:77:5D:64:97:8A:2E:CA:6C:8A:23:0E'
 }
