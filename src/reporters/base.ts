@@ -327,9 +327,9 @@ export abstract class BaseReporter {
 
     const expiredAndMoreThanOneReport = expired
       ? (await this.doAsyncExpiryAction(
-          () => sortedOracles.numRates(this.config.reportTarget),
-          'numRates'
-        )) > 1
+        () => sortedOracles.numRates(this.config.reportTarget),
+        'numRates'
+      )) > 1
       : false
 
     if (expiredAndMoreThanOneReport) {
@@ -458,7 +458,7 @@ export abstract class BaseReporter {
    */
   async calculateGasPrice(): Promise<number> {
     const gasPriceMinimum = await this.getGasPriceMin()
-    return gasPriceMinimum.times(this.config.gasPriceMultiplier).toNumber()
+    return Math.ceil(gasPriceMinimum.times(this.config.gasPriceMultiplier).toNumber())
   }
 
   /**
