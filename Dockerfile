@@ -7,7 +7,7 @@
 # docker push oracletest.azurecr.io/test/oracle:$COMMIT_SHA
 
 # First stage, builder to install devDependencies to build TypeScript
-FROM node:18 as BUILDER
+FROM node:18.18.0 as BUILDER
 
 RUN apt-get update
 RUN apt-get install -y libusb-1.0-0-dev
