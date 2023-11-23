@@ -327,9 +327,9 @@ export abstract class BaseReporter {
 
     const expiredAndMoreThanOneReport = expired
       ? (await this.doAsyncExpiryAction(
-        () => sortedOracles.numRates(this.config.reportTarget),
-        'numRates'
-      )) > 1
+          () => sortedOracles.numRates(this.config.reportTarget),
+          'numRates'
+        )) > 1
       : false
 
     if (expiredAndMoreThanOneReport) {
