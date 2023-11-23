@@ -28,7 +28,7 @@ COPY src src
 RUN yarn build
 
 # Second stage, create slimmed down production-ready image
-FROM node:18
+FROM node:18.18.0
 ARG COMMIT_SHA
 
 RUN apt-get update
