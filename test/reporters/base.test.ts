@@ -23,7 +23,7 @@ describe('BaseReporter', () => {
   const defaultReportTrigger = ReportTrigger.HEARTBEAT
 
   let currentPriceValue: BigNumber = new BigNumber(12.06)
-  const fixedMinGasPrice: BigNumber = new BigNumber(0.002)
+  const fixedMinGasPrice: BigNumber = new BigNumber(2e6)
 
   jest.mock('@celo/contractkit')
   const currentPriceFn = jest.fn(async () => currentPriceValue)
