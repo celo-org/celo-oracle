@@ -9,7 +9,7 @@ export class XigniteAdapter extends BaseExchangeAdapter implements ExchangeAdapt
   readonly _exchangeName: Exchange = Exchange.XIGNITE
   // Amazon RSA 2048 M02 - validity not after: 23/08/2030, 19:25:30 GMT-3
   readonly _certFingerprint256 =
-    'B0:F3:30:A3:1A:0C:50:98:7E:1C:3A:7B:B0:2C:2D:DA:68:29:91:D3:16:5B:51:7B:D4:4F:BA:4A:60:20:BD:94'
+    '68:96:35:0D:36:DC:54:53:36:5E:C9:FF:A1:76:56:C2:48:09:59:DE:FA:8F:E2:B7:1D:81:FF:B7:4B:FB:D6:7C'
 
   protected generatePairSymbol(): string {
     const base = XigniteAdapter.standardTokenSymbolMap.get(this.config.baseCurrency)
