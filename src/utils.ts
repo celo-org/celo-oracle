@@ -91,6 +91,7 @@ export enum OracleCurrencyPair {
   EURXOF = 'EURXOF',
   USDXOF = 'USDXOF',
   EUROCXOF = 'EUROCXOF',
+  EUROCUSDT = 'EUROCUSDT',
 }
 
 export const CoreCurrencyPair: OracleCurrencyPair[] = [
@@ -135,6 +136,7 @@ export const CurrencyPairBaseQuote: Record<
   [OracleCurrencyPair.EURXOF]: { base: ExternalCurrency.EUR, quote: ExternalCurrency.XOF },
   [OracleCurrencyPair.USDXOF]: { base: ExternalCurrency.USD, quote: ExternalCurrency.XOF },
   [OracleCurrencyPair.EUROCXOF]: { base: ExternalCurrency.EUROC, quote: ExternalCurrency.XOF },
+  [OracleCurrencyPair.EUROCUSDT]: { base: ExternalCurrency.EUROC, quote: ExternalCurrency.USDT },
 }
 
 export enum AggregationMethod {
