@@ -28,7 +28,7 @@ describe('BitMart adapter', () => {
     code: 1000,
     trace: '48cff315816f4e1aa26ca72cccb46051.58.16892401718550155',
     data: {
-      symbol: 'EUROC_USDC',
+      symbol: 'EURC_USDC',
       last_price: '1.10806017',
       quote_volume_24h: '91361.42293780',
       base_volume_24h: '82758.2',
@@ -42,7 +42,7 @@ describe('BitMart adapter', () => {
       best_bid_size: '55.2',
       fluctuation: '+0.0098',
       timestamp: 1689239976811,
-      url: 'https://www.bitmart.com/trade?symbol=EUROC_USDC',
+      url: 'https://www.bitmart.com/trade?symbol=EURC_USDC',
     },
   }
 
@@ -51,7 +51,7 @@ describe('BitMart adapter', () => {
     code: 1000,
     trace: '48cff315816f4e1aa26ca72cccb46051.58.16892401718550155',
     data: {
-      symbol: 'EUROC_USDC',
+      symbol: 'EURC_USDC',
       last_price: undefined,
       quote_volume_24h: '91361.42293780',
       base_volume_24h: undefined,
@@ -65,7 +65,7 @@ describe('BitMart adapter', () => {
       best_bid_size: '55.2',
       fluctuation: '+0.0098',
       timestamp: undefined,
-      url: 'https://www.bitmart.com/trade?symbol=EUROC_USDC',
+      url: 'https://www.bitmart.com/trade?symbol=EURC_USDC',
     },
   }
 
@@ -112,9 +112,9 @@ describe('BitMart adapter', () => {
           trade_status: '',
         },
         {
-          symbol: 'EUROC_USDC',
+          symbol: 'EURC_USDC',
           symbol_id: 2632,
-          base_currency: 'EUROC',
+          base_currency: 'EURC',
           quote_currency: 'USDC',
           quote_increment: '0.1',
           base_min_size: '0.100000000000000000000000000000',
@@ -150,9 +150,9 @@ describe('BitMart adapter', () => {
           trade_status: 'trading',
         },
         {
-          symbol: 'EUROC_USDC',
+          symbol: 'EURC_USDC',
           symbol_id: 2632,
-          base_currency: 'EUROC',
+          base_currency: 'EURC',
           quote_currency: 'USDC',
           quote_increment: '0.1',
           base_min_size: '0.100000000000000000000000000000',
@@ -188,9 +188,9 @@ describe('BitMart adapter', () => {
           trade_status: 'trading',
         },
         {
-          symbol: 'EUROC_XOF',
+          symbol: 'EURC_XOF',
           symbol_id: 2632,
-          base_currency: 'EUROC',
+          base_currency: 'EURC',
           quote_currency: 'USDC',
           quote_increment: '0.1',
           base_min_size: '0.100000000000000000000000000000',
