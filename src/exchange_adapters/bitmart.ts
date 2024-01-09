@@ -2,7 +2,6 @@ import { BaseExchangeAdapter, ExchangeAdapter, ExchangeDataType, Ticker } from '
 
 import { Currency, Exchange, ExternalCurrency } from '../utils'
 
-
 export class BitMartAdapter extends BaseExchangeAdapter implements ExchangeAdapter {
   baseApiUrl = 'https://api-cloud.bitmart.com'
   readonly _exchangeName = Exchange.BITMART
