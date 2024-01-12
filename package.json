@@ -16,7 +16,7 @@
     "lint:tests": "tslint -c tslint.json 'test/**/*.test.ts'",
     "prettify": "yarn run prettier --config .prettierrc.js --write '**/*.+(ts|tsx|js|jsx|sol|java)'",
     "prettify:diff": "yarn run prettier --config .prettierrc.js --list-different '**/*.+(ts|tsx|js|jsx|sol|java)'",
-     "get-cert": "./scripts/get_cert_fingerprint.sh"
+    "get-cert": "./scripts/get_cert_fingerprint.sh"
   },
   "dependencies": {
     "@celo/connect": "1.5.2",
