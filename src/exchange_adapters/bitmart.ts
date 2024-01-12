@@ -58,7 +58,7 @@ export class BitMartAdapter extends BaseExchangeAdapter implements ExchangeAdapt
    * @returns Ticker object
    */
   parseTicker(json: any): Ticker {
-      const ticker = {
+    const ticker = {
       ...this.priceObjectMetadata,
       ask: this.safeBigNumberParse(json.data.best_ask)!,
       baseVolume: this.safeBigNumberParse(json.data.base_volume_24h)!,
