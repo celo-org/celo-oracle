@@ -7,7 +7,7 @@ export class BitMartAdapter extends BaseExchangeAdapter implements ExchangeAdapt
   readonly _exchangeName = Exchange.BITMART
   // Go Daddy Secure Certificate Authority - G2 - validity not after: 03/05/2031, 04:00:00 GMT-3
   readonly _certFingerprint256 =
-    '9D:44:FC:FB:7F:D3:14:1E:3C:E7:DB:B1:BF:E2:60:6A:D2:96:C6:7C:10:C5:A9:1F:58:D3:58:C0:19:82:85:5A'
+    '97:3A:41:27:6F:FD:01:E0:27:A2:AA:D4:9E:34:C3:78:46:D3:E9:76:FF:6A:62:0B:67:12:E3:38:32:04:1A:A6'
 
   /**
    * Bitmart is currently using `EURC` as the symbol for EUROC.
