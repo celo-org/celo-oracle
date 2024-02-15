@@ -7,7 +7,7 @@ export class BinanceAdapter extends BaseExchangeAdapter implements ExchangeAdapt
   readonly _exchangeName: Exchange = Exchange.BINANCE
   // GeoTrust RSA CA 2018 - validity not after: 06/11/2027, 09:23:45 GMT-3
   _certFingerprint256 =
-    '8C:C3:4E:11:C1:67:04:58:24:AD:E6:1C:49:07:A6:44:0E:DB:2C:43:98:E9:9C:11:2A:85:9D:66:1F:8E:2B:C7'
+    'C0:6E:30:7F:7C:FC:1D:32:FA:72:A4:C0:33:C8:7B:90:01:9A:F2:16:F0:77:5D:64:97:8A:2E:CA:6C:8A:23:0E'
 
   private static readonly tokenSymbolMap = BinanceAdapter.standardTokenSymbolMap
 
