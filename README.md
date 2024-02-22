@@ -53,7 +53,7 @@ yarn start | npx bunyan
 
 Docker images are pushed to a public container [registry](https://console.cloud.google.com/artifacts/docker/celo-testnet-production/us-west1/celo-oracle/celo-oracle) upon every release. The latest price sources and data aggregation parameters can be found as helm charts in the celo [monorepo](https://github.com/celo-org/celo-monorepo/tree/master/packages/helm-charts/oracle).
 
-The recommended configuration at the moment is [0d433bc](https://github.com/celo-org/celo-monorepo/tree/0d433bc6b3bb0845868660281320d0a4fbba3dee/packages/helm-charts/oracle).
+The recommended configuration at the moment is [6787997](https://github.com/celo-org/celo-monorepo/commit/6787997a0b1f4a20cd1e4083e70bcd7db497c93e).
 
 
 ## Component Overview
