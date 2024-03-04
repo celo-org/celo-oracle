@@ -133,7 +133,7 @@ describe('BaseExchangeAdapter', () => {
         await expect(async () =>
           adapter.fetchFromApi(ExchangeDataType.TICKER, mockTickerEndpoint)
         ).rejects.toThrowError(
-          'Failed to parse JSON response: FetchError: invalid json response body at  reason: Unexpected token < in JSON at position 0'
+          'Failed to parse JSON response: FetchError: invalid json response body at  reason: Unexpected token \'<\', \"<html>blah\"... is not valid JSON'
         )
         expect(metricCollector.exchangeApiRequestError).toBeCalledWith(
           ...metricArgs,
