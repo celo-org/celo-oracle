@@ -9,8 +9,6 @@ import { baseLogger, defaultDataAggregatorConfig } from '../../src/default_confi
 
 import { BigNumber } from 'bignumber.js'
 import { BlockHeader } from 'web3-eth'
-// This is a fix for incompatible bignumber versions
-import { BigNumber as CKBigNumber } from '@celo/contractkit/node_modules/bignumber.js'
 import { DataAggregator } from '../../src/data_aggregator'
 import { SortedOraclesWrapper } from '@celo/contractkit/lib/wrappers/SortedOracles'
 
@@ -70,9 +68,9 @@ describe('Reporter', () => {
       nonce: '0x1',
       sha3Uncles: '0x01',
       logsBloom: '0x01',
-      transactionRoot: '0x01',
+      transactionsRoot: '0x01',
       stateRoot: '0x01',
-      receiptRoot: '0x01',
+      receiptsRoot: '0x01',
       miner: '0x01',
       extraData: '0x01',
       gasLimit: 10000,
@@ -148,7 +146,7 @@ describe('Reporter', () => {
       })
 
       it('confirms whether last report has expired', async () => {
-        const reportExpirySeconds = new CKBigNumber(5 * 60) // 5 minutes
+        const reportExpirySeconds = new BigNumber(5 * 60) // 5 minutes
         const lastReportedTime = 900000000000
         let currentTime = lastReportedTime
 

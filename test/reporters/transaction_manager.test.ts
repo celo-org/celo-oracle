@@ -31,6 +31,7 @@ const defaultReceipt: TransactionReceipt = {
   logsBloom: 'xxx',
   status: true,
   from: 'xxx',
+  effectiveGasPrice: 123,
 }
 
 // @ts-ignore
