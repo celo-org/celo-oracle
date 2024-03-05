@@ -77,7 +77,7 @@ type PriceSourceConfig = OrientedExchangePairConfig[]
 
 function assertPropertyType<T, K extends keyof T>(object: T, property: K, type: string) {
   const value = object[property]
-  assert(typeof value === type, `${property} is ${value} and not of type ${type}`)
+  assert(typeof value === type, `${String(property)} is ${value} and not of type ${type}`)
 }
 
 function parseOrientedExchangePair(config: OrientedExchangePairConfig): OrientedExchangePair {
