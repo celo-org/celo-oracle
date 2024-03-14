@@ -11,7 +11,7 @@ orbs:
 defaults: &defaults
   working_directory: ~/app
   docker:
-    - image: cimg/node:12.22.2
+    - image: cimg/node:12.22.12
   environment:
     # To avoid ENOMEM problem when running node
     NODE_OPTIONS: '--max-old-space-size=4096'
