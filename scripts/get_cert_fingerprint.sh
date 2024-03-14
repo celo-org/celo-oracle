@@ -9,8 +9,8 @@
 #   - intermediate_cert_index: the index of the intermediate certificate to
 
 # The script can be run from the root directory of the project as follows:
-# yarn get-cert [server_name] [intermediate_cert_index]
-# yarn get-cert api-cloud.bitmart.com 1
+# pmpm get-cert [server_name] [intermediate_cert_index]
+# pnpm get-cert api-cloud.bitmart.com 1
 
 # Check if two arguments are provided
 if [ "$#" -ne 2 ]; then
