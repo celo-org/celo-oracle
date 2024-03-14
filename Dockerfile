@@ -7,17 +7,23 @@
 # docker push oracletest.azurecr.io/test/oracle:$COMMIT_SHA
 
 # First stage, builder to install devDependencies to build TypeScript
-FROM node:18.18.0 as BUILDER
+FROM node:18.18.0 as base
+
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+RUN corepack enable
 
 RUN apt-get update
 RUN apt-get install -y libusb-1.0-0-dev
 
 WORKDIR /celo-oracle
 
-# ensure yarn.lock is evaluated by kaniko cache diff
-COPY package.json yarn.lock ./
+FROM base as BUILDER
 
-RUN yarn install --frozen-lockfile --network-timeout 100000 && yarn cache clean
+# ensure pnpm-lock.yaml is evaluated by kaniko cache diff
+COPY package.json pnpm-lock.yaml ./
+
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 
 COPY tsconfig.json ./
 
@@ -25,26 +31,22 @@ COPY tsconfig.json ./
 COPY src src
 
 # build contents
-RUN yarn build
+RUN pnpm run build
 
 # Second stage, create slimmed down production-ready image
-FROM node:18.18.0
+FROM base as runtime
+
 ARG COMMIT_SHA
-
-RUN apt-get update
-RUN apt-get install -y libusb-1.0-0-dev
-
-WORKDIR /celo-oracle
 ENV NODE_ENV production
 
-COPY package.json package.json yarn.lock tsconfig.json readinessProbe.sh ./
+COPY package.json package.json pnpm-lock.yaml tsconfig.json readinessProbe.sh ./
 
 COPY --from=BUILDER /celo-oracle/lib ./lib
 
-RUN yarn install --production --frozen-lockfile --network-timeout 100000 && yarn cache clean
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 RUN echo $COMMIT_SHA > /version
 RUN ["chmod", "+x", "/celo-oracle/readinessProbe.sh"]
 
 USER 1000:1000
 
-CMD yarn start
+CMD pnpm run start
