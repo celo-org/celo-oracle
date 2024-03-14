@@ -18,11 +18,11 @@ defaults: &defaults
 
 jobs:
   install_dependencies:
-    -run: echo "NOOP"
+    - run: echo "NOOP"
   lint-checks:
-    -run: echo "NOOP"
+    - run: echo "NOOP"
   general-test:
-    -run: echo "NOOP"
+    - run: echo "NOOP"
 workflows:
   celo-oracle-build:
     jobs:
