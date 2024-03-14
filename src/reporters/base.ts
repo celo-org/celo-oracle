@@ -10,7 +10,7 @@ import { Context, MetricCollector, ReportTrigger } from '../metric_collector'
 import {
   doAsyncFnWithErrorContext,
   doWithDurationMetric,
-  isOutsideTolerance,
+  // isOutsideTolerance,
   msToMinutes,
   msToSeconds,
   ReportStrategy,
@@ -264,6 +264,9 @@ export abstract class BaseReporter {
     this._lastReportedPrice = price
     this._lastReportedTimeMs = Date.now()
 
+    const tx2 = await this.config.kit.web3.eth.getTransaction(receipt.transactionHash)
+    this.logger.error("got tx", tx2)
+
     return receipt
   }
 
@@ -363,28 +366,28 @@ export abstract class BaseReporter {
    */
   async priceToReport() {
     const getPrice = async (): Promise<BigNumber> => {
-      // This can throw if there is an issue with trade data
-      const price = await this.config.dataAggregator.currentPrice()
+      // // This can throw if there is an issue with trade data
+      // const price = await this.config.dataAggregator.currentPrice()
 
-      // Circuit breaker logic only applies if the oracle client has previously
-      // reported.
-      const haveReported =
-        this.lastReportedTimeMs !== undefined && this.lastReportedPrice !== undefined
-      if (haveReported) {
-        // Determine if we should open the circuit breaker.
-        const circuitBreakerThreshold = this.calculateCircuitBreakerPriceChangeThreshold()
-        const timeSinceLastReport = Date.now() - this.lastReportedTimeMs!
-        const circuitBreakerOpen =
-          isOutsideTolerance(this.lastReportedPrice!, price, circuitBreakerThreshold) &&
-          timeSinceLastReport < this.config.circuitBreakerDurationTimeMs
+      // // Circuit breaker logic only applies if the oracle client has previously
+      // // reported.
+      // const haveReported =
+      //   this.lastReportedTimeMs !== undefined && this.lastReportedPrice !== undefined
+      // if (haveReported) {
+      //   // Determine if we should open the circuit breaker.
+      //   const circuitBreakerThreshold = this.calculateCircuitBreakerPriceChangeThreshold()
+      //   const timeSinceLastReport = Date.now() - this.lastReportedTimeMs!
+      //   const circuitBreakerOpen =
+      //     isOutsideTolerance(this.lastReportedPrice!, price, circuitBreakerThreshold) &&
+      //     timeSinceLastReport < this.config.circuitBreakerDurationTimeMs
 
-        if (circuitBreakerOpen) {
-          throw Error(
-            `Circuit breaker is open, price to report is too different from the last reported price and not enough time has elapsed. Price: ${price} Last reported price: ${this.lastReportedPrice} Price change threshold: ${circuitBreakerThreshold} Last reported time: ${this.lastReportedTimeMs} Circuit breaker duration [ms]: ${this.config.circuitBreakerDurationTimeMs}`
-          )
-        }
-      }
-      return price
+      //   if (circuitBreakerOpen) {
+      //     throw Error(
+      //       `Circuit breaker is open, price to report is too different from the last reported price and not enough time has elapsed. Price: ${price} Last reported price: ${this.lastReportedPrice} Price change threshold: ${circuitBreakerThreshold} Last reported time: ${this.lastReportedTimeMs} Circuit breaker duration [ms]: ${this.config.circuitBreakerDurationTimeMs}`
+      //     )
+      //   }
+      // }
+      return BigNumber(10)
     }
 
     return doAsyncFnWithErrorContext({
@@ -421,7 +424,7 @@ export abstract class BaseReporter {
 
     this.logger.info(`Setting oracle index to ${oracleIndex} ${indexOverrided ? '(mocked)' : ''}`)
 
-    this._oracleIndex = oracleIndex
+    this._oracleIndex = 1
 
     const oracleCountOverrided = this.config.overrideTotalOracleCount !== undefined
 

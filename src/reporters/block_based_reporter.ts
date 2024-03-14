@@ -160,7 +160,7 @@ export class BlockBasedReporter extends BaseReporter {
       await this.setOracleInfo()
     }
 
-    const isAssignedBlock = this.isAssignedBlock(blockNumber)
+    const isAssignedBlock = true
     this.logger.debug(
       {
         blockNumber,

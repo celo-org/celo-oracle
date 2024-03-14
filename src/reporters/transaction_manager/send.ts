@@ -23,6 +23,7 @@ export default async function send(
   fallbackGas: number
 ) {
   const txResult = await metricAction(async () => {
+    logger.error("send tx: ", tx)
     try {
       // First, attempt to send transaction without a gas amount to have
       // contractkit estimate gas
