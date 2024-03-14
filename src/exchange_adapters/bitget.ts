@@ -8,7 +8,8 @@ export class BitgetAdapter extends BaseExchangeAdapter {
   readonly _exchangeName = Exchange.BITGET
   // 	Cloudflare Inc ECC CA-3 - validity not after: 31/12/2024, 19:59:59 GMT-4
   readonly _certFingerprint256 =
-    '3A:BB:E6:3D:AF:75:6C:50:16:B6:B8:5F:52:01:5F:D8:E8:AC:BE:27:7C:50:87:B1:27:A6:05:63:A8:41:ED:8A'
+    '46:49:4E:30:37:90:59:DF:18:BE:52:12:43:05:E6:06:FC:59:07:0E:5B:21:07:6C:E1:13:95:4B:60:51:7C:DA'
+  // '3A:BB:E6:3D:AF:75:6C:50:16:B6:B8:5F:52:01:5F:D8:E8:AC:BE:27:7C:50:87:B1:27:A6:05:63:A8:41:ED:8A'
 
   async fetchTicker(): Promise<Ticker> {
     return this.parseTicker(
