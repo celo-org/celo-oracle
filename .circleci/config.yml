@@ -17,25 +17,23 @@ defaults: &defaults
     NODE_OPTIONS: '--max-old-space-size=4096'
 
 commands:
-  yarn_install:
+  pnpm_install:
     steps:
-      - restore_cache:
-          name: Restoring yarn cache
-          keys:
-            - yarn-packages-{{ checksum "yarn.lock" }}
       - run:
-          name: Install dependencies
-          # --cache-folder sets yarn's cache to the a folder being stored/loaded
-          # on CircleCI's cache.
-          # --frozen-lockfile instructs yarn not to generate a lockfile, and to
-          # return an error if the lockfile present does not match the
-          # dependencies.
-          command: yarn install --frozen-lockfile --cache-folder ~/.cache/yarn
+          name: Install pnpm package manager
+          command: |
+            corepack enable
+            corepack prepare pnpm@latest-8 --activate
+            pnpm config set store-dir .pnpm-store
+      - run:
+          name: Install Dependencies
+          command: |
+            pnpm install
       - save_cache:
-          name: Saving yarn cache
-          key: yarn-packages-{{ checksum "yarn.lock" }}
+          name: Save pnpm Package Cache
+          key: pnpm-packages-{{ checksum "pnpm-lock.yaml" }}
           paths:
-            - ~/.cache/yarn
+            - .pnpm-store
 jobs:
   install_dependencies:
     <<: *defaults
@@ -72,24 +70,12 @@ jobs:
       - attach_workspace:
           at: ~/app
 
-      - yarn_install
+      - pnpm_install
 
       - run:
           name: Build packages
           command: |
-            yarn build
-      - run:
-          name: Check licenses
-          command: |
-            if [ ! -e ~/.tmp/yarn_deps_have_changed ]; then
-              # Internally `yarn check-licenses` downloads dependencies into its cache again even if node_modules are up-to-date
-              # which happens when we've restored our cached node_modules.
-              # Making `yarn check-licenses` take ~45secs instead of ~3secs (depending on network conditions and build machine)
-              # So here we skip checking when it's unnecessary
-              echo "Skipping checking licenses, dependencies haven't changed"
-              exit 0
-            fi
-            yarn check-licenses
+            pnpm run build
       - persist_to_workspace:
           root: .
           paths:
@@ -102,9 +88,9 @@ jobs:
           at: ~/app
       # If this fails, fix it with
       # `./node_modules/.bin/prettier --config .prettierrc.js --write '**/*.+(ts|tsx|js|jsx)'`
-      - run: yarn run prettify:diff
-      - run: yarn run lint
-      - run: yarn run lint:tests
+      - run: pnpm run prettify:diff
+      - run: pnpm run lint
+      - run: pnpm run lint:tests
 
   general-test:
     <<: *defaults
@@ -116,7 +102,7 @@ jobs:
           name: jest tests
           command: |
             mkdir -p test-results/jest
-            yarn run test --maxWorkers 2
+            pnpm run test --maxWorkers 2
       - store_test_results:
           path: test-results
 
