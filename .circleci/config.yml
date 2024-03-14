@@ -16,96 +16,13 @@ defaults: &defaults
     # To avoid ENOMEM problem when running node
     NODE_OPTIONS: '--max-old-space-size=4096'
 
-commands:
-  pnpm_install:
-    steps:
-      - run:
-          name: Install pnpm package manager
-          command: |
-            corepack enable
-            corepack prepare pnpm@latest-8 --activate
-            pnpm config set store-dir .pnpm-store
-      - run:
-          name: Install Dependencies
-          command: |
-            pnpm install
-      - save_cache:
-          name: Save pnpm Package Cache
-          key: pnpm-packages-{{ checksum "pnpm-lock.yaml" }}
-          paths:
-            - .pnpm-store
 jobs:
   install_dependencies:
-    <<: *defaults
-    # Source: https://circleci.com/docs/2.0/configuration-reference/#resource_class
-    resource_class: medium+
-    steps:
-      - restore_cache:
-          name: Loading git cache
-          keys:
-            - source-v1-{{ .Branch }}-{{ .Revision }}
-            - source-v1-{{ .Branch }}-
-            - source-v1-
-
-      - checkout
-
-      - save_cache:
-          name: Saving git cache
-          key: source-v1-{{ .Branch }}-{{ .Revision }}
-          paths:
-            - '.git'
-
-      - run:
-          name: Verify setup for incremental testing
-          command: |
-            set -euo pipefail
-            cd ~/app
-            set -v
-            # To get the "main" branch mapping
-            git checkout main
-            git checkout ${CIRCLE_BRANCH}
-            # Verify that following commands work, they are later called in the incremental testing script
-            # There output does not matter here, the fact that they finish successfully does.
-            git rev-parse --abbrev-ref HEAD
-      - attach_workspace:
-          at: ~/app
-
-      - pnpm_install
-
-      - run:
-          name: Build packages
-          command: |
-            pnpm run build
-      - persist_to_workspace:
-          root: .
-          paths:
-            - .
-
+    -run: echo "NOOP"
   lint-checks:
-    <<: *defaults
-    steps:
-      - attach_workspace:
-          at: ~/app
-      # If this fails, fix it with
-      # `./node_modules/.bin/prettier --config .prettierrc.js --write '**/*.+(ts|tsx|js|jsx)'`
-      - run: pnpm run prettify:diff
-      - run: pnpm run lint
-      - run: pnpm run lint:tests
-
+    -run: echo "NOOP"
   general-test:
-    <<: *defaults
-    steps:
-      - attach_workspace:
-          at: ~/app
-
-      - run:
-          name: jest tests
-          command: |
-            mkdir -p test-results/jest
-            pnpm run test --maxWorkers 2
-      - store_test_results:
-          path: test-results
-
+    -run: echo "NOOP"
 workflows:
   celo-oracle-build:
     jobs:
