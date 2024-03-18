@@ -1,14 +1,14 @@
-name: "CI"
+name: 'CI'
 
 on:
   workflow_dispatch:
   pull_request:
     branches:
-      - "main"
-      - "feature/**"
+      - 'main'
+      - 'feature/**'
   push:
     branches:
-      - "main"
+      - 'main'
 
 jobs:
   ci:
@@ -16,16 +16,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: "Check out the repo"
-        uses: "actions/checkout@v3"
+      - name: 'Check out the repo'
+        uses: 'actions/checkout@v3'
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 12
+          node-version: 20.11
 
       - name: Install dependencies
-        run: "yarn install --immutable"
+        run: 'yarn install --immutable'
 
       - name: Build packages
         run: yarn build
@@ -38,4 +38,3 @@ jobs:
 
       - name: Run tests
         run: yarn run test --maxWorkers 2
-
