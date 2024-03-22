@@ -249,11 +249,11 @@ export class OracleApplication {
       case WalletType.NODE_ACCOUNT:
         kit = newKit(httpRpcProviderUrl)
         if (this.config.address) {
-          kit.defaultAccount = this.config.address
+          kit.defaultAccount = ensureLeading0x(this.config.address)
         } else {
           // If not default address, use the first one of the account
           const account = (await kit.web3.eth.getAccounts())[0]
-          kit.defaultAccount = account
+          kit.defaultAccount = ensureLeading0x(account)
           this.config.address = account
         }
         break

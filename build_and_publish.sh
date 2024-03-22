@@ -29,6 +29,11 @@ fi
 echo "Building version $VERSION"
 docker buildx build --platform linux/amd64 -t $PACKAGE_NAME .
 
+if [[ $? -ne 0 ]]; then
+  echo "Build failed"
+  exit 1
+fi
+
 echo "Tagging and pushing"
 docker tag $PACKAGE_NAME $REPOSITORY/$PACKAGE_NAME:$COMMIT_HASH
 docker push $REPOSITORY/$PACKAGE_NAME:$COMMIT_HASH
