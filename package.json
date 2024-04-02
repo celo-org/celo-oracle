@@ -32,10 +32,10 @@
     "node-fetch": "^2.6.1",
     "prom-client": "^12.0.0",
     "tslint-no-focused-test": "^0.5.0",
-    "web3": "1.10.0",
-    "web3-core": "1.10.0",
-    "web3-core-subscriptions": "1.10.0",
-    "web3-eth": "1.10.0"
+    "web3": "1.10.4",
+    "web3-core": "1.10.4",
+    "web3-core-subscriptions": "1.10.4",
+    "web3-eth": "1.10.4"
   },
   "devDependencies": {
     "@celo/typescript": "^0.0.2",
