@@ -18,12 +18,10 @@ RUN apt-get install -y libusb-1.0-0-dev
 
 WORKDIR /celo-oracle
 
-FROM base as BUILDER
-
 # ensure pnpm-lock.yaml is evaluated by kaniko cache diff
 COPY package.json pnpm-lock.yaml ./
 
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
+RUN pnpm install --frozen-lockfile
 
 COPY tsconfig.json ./
 
@@ -37,12 +35,14 @@ RUN pnpm run build
 FROM node:20.11
 ARG COMMIT_SHA
 ENV NODE_ENV production
+RUN corepack enable
+WORKDIR /celo-oracle
 
 COPY package.json package.json pnpm-lock.yaml tsconfig.json readinessProbe.sh ./
 
 COPY --from=BUILDER /celo-oracle/lib ./lib
 
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
+RUN pnpm install --frozen-lockfile
 RUN echo $COMMIT_SHA > /version
 RUN ["chmod", "+x", "/celo-oracle/readinessProbe.sh"]
 
