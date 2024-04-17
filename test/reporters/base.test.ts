@@ -7,7 +7,6 @@ import { ReportTarget, SortedOraclesWrapper } from '@celo/contractkit/lib/wrappe
 import { baseLogger, defaultDataAggregatorConfig } from '../../src/default_config'
 
 import BigNumber from 'bignumber.js'
-import { BigNumber as CKBigNumber } from '@celo/contractkit/node_modules/bignumber.js'
 import { DataAggregator } from '../../src/data_aggregator'
 import { GasPriceMinimumWrapper } from '@celo/contractkit/lib/wrappers/GasPriceMinimum'
 
@@ -342,7 +341,7 @@ describe('BaseReporter', () => {
       minGasPriceMock = await kit.contracts.getGasPriceMinimum()
       jest
         .spyOn(minGasPriceMock, 'gasPriceMinimum')
-        .mockImplementation(async () => new CKBigNumber(fixedMinGasPrice))
+        .mockImplementation(async () => new BigNumber(fixedMinGasPrice))
     })
 
     describe('correctly calculates the gas price with the default multiplier', () => {
