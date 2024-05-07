@@ -7,7 +7,7 @@ export class CoinbaseAdapter extends BaseExchangeAdapter implements ExchangeAdap
   baseApiUrl = 'https://api.pro.coinbase.com'
   // Cloudflare Inc ECC CA-3 - validity not after: 31/12/2024, 19:59:59 GMT-4
   readonly _certFingerprint256 =
-    '3A:BB:E6:3D:AF:75:6C:50:16:B6:B8:5F:52:01:5F:D8:E8:AC:BE:27:7C:50:87:B1:27:A6:05:63:A8:41:ED:8A'
+    '3E:E0:27:8D:F7:1F:A3:C1:25:C4:CD:48:7F:01:D7:74:69:4E:6F:C5:7E:0C:D9:4C:24:EF:D7:69:13:39:18:E5'
 
   readonly _exchangeName = Exchange.COINBASE
 
