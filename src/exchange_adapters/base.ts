@@ -144,6 +144,7 @@ export abstract class BaseExchangeAdapter {
     [ExternalCurrency.USDC, 'USDC'],
     [ExternalCurrency.EUROC, 'EUROC'],
     [ExternalCurrency.XOF, 'XOF'],
+    [ExternalCurrency.KES, 'KES'],
   ])
 
   protected readonly logger: Logger
