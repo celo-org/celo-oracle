@@ -55,6 +55,7 @@ export enum ExternalCurrency {
   USDC = 'USDC',
   EUROC = 'EUROC',
   XOF = 'XOF',
+  KES = 'KES',
 }
 
 export type Currency = ExternalCurrency | CeloToken
@@ -65,6 +66,7 @@ export enum OracleCurrencyPair {
   CELOBTC = 'CELOBTC',
   CELOBRL = 'CELOBRL',
   CELOXOF = 'CELOXOF',
+  CELOKES = 'CELOKES',
   BTCEUR = 'BTCEUR',
   CELOUSDT = 'CELOUSDT',
   CELOBUSD = 'CELOBUSD',
@@ -92,6 +94,7 @@ export enum OracleCurrencyPair {
   USDXOF = 'USDXOF',
   EUROCXOF = 'EUROCXOF',
   EUROCUSDT = 'EUROCUSDT',
+  KESUSD = 'KESUSD',
 }
 
 export const CoreCurrencyPair: OracleCurrencyPair[] = [
@@ -99,6 +102,7 @@ export const CoreCurrencyPair: OracleCurrencyPair[] = [
   OracleCurrencyPair.CELOUSD,
   OracleCurrencyPair.CELOBRL,
   OracleCurrencyPair.CELOXOF,
+  OracleCurrencyPair.CELOKES,
 ]
 
 export const CurrencyPairBaseQuote: Record<
@@ -110,6 +114,7 @@ export const CurrencyPairBaseQuote: Record<
   [OracleCurrencyPair.CELOEUR]: { base: CeloContract.GoldToken, quote: ExternalCurrency.EUR },
   [OracleCurrencyPair.CELOBRL]: { base: CeloContract.GoldToken, quote: ExternalCurrency.BRL },
   [OracleCurrencyPair.CELOXOF]: { base: CeloContract.GoldToken, quote: ExternalCurrency.XOF },
+  [OracleCurrencyPair.CELOKES]: { base: CeloContract.GoldToken, quote: ExternalCurrency.KES },
   [OracleCurrencyPair.BTCEUR]: { base: ExternalCurrency.BTC, quote: ExternalCurrency.EUR },
   [OracleCurrencyPair.CELOUSDT]: { base: CeloContract.GoldToken, quote: ExternalCurrency.USDT },
   [OracleCurrencyPair.CELOBUSD]: { base: CeloContract.GoldToken, quote: ExternalCurrency.BUSD },
@@ -137,6 +142,7 @@ export const CurrencyPairBaseQuote: Record<
   [OracleCurrencyPair.USDXOF]: { base: ExternalCurrency.USD, quote: ExternalCurrency.XOF },
   [OracleCurrencyPair.EUROCXOF]: { base: ExternalCurrency.EUROC, quote: ExternalCurrency.XOF },
   [OracleCurrencyPair.EUROCUSDT]: { base: ExternalCurrency.EUROC, quote: ExternalCurrency.USDT },
+  [OracleCurrencyPair.KESUSD]: { base: ExternalCurrency.KES, quote: ExternalCurrency.USD },
 }
 
 export enum AggregationMethod {
@@ -179,6 +185,8 @@ export async function reportTargetForCurrencyPair(
     return kit.registry.addressFor('StableTokenBRL' as CeloContract)
   } else if (pair === OracleCurrencyPair.CELOXOF) {
     return kit.registry.addressFor('StableTokenXOF' as CeloContract)
+  } else if (pair === OracleCurrencyPair.CELOKES) {
+    return kit.registry.addressFor('StableTokenKES' as CeloContract)
   } else {
     throw new Error(`${pair} can not be converted to a ReportTarget`)
   }
