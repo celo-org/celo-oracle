@@ -102,6 +102,7 @@ export const CoreCurrencyPair: OracleCurrencyPair[] = [
   OracleCurrencyPair.CELOUSD,
   OracleCurrencyPair.CELOBRL,
   OracleCurrencyPair.CELOXOF,
+  OracleCurrencyPair.CELOKES,
 ]
 
 export const CurrencyPairBaseQuote: Record<
