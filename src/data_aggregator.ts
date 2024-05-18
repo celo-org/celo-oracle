@@ -239,7 +239,9 @@ export class DataAggregator {
    * If all tickers fail, this will reject
    */
   async fetchAllPrices(): Promise<WeightedPrice[]> {
+    // Attempt to refresh certificate fingerprints in case there was an update
     await this.certificatesManager.refreshIfOutdated()
+
     const pricePromises: Promise<WeightedPrice>[] = this.priceSources.map((source) =>
       source.fetchWeightedPrice()
     )

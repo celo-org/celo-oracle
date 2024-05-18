@@ -3,7 +3,7 @@ import { Exchange } from './utils'
 import Logger from 'bunyan'
 
 export class CertificateManager {
-  private readonly REFRESH_INTERVAL_IN_SECONDS: number = 60 * 5
+  private readonly REFRESH_INTERVAL_IN_SECONDS: number = 60 * 10 // 10 minutes
   private certificates: Map<Exchange, string>
   private lastUpdated: number
   private fetchUrl: string
