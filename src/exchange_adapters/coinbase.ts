@@ -5,9 +5,6 @@ import { CeloContract } from '@celo/contractkit'
 
 export class CoinbaseAdapter extends BaseExchangeAdapter implements ExchangeAdapter {
   baseApiUrl = 'https://api.pro.coinbase.com'
-  // Google Trust Services LLC - validity not after: 30/09/2027, 03:00:42 EEST
-  readonly _certFingerprint256 =
-    '97:D4:20:03:E1:32:55:29:46:09:7F:20:EF:95:5F:5B:1C:D5:70:AA:43:72:D7:80:03:3A:65:EF:BE:69:75:8D'
 
   readonly _exchangeName = Exchange.COINBASE
 

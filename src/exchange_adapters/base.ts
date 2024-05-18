@@ -104,18 +104,6 @@ export abstract class BaseExchangeAdapter {
 
   abstract baseApiUrl: string
 
-  /**
-   * SHA-256 Fingerprint of any certificate in the certificate chain. It will be
-   * used to verify the identity of the servers for all API calls to this
-   * exchange's API and guards against man in the middle attacks.
-   *
-   * The more specific a certificate is, the more safety it provides. However,
-   * this tends to come with more frequent expirations that will necessitate
-   * more frequent updates to the fingerprints.
-   * A Root Certificate generally has the longest valid period, but won't help
-   * if an intermediate issuer has been compromised.
-   */
-  abstract readonly _certFingerprint256?: string
   abstract readonly _exchangeName: Exchange
 
   /**

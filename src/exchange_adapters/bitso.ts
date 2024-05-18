@@ -5,9 +5,6 @@ import { Exchange } from '../utils'
 export class BitsoAdapter extends BaseExchangeAdapter implements ExchangeAdapter {
   baseApiUrl = 'https://api.bitso.com/api/v3'
   readonly _exchangeName = Exchange.BITSO
-  // Internet Security Research Group - validity not after: 9/15/25, 11:00:00 AM EST
-  readonly _certFingerprint256 =
-    '46:49:4E:30:37:90:59:DF:18:BE:52:12:43:05:E6:06:FC:59:07:0E:5B:21:07:6C:E1:13:95:4B:60:51:7C:DA'
 
   private static readonly tokenSymbolMap = BitsoAdapter.standardTokenSymbolMap
 

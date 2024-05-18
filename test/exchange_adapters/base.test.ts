@@ -16,7 +16,6 @@ const { Response } = jest.requireActual('node-fetch')
 export class MockAdapter extends BaseExchangeAdapter {
   baseApiUrl = 'https://api.mock.com/api/v1.1'
   _exchangeName = Exchange.COINBASE
-  _certFingerprint256 = undefined
 
   async fetchTicker(): Promise<Ticker> {
     throw new Error('does not work yet')

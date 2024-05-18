@@ -5,9 +5,6 @@ import { Exchange } from '../utils'
 export class BitstampAdapter extends BaseExchangeAdapter implements ExchangeAdapter {
   baseApiUrl = 'https://www.bitstamp.net/api/v2'
   readonly _exchangeName = Exchange.BITSTAMP
-  // DigiCert EV RSA CA G2 - validity not after: 02/07/2030, 09:42:50 GMT-3
-  readonly _certFingerprint256 =
-    '95:88:EF:74:19:9E:45:AC:EF:CC:CF:C0:C4:70:10:E9:F2:A3:7A:1D:D4:4C:61:A4:E1:C6:B3:34:DA:5A:F6:14'
 
   private static readonly tokenSymbolMap = BitstampAdapter.standardTokenSymbolMap
 
