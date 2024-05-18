@@ -95,6 +95,7 @@ describe('OracleApplication', () => {
     aggregationMethod,
     aggregationWindowDuration,
     baseLogger,
+    certificateManagerSource: '',
     devMode: false,
     minPriceSourceCount,
     maxSourceWeightShare,

@@ -66,6 +66,7 @@ describe('DataAggregator', () => {
       apiKeys,
       apiRequestTimeout,
       baseLogger,
+      certificateManagerSource: '',
       currencyPair,
       devMode,
       maxSourceWeightShare,

@@ -11,7 +11,7 @@ export class CertificateManager {
 
     constructor(fetchUrl: string, logger: Logger) {
         this.fetchUrl = fetchUrl;
-        this.logger = logger.child({context: 'certificates_manager'});
+        this.logger = logger.child({context: 'certificate_manager'});
 
         this.certificates = new Map<Exchange, string>();
         this.setCertificates(localCertificates);
@@ -38,10 +38,10 @@ export class CertificateManager {
 
             this.logger.info(`Certificates successfully updated`)
         } else {
-            console.error(`Failed to fetch certificates: ${response.statusText}`);
+            this.logger.error(`Error while fetching certificates: ${response.statusText}`);
         }
       } catch (error) {
-          console.error(`Error fetching certificates: ${error}`);
+          this.logger.error(`Error while fetching certificates: ${error}`);
       }
     }
 

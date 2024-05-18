@@ -128,13 +128,17 @@ export interface DataAggregatorConfig {
    */
   baseLogger: Logger
   /**
-   * If the oracles should be in development mode, which doesn't require a node nor account key
+   * Endpoint which the certificateManager will query for certificate fingerprints
    */
-  devMode: boolean
+  certificateManagerSource: string
   /**
    * Currency pair to get the price of in centralized exchanges
    */
   currencyPair: OracleApplicationConfig['currencyPair']
+  /**
+   * If the oracles should be in development mode, which doesn't require a node nor account key
+   */
+  devMode: boolean
   /**
    * Price sources from which to collect data
    */
@@ -182,7 +186,7 @@ export class DataAggregator {
   constructor(config: DataAggregatorConfig) {
     this.config = config
     this.logger = this.config.baseLogger.child({ context: 'data_aggregator' })
-    this.certificatesManager = new CertificateManager('http://localhost:8000/certificates.json', this.config.baseLogger)
+    this.certificatesManager = new CertificateManager(config.certificateManagerSource, this.config.baseLogger)
     this.priceSources = this.setupPriceSources()
   }
 
