@@ -41,7 +41,7 @@ export class CertificateManager {
         this.logger.error(`Error while fetching certificates: ${response.statusText}`)
       }
     } catch (error) {
-      this.logger.error(`Error while fetching certificates: ${error}`)
+      this.logger.error(`Error while refreshing certificates: ${error}`)
     }
   }
 
