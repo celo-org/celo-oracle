@@ -182,7 +182,7 @@ export class DataAggregator {
   constructor(config: DataAggregatorConfig) {
     this.config = config
     this.logger = this.config.baseLogger.child({ context: 'data_aggregator' })
-    this.certificatesManager = new CertificateManager(this.config.baseLogger, 'http://localhost:8000/certificates.json', 10)
+    this.certificatesManager = new CertificateManager('http://localhost:8000/certificates.json', this.config.baseLogger)
     this.priceSources = this.setupPriceSources()
   }
 

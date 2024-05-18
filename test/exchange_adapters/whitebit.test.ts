@@ -54,7 +54,7 @@ describe('Whitebit adapter', () => {
   const config: ExchangeAdapterConfig = {
     baseCurrency: ExternalCurrency.USDC,
     baseLogger,
-    certificateManager: new CertificateManager(baseLogger, ''),
+    certificateManager: new CertificateManager('', baseLogger),
     quoteCurrency: ExternalCurrency.USDT,
   }
   beforeEach(() => {

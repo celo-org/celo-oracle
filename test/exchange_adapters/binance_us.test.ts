@@ -11,7 +11,7 @@ describe('binanceUSAdapter', () => {
   const config: ExchangeAdapterConfig = {
     baseCurrency: CeloContract.GoldToken,
     baseLogger,
-    certificateManager: new CertificateManager(baseLogger, ''),
+    certificateManager: new CertificateManager('', baseLogger),
     quoteCurrency: ExternalCurrency.BTC,
   }
   beforeEach(() => {

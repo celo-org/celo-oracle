@@ -12,7 +12,7 @@ describe('Bitstamp adapter', () => {
   const config: ExchangeAdapterConfig = {
     baseCurrency: ExternalCurrency.USDC,
     baseLogger,
-    certificateManager: new CertificateManager(baseLogger, ''),
+    certificateManager: new CertificateManager('', baseLogger),
     quoteCurrency: ExternalCurrency.USD,
   }
 

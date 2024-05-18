@@ -12,7 +12,7 @@ describe('Xignite adapter', () => {
   const config: ExchangeAdapterConfig = {
     baseCurrency: ExternalCurrency.EUR,
     baseLogger,
-    certificateManager: new CertificateManager(baseLogger, ''),
+    certificateManager: new CertificateManager('', baseLogger),
     quoteCurrency: ExternalCurrency.XOF,
   }
 

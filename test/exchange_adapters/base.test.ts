@@ -41,7 +41,7 @@ describe('BaseExchangeAdapter', () => {
     adapter = new MockAdapter({
       baseCurrency: CeloContract.GoldToken,
       baseLogger,
-      certificateManager: new CertificateManager(baseLogger, ''),
+      certificateManager: new CertificateManager('', baseLogger),
       quoteCurrency: ExternalCurrency.USD,
       metricCollector,
     })

@@ -10,7 +10,7 @@ describe('NovaDaxAdapter', () => {
   const config: ExchangeAdapterConfig = {
     baseCurrency: ExternalCurrency.BTC,
     baseLogger,
-    certificateManager: new CertificateManager(baseLogger, ''),
+    certificateManager: new CertificateManager('', baseLogger),
     quoteCurrency: ExternalCurrency.USD,
   }
   beforeEach(() => {

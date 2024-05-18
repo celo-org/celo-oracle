@@ -27,6 +27,7 @@ jest.mock('../src/exchange_adapters/bittrex')
 jest.mock('../src/exchange_adapters/coinbase')
 jest.mock('../src/exchange_adapters/okcoin')
 jest.mock('../src/exchange_adapters/bitso')
+jest.mock('../src/certs_manager')
 
 describe('DataAggregator', () => {
   const aggregationWindowDuration = minutesToMs(6)
@@ -210,6 +211,7 @@ describe('DataAggregator', () => {
           apiRequestTimeout,
           baseCurrency: expectedBaseCurrency,
           baseLogger: expect.anything(),
+          certificateManager: expect.anything(),
           metricCollector: expect.anything(),
           quoteCurrency: expectedQuoteCurrency,
         }

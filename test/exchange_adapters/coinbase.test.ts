@@ -12,7 +12,7 @@ describe('CoinbaseAdapter', () => {
   const config: ExchangeAdapterConfig = {
     baseCurrency: CeloContract.GoldToken,
     baseLogger,
-    certificateManager: new CertificateManager(baseLogger, ''),
+    certificateManager: new CertificateManager('', baseLogger),
     quoteCurrency: ExternalCurrency.USD,
   }
   beforeEach(() => {

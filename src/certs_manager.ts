@@ -3,17 +3,15 @@ import { Exchange } from './utils';
 import Logger from 'bunyan'
 
 export class CertificateManager {
+    private readonly REFRESH_INTERVAL_IN_SECONDS: number = 60 * 5;
     private certificates: Map<Exchange, string>;
     private lastUpdated: number;
-    private refreshIntervalInSeconds: number;
     private fetchUrl: string;
     private logger: Logger;
 
-    constructor(logger: Logger, fetchUrl: string, refreshIntervalInSeconds: number = 60 * 5) {
-        this.logger = logger.child({context: 'certificates_manager'});
+    constructor(fetchUrl: string, logger: Logger) {
         this.fetchUrl = fetchUrl;
-        this.refreshIntervalInSeconds = refreshIntervalInSeconds;
-
+        this.logger = logger.child({context: 'certificates_manager'});
 
         this.certificates = new Map<Exchange, string>();
         this.setCertificates(localCertificates);
@@ -26,7 +24,7 @@ export class CertificateManager {
 
     public async refreshIfOutdated(): Promise<void> {
       const sinceLastRefresh = (Date.now() - this.lastUpdated) / 1000;
-      if (sinceLastRefresh < this.refreshIntervalInSeconds) {
+      if (sinceLastRefresh < this.REFRESH_INTERVAL_IN_SECONDS) {
         return
       }
 
