@@ -4,6 +4,7 @@ import BigNumber from 'bignumber.js'
 import { BitMartAdapter } from '../../src/exchange_adapters/bitmart'
 import { ExchangeAdapterConfig } from '../../src/exchange_adapters/base'
 import { baseLogger } from '../../src/default_config'
+import { CertificateManager } from '../../src/certs_manager'
 
 describe('BitMart adapter', () => {
   let bitmartAdapter: BitMartAdapter
@@ -11,6 +12,7 @@ describe('BitMart adapter', () => {
   const config: ExchangeAdapterConfig = {
     baseCurrency: ExternalCurrency.EUROC,
     baseLogger,
+    certificateManager: new CertificateManager(baseLogger, ''),
     quoteCurrency: ExternalCurrency.USDC,
   }
 

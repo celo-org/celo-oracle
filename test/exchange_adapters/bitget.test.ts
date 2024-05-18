@@ -4,12 +4,14 @@ import BigNumber from 'bignumber.js'
 import { BitgetAdapter } from '../../src/exchange_adapters/bitget'
 import { ExchangeAdapterConfig } from '../../src/exchange_adapters/base'
 import { baseLogger } from '../../src/default_config'
+import { CertificateManager } from '../../src/certs_manager'
 
 describe('BitgetAdapter', () => {
   let bitgetAdapter: BitgetAdapter
   const config: ExchangeAdapterConfig = {
     baseCurrency: ExternalCurrency.BTC,
     baseLogger,
+    certificateManager: new CertificateManager(baseLogger, ''),
     quoteCurrency: ExternalCurrency.BRL,
   }
   beforeEach(() => {

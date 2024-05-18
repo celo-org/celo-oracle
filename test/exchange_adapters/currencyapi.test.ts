@@ -4,6 +4,7 @@ import BigNumber from 'bignumber.js'
 import { CurrencyApiAdapter } from '../../src/exchange_adapters/currencyapi'
 import { ExchangeAdapterConfig } from '../../src/exchange_adapters/base'
 import { baseLogger } from '../../src/default_config'
+import { CertificateManager } from '../../src/certs_manager'
 
 describe('CurrencyApi adapter', () => {
   let adapter: CurrencyApiAdapter
@@ -11,6 +12,7 @@ describe('CurrencyApi adapter', () => {
   const config: ExchangeAdapterConfig = {
     baseCurrency: ExternalCurrency.EUR,
     baseLogger,
+    certificateManager: new CertificateManager(baseLogger, ''),
     quoteCurrency: ExternalCurrency.XOF,
   }
 

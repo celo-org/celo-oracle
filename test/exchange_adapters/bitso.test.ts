@@ -3,12 +3,14 @@ import { baseLogger } from '../../src/default_config'
 import { ExchangeAdapterConfig } from '../../src/exchange_adapters/base'
 import { BitsoAdapter } from '../../src/exchange_adapters/bitso'
 import { Exchange, ExternalCurrency } from '../../src/utils'
+import { CertificateManager } from '../../src/certs_manager'
 
 describe('BitsoAdapter', () => {
   let bitsoAdapter: BitsoAdapter
   const config: ExchangeAdapterConfig = {
     baseCurrency: ExternalCurrency.BTC,
     baseLogger,
+    certificateManager: new CertificateManager(baseLogger, ''),
     quoteCurrency: ExternalCurrency.USD,
   }
   beforeEach(() => {

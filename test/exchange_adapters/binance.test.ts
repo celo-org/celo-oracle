@@ -4,12 +4,14 @@ import { baseLogger } from '../../src/default_config'
 import { ExchangeAdapterConfig } from '../../src/exchange_adapters/base'
 import { BinanceAdapter } from '../../src/exchange_adapters/binance'
 import { Exchange, ExternalCurrency } from '../../src/utils'
+import { CertificateManager } from '../../src/certs_manager'
 
 describe('BinanceAdapter', () => {
   let binanceAdapter: BinanceAdapter
   const config: ExchangeAdapterConfig = {
     baseCurrency: CeloContract.GoldToken,
     baseLogger,
+    certificateManager: new CertificateManager(baseLogger, ''),
     quoteCurrency: ExternalCurrency.BTC,
   }
   beforeEach(() => {

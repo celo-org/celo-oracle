@@ -5,12 +5,14 @@ import { CeloContract } from '@celo/contractkit'
 import { ExchangeAdapterConfig } from '../../src/exchange_adapters/base'
 import { OKCoinAdapter } from '../../src/exchange_adapters/okcoin'
 import { baseLogger } from '../../src/default_config'
+import { CertificateManager } from '../../src/certs_manager'
 
 describe('OKCoinAdapter', () => {
   let okcoinAdapter: OKCoinAdapter
   const config: ExchangeAdapterConfig = {
     baseCurrency: CeloContract.GoldToken,
     baseLogger,
+    certificateManager: new CertificateManager(baseLogger, ''),
     quoteCurrency: ExternalCurrency.USD,
   }
   beforeEach(() => {

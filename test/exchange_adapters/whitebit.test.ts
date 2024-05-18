@@ -4,6 +4,7 @@ import { ExchangeAdapterConfig, ExchangeDataType } from '../../src/exchange_adap
 import BigNumber from 'bignumber.js'
 import { WhitebitAdapter } from '../../src/exchange_adapters/whitebit'
 import { baseLogger } from '../../src/default_config'
+import { CertificateManager } from '../../src/certs_manager'
 
 // Mock data
 const validMockTickerJson = {
@@ -53,6 +54,7 @@ describe('Whitebit adapter', () => {
   const config: ExchangeAdapterConfig = {
     baseCurrency: ExternalCurrency.USDC,
     baseLogger,
+    certificateManager: new CertificateManager(baseLogger, ''),
     quoteCurrency: ExternalCurrency.USDT,
   }
   beforeEach(() => {

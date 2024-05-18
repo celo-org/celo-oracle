@@ -4,6 +4,7 @@ import { AlphavantageAdapter } from '../../src/exchange_adapters/alphavantage'
 import BigNumber from 'bignumber.js'
 import { ExchangeAdapterConfig } from '../../src/exchange_adapters/base'
 import { baseLogger } from '../../src/default_config'
+import { CertificateManager } from '../../src/certs_manager'
 
 describe('Alphavantage adapter', () => {
   let adapter: AlphavantageAdapter
@@ -11,6 +12,7 @@ describe('Alphavantage adapter', () => {
   const config: ExchangeAdapterConfig = {
     baseCurrency: ExternalCurrency.XOF,
     baseLogger,
+    certificateManager: new CertificateManager(baseLogger, ''),
     quoteCurrency: ExternalCurrency.EUR,
   }
 

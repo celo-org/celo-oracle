@@ -3,12 +3,14 @@ import { baseLogger } from '../../src/default_config'
 import { ExchangeAdapterConfig } from '../../src/exchange_adapters/base'
 import { NovaDaxAdapter } from '../../src/exchange_adapters/novadax'
 import { Exchange, ExternalCurrency } from '../../src/utils'
+import { CertificateManager } from '../../src/certs_manager'
 
 describe('NovaDaxAdapter', () => {
   let novadaxAdapter: NovaDaxAdapter
   const config: ExchangeAdapterConfig = {
     baseCurrency: ExternalCurrency.BTC,
     baseLogger,
+    certificateManager: new CertificateManager(baseLogger, ''),
     quoteCurrency: ExternalCurrency.USD,
   }
   beforeEach(() => {

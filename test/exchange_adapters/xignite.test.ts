@@ -4,6 +4,7 @@ import BigNumber from 'bignumber.js'
 import { ExchangeAdapterConfig } from '../../src/exchange_adapters/base'
 import { XigniteAdapter } from '../../src/exchange_adapters/xignite'
 import { baseLogger } from '../../src/default_config'
+import { CertificateManager } from '../../src/certs_manager'
 
 describe('Xignite adapter', () => {
   let adapter: XigniteAdapter
@@ -11,6 +12,7 @@ describe('Xignite adapter', () => {
   const config: ExchangeAdapterConfig = {
     baseCurrency: ExternalCurrency.EUR,
     baseLogger,
+    certificateManager: new CertificateManager(baseLogger, ''),
     quoteCurrency: ExternalCurrency.XOF,
   }
 

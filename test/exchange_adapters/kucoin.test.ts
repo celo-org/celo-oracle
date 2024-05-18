@@ -5,6 +5,7 @@ import { CeloContract } from '@celo/contractkit'
 import { ExchangeAdapterConfig } from '../../src/exchange_adapters/base'
 import { KuCoinAdapter } from '../../src/exchange_adapters/kucoin'
 import { baseLogger } from '../../src/default_config'
+import { CertificateManager } from '../../src/certs_manager'
 
 describe('KuCoin adapter', () => {
   let kucoinAdapter: KuCoinAdapter
@@ -12,6 +13,7 @@ describe('KuCoin adapter', () => {
   const config: ExchangeAdapterConfig = {
     baseCurrency: CeloContract.GoldToken,
     baseLogger,
+    certificateManager: new CertificateManager(baseLogger, ''),
     quoteCurrency: ExternalCurrency.USDT,
   }
 

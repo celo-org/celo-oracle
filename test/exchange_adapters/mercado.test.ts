@@ -4,6 +4,7 @@ import BigNumber from 'bignumber.js'
 import { ExchangeAdapterConfig } from '../../src/exchange_adapters/base'
 import { MercadoAdapter } from '../../src/exchange_adapters/mercado'
 import { baseLogger } from '../../src/default_config'
+import { CertificateManager } from '../../src/certs_manager'
 
 describe(' adapter', () => {
   let mercadoAdapter: MercadoAdapter
@@ -11,6 +12,7 @@ describe(' adapter', () => {
   const config: ExchangeAdapterConfig = {
     baseCurrency: ExternalCurrency.USDC,
     baseLogger,
+    certificateManager: new CertificateManager(baseLogger, ''),
     quoteCurrency: ExternalCurrency.USD,
   }
 

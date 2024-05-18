@@ -5,12 +5,14 @@ import BigNumber from 'bignumber.js'
 import { CeloContract } from '@celo/contractkit'
 import { CoinbaseAdapter } from '../../src/exchange_adapters/coinbase'
 import { baseLogger } from '../../src/default_config'
+import { CertificateManager } from '../../src/certs_manager'
 
 describe('CoinbaseAdapter', () => {
   let coinbaseAdapter: CoinbaseAdapter
   const config: ExchangeAdapterConfig = {
     baseCurrency: CeloContract.GoldToken,
     baseLogger,
+    certificateManager: new CertificateManager(baseLogger, ''),
     quoteCurrency: ExternalCurrency.USD,
   }
   beforeEach(() => {

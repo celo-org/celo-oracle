@@ -5,6 +5,7 @@ import { ExchangeApiRequestError, MetricCollector } from '../../src/metric_colle
 import { CeloContract } from '@celo/contractkit'
 import { baseLogger } from '../../src/default_config'
 import fetch from 'node-fetch'
+import { CertificateManager } from '../../src/certs_manager'
 
 jest.mock('@celo/contractkit')
 jest.mock('node-fetch')
@@ -40,6 +41,7 @@ describe('BaseExchangeAdapter', () => {
     adapter = new MockAdapter({
       baseCurrency: CeloContract.GoldToken,
       baseLogger,
+      certificateManager: new CertificateManager(baseLogger, ''),
       quoteCurrency: ExternalCurrency.USD,
       metricCollector,
     })

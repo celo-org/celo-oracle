@@ -4,6 +4,7 @@ import BigNumber from 'bignumber.js'
 import { BitstampAdapter } from '../../src/exchange_adapters/bitstamp'
 import { ExchangeAdapterConfig } from '../../src/exchange_adapters/base'
 import { baseLogger } from '../../src/default_config'
+import { CertificateManager } from '../../src/certs_manager'
 
 describe('Bitstamp adapter', () => {
   let bitstampAdapter: BitstampAdapter
@@ -11,6 +12,7 @@ describe('Bitstamp adapter', () => {
   const config: ExchangeAdapterConfig = {
     baseCurrency: ExternalCurrency.USDC,
     baseLogger,
+    certificateManager: new CertificateManager(baseLogger, ''),
     quoteCurrency: ExternalCurrency.USD,
   }
 

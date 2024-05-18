@@ -3,6 +3,7 @@ import { ExchangeAdapterConfig } from '../../src/exchange_adapters/base'
 import { baseLogger } from '../../src/default_config'
 import { Exchange, ExternalCurrency } from '../../src/utils'
 import BigNumber from 'bignumber.js'
+import { CertificateManager } from '../../src/certs_manager'
 
 describe('kraken adapter', () => {
   let krakenAdapter: KrakenAdapter
@@ -10,6 +11,7 @@ describe('kraken adapter', () => {
   const config: ExchangeAdapterConfig = {
     baseCurrency: ExternalCurrency.USDC,
     baseLogger,
+    certificateManager: new CertificateManager(baseLogger, ''),
     quoteCurrency: ExternalCurrency.USD,
   }
 

@@ -4,12 +4,14 @@ import BigNumber from 'bignumber.js'
 import { ExchangeAdapterConfig } from '../../src/exchange_adapters/base'
 import { GeminiAdapter } from '../../src/exchange_adapters/gemini'
 import { baseLogger } from '../../src/default_config'
+import { CertificateManager } from '../../src/certs_manager'
 
 describe('GeminiAdapter', () => {
   let geminiAdapter: GeminiAdapter
   const config: ExchangeAdapterConfig = {
     baseCurrency: ExternalCurrency.BTC,
     baseLogger,
+    certificateManager: new CertificateManager(baseLogger, ''),
     quoteCurrency: ExternalCurrency.USD,
   }
   beforeEach(() => {
