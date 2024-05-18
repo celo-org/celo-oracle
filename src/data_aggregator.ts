@@ -186,7 +186,10 @@ export class DataAggregator {
   constructor(config: DataAggregatorConfig) {
     this.config = config
     this.logger = this.config.baseLogger.child({ context: 'data_aggregator' })
-    this.certificatesManager = new CertificateManager(config.certificateManagerSource, this.config.baseLogger)
+    this.certificatesManager = new CertificateManager(
+      config.certificateManagerSource,
+      this.config.baseLogger
+    )
     this.priceSources = this.setupPriceSources()
   }
 
@@ -236,7 +239,7 @@ export class DataAggregator {
    * If all tickers fail, this will reject
    */
   async fetchAllPrices(): Promise<WeightedPrice[]> {
-    this.certificatesManager.refreshIfOutdated();
+    await this.certificatesManager.refreshIfOutdated()
     const pricePromises: Promise<WeightedPrice>[] = this.priceSources.map((source) =>
       source.fetchWeightedPrice()
     )

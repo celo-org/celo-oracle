@@ -292,7 +292,7 @@ const envVarHandlingMap = new Map<EnvVar, EnvVarHandling>([
     {
       parseFn: (unparsed: string) => unparsed,
       validationFns: [(value: string) => envVarValidations.isValidUrl(value, 'http')],
-    }
+    },
   ],
   [
     EnvVar.CIRCUIT_BREAKER_PRICE_CHANGE_THRESHOLD_MAX,

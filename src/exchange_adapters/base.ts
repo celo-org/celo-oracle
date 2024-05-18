@@ -78,7 +78,7 @@ export interface ExchangeAdapterConfig {
   /**
    * An instance of CertificateManager that contains certificate fingerprints
    * for all adapters
-  */
+   */
   certificateManager: CertificateManager
   /** An optional MetricCollector instance to report metrics */
   metricCollector?: MetricCollector
