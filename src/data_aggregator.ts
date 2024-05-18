@@ -42,6 +42,7 @@ import { OracleApplicationConfig } from './app'
 import { WhitebitAdapter } from './exchange_adapters/whitebit'
 import { XigniteAdapter } from './exchange_adapters/xignite'
 import { strict as assert } from 'assert'
+import { CertificateManager } from './certs_manager'
 
 function adapterFromExchangeName(name: Exchange, config: ExchangeAdapterConfig): ExchangeAdapter {
   switch (name) {
@@ -171,6 +172,7 @@ export interface DataAggregatorConfig {
 export class DataAggregator {
   public readonly config: DataAggregatorConfig
   priceSources: PriceSource[]
+  certificatesManager: CertificateManager
 
   private readonly logger: Logger
 
@@ -180,6 +182,7 @@ export class DataAggregator {
   constructor(config: DataAggregatorConfig) {
     this.config = config
     this.logger = this.config.baseLogger.child({ context: 'data_aggregator' })
+    this.certificatesManager = new CertificateManager(this.config.baseLogger, 'http://localhost:8000/certificates.json', 10)
     this.priceSources = this.setupPriceSources()
   }
 
@@ -187,6 +190,7 @@ export class DataAggregator {
     const baseAdapterConfig = {
       apiRequestTimeout: this.config.apiRequestTimeout,
       baseLogger: this.config.baseLogger,
+      certificateManager: this.certificatesManager,
       metricCollector: this.config.metricCollector,
     }
     const adapterFactory: AdapterFactory = (
@@ -228,6 +232,7 @@ export class DataAggregator {
    * If all tickers fail, this will reject
    */
   async fetchAllPrices(): Promise<WeightedPrice[]> {
+    this.certificatesManager.refreshIfOutdated();
     const pricePromises: Promise<WeightedPrice>[] = this.priceSources.map((source) =>
       source.fetchWeightedPrice()
     )

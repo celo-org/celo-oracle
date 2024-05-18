@@ -7,6 +7,7 @@ import { CeloContract } from '@celo/contractkit'
 import Logger from 'bunyan'
 import https from 'https'
 import tls from 'tls'
+import { CertificateManager } from '../certs_manager'
 
 export enum DataType {
   TICKER = 'Ticker',
@@ -74,6 +75,11 @@ export interface ExchangeAdapterConfig {
    * A base instance of the logger that can be extended for a particular context
    */
   baseLogger: Logger
+  /**
+   * An instance of CertificateManager that contains certificate fingerprints
+   * for all adapters
+  */
+  certificateManager: CertificateManager
   /** An optional MetricCollector instance to report metrics */
   metricCollector?: MetricCollector
   /**
@@ -349,29 +355,30 @@ export abstract class BaseExchangeAdapter {
           return err
         }
 
+        const adapterCertFingerprint = this.config.certificateManager.get(this.exchangeName)
+
         let currentCert: tls.PeerCertificate | undefined = cert
-
-        if (this._certFingerprint256) {
-          while (currentCert) {
-            if (this._certFingerprint256 === currentCert.fingerprint256) {
-              // Warn if within a 30 days of expiry (30 * 24 * 60 * 60 + 1000)
-              const expirationDate = Date.parse(cert.valid_to)
-              if (expirationDate - Date.now() < 2592000000) {
-                this.logger.warn(
-                  `Certificate with fingerprint ${currentCert.fingerprint256} expires in < 1 month`
-                )
-              }
-
-              return
-            } else {
-              // @ts-ignore TS doesn't believe issuerCertificate exists on PeerCertificate
-              const issuerCertificate = currentCert.issuerCertificate
-
-              currentCert = issuerCertificate !== currentCert ? issuerCertificate : undefined
+        while (currentCert) {
+          if (adapterCertFingerprint === currentCert.fingerprint256) {
+            // Warn if within a 30 days of expiry (30 * 24 * 60 * 60 + 1000)
+            const expirationDate = Date.parse(cert.valid_to)
+            if (expirationDate - Date.now() < 2592000000) {
+              this.logger.warn(
+                `Certificate with fingerprint ${currentCert.fingerprint256} expires in < 1 month`
+              )
             }
+
+            return
+          } else {
+            // @ts-ignore TS doesn't believe issuerCertificate exists on PeerCertificate
+            const issuerCertificate = currentCert.issuerCertificate
+
+            currentCert = issuerCertificate !== currentCert ? issuerCertificate : undefined
           }
-          return Error('Pinned fingerprint not found in certificate chain')
         }
+        return Error(
+          `Pinned fingerprint for ${this.exchangeName} (${adapterCertFingerprint}) not found in certificate chain`
+        )
       },
     })
   }
