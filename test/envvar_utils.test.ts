@@ -55,6 +55,23 @@ describe('fetchParseValidateEnvVar()', () => {
     expect(() => fetchParseValidateEnvVar(EnvVar.API_KEYS)).toThrow()
   })
 
+  it('correctly handles CERTIFICATE_MANAGER_JSON_URL', () => {
+    const endpointUrl = 'http://localhost:1234/certificates.json'
+    process.env[EnvVar.CERTIFICATE_MANAGER_JSON_URL] = endpointUrl
+    expect(fetchParseValidateEnvVar(EnvVar.CERTIFICATE_MANAGER_JSON_URL)).toEqual(endpointUrl)
+
+    process.env[EnvVar.CERTIFICATE_MANAGER_JSON_URL] = 'ws://'
+    expect(() => fetchParseValidateEnvVar(EnvVar.CERTIFICATE_MANAGER_JSON_URL)).toThrow()
+  })
+
+  it('correctly handles CERTIFICATE_MANAGER_REFRESH_INTERVAL_MS', () => {
+    process.env[EnvVar.CERTIFICATE_MANAGER_REFRESH_INTERVAL_MS] = '60000'
+    expect(fetchParseValidateEnvVar(EnvVar.CERTIFICATE_MANAGER_REFRESH_INTERVAL_MS)).toEqual(60000)
+
+    process.env[EnvVar.CERTIFICATE_MANAGER_REFRESH_INTERVAL_MS] = '10'
+    expect(() => fetchParseValidateEnvVar(EnvVar.CERTIFICATE_MANAGER_REFRESH_INTERVAL_MS)).toThrow()
+  })
+
   describe('correctly handles PRICE_SOURCES', () => {
     it('parses a single source correctly', () => {
       process.env[EnvVar.PRICE_SOURCES] =

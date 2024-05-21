@@ -11,7 +11,7 @@ describe('BinanceAdapter', () => {
   const config: ExchangeAdapterConfig = {
     baseCurrency: CeloContract.GoldToken,
     baseLogger,
-    certificateManager: new CertificateManager('', baseLogger),
+    certificateManager: new CertificateManager('', 1000, baseLogger),
     quoteCurrency: ExternalCurrency.BTC,
   }
   beforeEach(() => {

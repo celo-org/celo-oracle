@@ -42,7 +42,7 @@ describe('DataAggregator', () => {
   const aggregationWindowDuration = minutesToMs(6)
   const apiRequestTimeout = secondsToMs(5)
   const metricCollector = new MetricCollector(baseLogger)
-  const certManager = new CertificateManager('', baseLogger)
+  const certManager = new CertificateManager('', 1000, baseLogger)
 
   const apiKeys: Partial<Record<Exchange, string>> = {
     BINANCE: 'mockBinanceApiKey',
@@ -76,7 +76,8 @@ describe('DataAggregator', () => {
       apiKeys,
       apiRequestTimeout,
       baseLogger,
-      certificateManagerSource: '',
+      certificateManagerJsonUrl: '',
+      certificateManagerRefreshIntervalMs: 1000,
       currencyPair,
       devMode,
       maxSourceWeightShare,

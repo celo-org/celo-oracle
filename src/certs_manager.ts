@@ -1,16 +1,19 @@
-import localCertificates from './exchange_adapters/certificates.json'
 import { Exchange } from './utils'
+import localCertificates from './exchange_adapters/certificates.json'
+
 import Logger from 'bunyan'
 
 export class CertificateManager {
-  private readonly REFRESH_INTERVAL_IN_SECONDS: number = 60 * 10 // 10 minutes
-  private certificates: Map<Exchange, string>
-  private lastUpdated: number
-  private fetchUrl: string
+  private jsonUrl: string
+  private refreshIntervalInMs: number
   private logger: Logger
 
-  constructor(fetchUrl: string, logger: Logger) {
-    this.fetchUrl = fetchUrl
+  private certificates: Map<Exchange, string>
+  private lastUpdated: number
+
+  constructor(jsonUrl: string, refreshIntervalInMs: number, logger: Logger) {
+    this.jsonUrl = jsonUrl
+    this.refreshIntervalInMs = refreshIntervalInMs
     this.logger = logger.child({ context: 'certificate_manager' })
 
     this.certificates = new Map<Exchange, string>()
@@ -23,14 +26,13 @@ export class CertificateManager {
   }
 
   public async refreshIfOutdated(): Promise<void> {
-    const sinceLastRefresh = (Date.now() - this.lastUpdated) / 1000
-    if (sinceLastRefresh < this.REFRESH_INTERVAL_IN_SECONDS) {
+    if (Date.now() - this.lastUpdated < this.refreshIntervalInMs) {
       return
     }
 
     try {
       this.logger.info('Attempting to refresh certificates')
-      const response = await fetch(this.fetchUrl)
+      const response = await fetch(this.jsonUrl)
       if (response.ok) {
         const data = await response.json()
         this.setCertificates(data)
@@ -38,7 +40,7 @@ export class CertificateManager {
 
         this.logger.info(`Certificates successfully updated`)
       } else {
-        this.logger.error(`Error while fetching certificates: ${response.statusText}`)
+        this.logger.error(`Error during fetch call (${response.status}): ${response.statusText}`)
       }
     } catch (error) {
       this.logger.error(`Error while refreshing certificates: ${error}`)

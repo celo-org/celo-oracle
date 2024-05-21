@@ -12,7 +12,7 @@ describe('Alphavantage adapter', () => {
   const config: ExchangeAdapterConfig = {
     baseCurrency: ExternalCurrency.XOF,
     baseLogger,
-    certificateManager: new CertificateManager('', baseLogger),
+    certificateManager: new CertificateManager('', 1000, baseLogger),
     quoteCurrency: ExternalCurrency.EUR,
   }
 

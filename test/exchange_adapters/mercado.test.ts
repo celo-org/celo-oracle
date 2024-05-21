@@ -12,7 +12,7 @@ describe(' adapter', () => {
   const config: ExchangeAdapterConfig = {
     baseCurrency: ExternalCurrency.USDC,
     baseLogger,
-    certificateManager: new CertificateManager('', baseLogger),
+    certificateManager: new CertificateManager('', 1000, baseLogger),
     quoteCurrency: ExternalCurrency.USD,
   }
 

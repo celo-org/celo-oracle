@@ -128,9 +128,13 @@ export interface DataAggregatorConfig {
    */
   baseLogger: Logger
   /**
-   * Endpoint which the certificateManager will query for certificate fingerprints
+   * Endpoint for the certificate manager to fetch the latest certificates from
    */
-  certificateManagerSource: string
+  certificateManagerJsonUrl: string
+  /**
+   * Interval in milliseconds to refresh certificates
+   */
+  certificateManagerRefreshIntervalMs: number
   /**
    * Currency pair to get the price of in centralized exchanges
    */
@@ -187,7 +191,8 @@ export class DataAggregator {
     this.config = config
     this.logger = this.config.baseLogger.child({ context: 'data_aggregator' })
     this.certificatesManager = new CertificateManager(
-      config.certificateManagerSource,
+      config.certificateManagerJsonUrl,
+      config.certificateManagerRefreshIntervalMs,
       this.config.baseLogger
     )
     this.priceSources = this.setupPriceSources()

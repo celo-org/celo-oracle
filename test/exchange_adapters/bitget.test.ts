@@ -11,7 +11,7 @@ describe('BitgetAdapter', () => {
   const config: ExchangeAdapterConfig = {
     baseCurrency: ExternalCurrency.BTC,
     baseLogger,
-    certificateManager: new CertificateManager('', baseLogger),
+    certificateManager: new CertificateManager('', 1000, baseLogger),
     quoteCurrency: ExternalCurrency.BRL,
   }
   beforeEach(() => {

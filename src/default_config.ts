@@ -28,8 +28,9 @@ export const defaultDataAggregatorConfig: DataAggregatorConfigSubset = {
   aggregationWindowDuration: minutesToMs(5),
   apiRequestTimeout: secondsToMs(5),
   baseLogger,
-  certificateManagerSource:
+  certificateManagerJsonUrl:
     'https://raw.githubusercontent.com/celo-org/celo-oracle/main/src/exchange_adapters/certificates.json',
+  certificateManagerRefreshIntervalMs: minutesToMs(10),
   maxSourceWeightShare: new BigNumber(0.99),
   maxPercentageBidAskSpread: new BigNumber(0.1),
   maxPercentageDeviation: new BigNumber(0.2),
