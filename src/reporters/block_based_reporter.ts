@@ -326,9 +326,9 @@ export class BlockBasedReporter extends BaseReporter {
       })
       await setupNewProviderAndSubs()
     })
-    this.provider.on('end', async () => {
+    this.provider.on('close', async () => {
       onError(
-        new Error('WebsocketProvider has ended, will restart'),
+        new Error('WebsocketProvider connection closed, will re-open'),
         this.blockHeaderSubscriptionErrorWrapper
       )
       await setupNewProviderAndSubs()
