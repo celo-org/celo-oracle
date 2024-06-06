@@ -318,6 +318,10 @@ export class BlockBasedReporter extends BaseReporter {
       setupNewProvider = true
     }
 
+    this.provider.on('reconnect', () => {
+      this.logger.info('Attempting to reconnect to WebsocketProvider...')
+    })
+
     // @ts-ignore - the type definition does not include the error
     this.provider.on('error', async (error: Error) => {
       onError(error, {
