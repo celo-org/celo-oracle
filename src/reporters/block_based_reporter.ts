@@ -88,6 +88,14 @@ export class BlockBasedReporter extends BaseReporter {
 
   readonly config: BlockBasedReporterConfig
 
+  readonly wsConnectionOptions = {
+    // to enable auto reconnection
+    reconnect: {
+      auto: true,
+      delay: 1000, // ms
+    },
+  };
+
   private _blockHeaderSubscription: Subscription<BlockHeader> | undefined
 
   private _highestObservedBlockNumber: number
@@ -112,7 +120,7 @@ export class BlockBasedReporter extends BaseReporter {
       metricCollector: this.config.metricCollector,
       swallowError: true,
     }
-    this.provider = new Web3.providers.WebsocketProvider(this.config.wsRpcProviderUrl)
+    this.provider = new Web3.providers.WebsocketProvider(this.config.wsRpcProviderUrl, this.wsConnectionOptions)
     this.web3 = new Web3(this.provider)
     this.initialized = false
   }
@@ -296,7 +304,7 @@ export class BlockBasedReporter extends BaseReporter {
 
   private setupProviderAndSubscriptions(): void {
     this.logger.info('Setting up wsProvider and subscriptions')
-    this.provider = new Web3.providers.WebsocketProvider(this.config.wsRpcProviderUrl)
+    this.provider = new Web3.providers.WebsocketProvider(this.config.wsRpcProviderUrl, this.wsConnectionOptions)
     this.web3.setProvider(this.provider)
     this.config.metricCollector?.websocketProviderSetup()
     let setupNewProvider = false
