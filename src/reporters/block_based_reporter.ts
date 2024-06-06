@@ -92,7 +92,7 @@ export class BlockBasedReporter extends BaseReporter {
     // to enable auto reconnection
     reconnect: {
       auto: true,
-      delay: 1000, // ms
+      delay: 5000, // ms, roughly a block
     },
   };
 
