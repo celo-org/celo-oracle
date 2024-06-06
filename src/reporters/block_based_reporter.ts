@@ -94,7 +94,7 @@ export class BlockBasedReporter extends BaseReporter {
       auto: true,
       delay: 5000, // ms, roughly a block
     },
-  };
+  }
 
   private _blockHeaderSubscription: Subscription<BlockHeader> | undefined
 
@@ -120,7 +120,10 @@ export class BlockBasedReporter extends BaseReporter {
       metricCollector: this.config.metricCollector,
       swallowError: true,
     }
-    this.provider = new Web3.providers.WebsocketProvider(this.config.wsRpcProviderUrl, this.wsConnectionOptions)
+    this.provider = new Web3.providers.WebsocketProvider(
+      this.config.wsRpcProviderUrl,
+      this.wsConnectionOptions
+    )
     this.web3 = new Web3(this.provider)
     this.initialized = false
   }
@@ -304,7 +307,10 @@ export class BlockBasedReporter extends BaseReporter {
 
   private setupProviderAndSubscriptions(): void {
     this.logger.info('Setting up wsProvider and subscriptions')
-    this.provider = new Web3.providers.WebsocketProvider(this.config.wsRpcProviderUrl, this.wsConnectionOptions)
+    this.provider = new Web3.providers.WebsocketProvider(
+      this.config.wsRpcProviderUrl,
+      this.wsConnectionOptions
+    )
     this.web3.setProvider(this.provider)
     this.config.metricCollector?.websocketProviderSetup()
     let setupNewProvider = false
