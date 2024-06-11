@@ -88,6 +88,14 @@ export class BlockBasedReporter extends BaseReporter {
 
   readonly config: BlockBasedReporterConfig
 
+  readonly wsConnectionOptions = {
+    // to enable auto reconnection
+    reconnect: {
+      auto: true,
+      delay: 5000, // ms, roughly a block
+    },
+  }
+
   private _blockHeaderSubscription: Subscription<BlockHeader> | undefined
 
   private _highestObservedBlockNumber: number
@@ -112,7 +120,10 @@ export class BlockBasedReporter extends BaseReporter {
       metricCollector: this.config.metricCollector,
       swallowError: true,
     }
-    this.provider = new Web3.providers.WebsocketProvider(this.config.wsRpcProviderUrl)
+    this.provider = new Web3.providers.WebsocketProvider(
+      this.config.wsRpcProviderUrl,
+      this.wsConnectionOptions
+    )
     this.web3 = new Web3(this.provider)
     this.initialized = false
   }
@@ -296,7 +307,10 @@ export class BlockBasedReporter extends BaseReporter {
 
   private setupProviderAndSubscriptions(): void {
     this.logger.info('Setting up wsProvider and subscriptions')
-    this.provider = new Web3.providers.WebsocketProvider(this.config.wsRpcProviderUrl)
+    this.provider = new Web3.providers.WebsocketProvider(
+      this.config.wsRpcProviderUrl,
+      this.wsConnectionOptions
+    )
     this.web3.setProvider(this.provider)
     this.config.metricCollector?.websocketProviderSetup()
     let setupNewProvider = false
@@ -310,6 +324,10 @@ export class BlockBasedReporter extends BaseReporter {
       setupNewProvider = true
     }
 
+    this.provider.on('reconnect', () => {
+      this.logger.info('Attempting to reconnect to WebsocketProvider...')
+    })
+
     // @ts-ignore - the type definition does not include the error
     this.provider.on('error', async (error: Error) => {
       onError(error, {
@@ -318,9 +336,9 @@ export class BlockBasedReporter extends BaseReporter {
       })
       await setupNewProviderAndSubs()
     })
-    this.provider.on('end', async () => {
+    this.provider.on('close', async () => {
       onError(
-        new Error('WebsocketProvider has ended, will restart'),
+        new Error('WebsocketProvider connection closed, will re-open'),
         this.blockHeaderSubscriptionErrorWrapper
       )
       await setupNewProviderAndSubs()
