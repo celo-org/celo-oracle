@@ -5,6 +5,7 @@ import { ExchangeApiRequestError, MetricCollector } from '../../src/metric_colle
 import { CeloContract } from '@celo/contractkit'
 import { baseLogger } from '../../src/default_config'
 import fetch from 'node-fetch'
+import { CertificateManager } from '../../src/certs_manager'
 
 jest.mock('@celo/contractkit')
 jest.mock('node-fetch')
@@ -15,7 +16,6 @@ const { Response } = jest.requireActual('node-fetch')
 export class MockAdapter extends BaseExchangeAdapter {
   baseApiUrl = 'https://api.mock.com/api/v1.1'
   _exchangeName = Exchange.COINBASE
-  _certFingerprint256 = undefined
 
   async fetchTicker(): Promise<Ticker> {
     throw new Error('does not work yet')
@@ -40,6 +40,7 @@ describe('BaseExchangeAdapter', () => {
     adapter = new MockAdapter({
       baseCurrency: CeloContract.GoldToken,
       baseLogger,
+      certificateManager: new CertificateManager('', 1000, baseLogger),
       quoteCurrency: ExternalCurrency.USD,
       metricCollector,
     })

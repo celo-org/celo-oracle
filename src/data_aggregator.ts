@@ -42,6 +42,7 @@ import { OracleApplicationConfig } from './app'
 import { WhitebitAdapter } from './exchange_adapters/whitebit'
 import { XigniteAdapter } from './exchange_adapters/xignite'
 import { strict as assert } from 'assert'
+import { CertificateManager } from './certs_manager'
 
 function adapterFromExchangeName(name: Exchange, config: ExchangeAdapterConfig): ExchangeAdapter {
   switch (name) {
@@ -127,13 +128,21 @@ export interface DataAggregatorConfig {
    */
   baseLogger: Logger
   /**
-   * If the oracles should be in development mode, which doesn't require a node nor account key
+   * Endpoint for the certificate manager to fetch the latest certificates from
    */
-  devMode: boolean
+  certificateManagerJsonUrl: string
+  /**
+   * Interval in milliseconds to refresh certificates
+   */
+  certificateManagerRefreshIntervalMs: number
   /**
    * Currency pair to get the price of in centralized exchanges
    */
   currencyPair: OracleApplicationConfig['currencyPair']
+  /**
+   * If the oracles should be in development mode, which doesn't require a node nor account key
+   */
+  devMode: boolean
   /**
    * Price sources from which to collect data
    */
@@ -171,6 +180,7 @@ export interface DataAggregatorConfig {
 export class DataAggregator {
   public readonly config: DataAggregatorConfig
   priceSources: PriceSource[]
+  certificatesManager: CertificateManager
 
   private readonly logger: Logger
 
@@ -180,6 +190,11 @@ export class DataAggregator {
   constructor(config: DataAggregatorConfig) {
     this.config = config
     this.logger = this.config.baseLogger.child({ context: 'data_aggregator' })
+    this.certificatesManager = new CertificateManager(
+      config.certificateManagerJsonUrl,
+      config.certificateManagerRefreshIntervalMs,
+      this.config.baseLogger
+    )
     this.priceSources = this.setupPriceSources()
   }
 
@@ -187,6 +202,7 @@ export class DataAggregator {
     const baseAdapterConfig = {
       apiRequestTimeout: this.config.apiRequestTimeout,
       baseLogger: this.config.baseLogger,
+      certificateManager: this.certificatesManager,
       metricCollector: this.config.metricCollector,
     }
     const adapterFactory: AdapterFactory = (
@@ -228,6 +244,9 @@ export class DataAggregator {
    * If all tickers fail, this will reject
    */
   async fetchAllPrices(): Promise<WeightedPrice[]> {
+    // Attempt to refresh certificate fingerprints in case there was an update
+    await this.certificatesManager.refreshIfOutdated()
+
     const pricePromises: Promise<WeightedPrice>[] = this.priceSources.map((source) =>
       source.fetchWeightedPrice()
     )

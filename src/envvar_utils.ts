@@ -31,6 +31,8 @@ export enum EnvVar {
   AZURE_HSM_INIT_MAX_RETRY_BACKOFF_MS = 'AZURE_HSM_INIT_MAX_RETRY_BACKOFF_MS',
   AZURE_HSM_INIT_TRY_COUNT = 'AZURE_HSM_INIT_TRY_COUNT',
   AZURE_KEY_VAULT_NAME = 'AZURE_KEY_VAULT_NAME',
+  CERTIFICATE_MANAGER_JSON_URL = 'CERTIFICATE_MANAGER_JSON_URL',
+  CERTIFICATE_MANAGER_REFRESH_INTERVAL_MS = 'CERTIFICATE_MANAGER_REFRESH_INTERVAL_MS',
   CIRCUIT_BREAKER_PRICE_CHANGE_THRESHOLD_MAX = 'CIRCUIT_BREAKER_PRICE_CHANGE_THRESHOLD_MAX',
   CIRCUIT_BREAKER_PRICE_CHANGE_THRESHOLD_MIN = 'CIRCUIT_BREAKER_PRICE_CHANGE_THRESHOLD_MIN',
   CIRCUIT_BREAKER_PRICE_CHANGE_THRESHOLD_TIME_MULTIPLIER = 'CIRCUIT_BREAKER_PRICE_CHANGE_THRESHOLD_TIME_MULTIPLIER',
@@ -283,6 +285,23 @@ const envVarHandlingMap = new Map<EnvVar, EnvVarHandling>([
             throw Error('is not a valid Azure Key Vault name')
           }
         },
+      ],
+    },
+  ],
+  [
+    EnvVar.CERTIFICATE_MANAGER_JSON_URL,
+    {
+      parseFn: (unparsed: string) => unparsed,
+      validationFns: [(value: string) => envVarValidations.isValidUrl(value, 'http')],
+    },
+  ],
+  [
+    EnvVar.CERTIFICATE_MANAGER_REFRESH_INTERVAL_MS,
+    {
+      ...integerEnvVarHandling,
+      validationFns: [
+        envVarValidations.isInteger,
+        (value: BigNumber) => envVarValidations.isGreaterThan(value, 1000, true),
       ],
     },
   ],

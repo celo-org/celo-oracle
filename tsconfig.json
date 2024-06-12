@@ -9,6 +9,7 @@
     "jsx": "preserve",
     "composite": true,
     "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
     "esModuleInterop": true,
     "strict": true,
     "declaration": true,
@@ -18,5 +19,5 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
   },
-  "include": ["src", "./node_modules/@celo/contractkit/types"],
+  "include": ["src", "src/exchange_adapters/certificates.json", "./node_modules/@celo/contractkit/types"],
 }

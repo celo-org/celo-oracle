@@ -19,6 +19,7 @@ import { MetricCollector } from '../src/metric_collector'
 import { OKCoinAdapter } from '../src/exchange_adapters/okcoin'
 import { WeightedPrice } from '../src/price_source'
 import { baseLogger } from '../src/default_config'
+import { CertificateManager } from '../src/certs_manager'
 
 jest.mock('../src/metric_collector')
 
@@ -28,10 +29,20 @@ jest.mock('../src/exchange_adapters/coinbase')
 jest.mock('../src/exchange_adapters/okcoin')
 jest.mock('../src/exchange_adapters/bitso')
 
+const mockCertManager = {
+  refreshIfOutdated: jest.fn(),
+}
+jest.mock('../src/certs_manager', () => {
+  return {
+    CertificateManager: jest.fn().mockImplementation(() => mockCertManager),
+  }
+})
+
 describe('DataAggregator', () => {
   const aggregationWindowDuration = minutesToMs(6)
   const apiRequestTimeout = secondsToMs(5)
   const metricCollector = new MetricCollector(baseLogger)
+  const certManager = new CertificateManager('', 1000, baseLogger)
 
   const apiKeys: Partial<Record<Exchange, string>> = {
     BINANCE: 'mockBinanceApiKey',
@@ -65,6 +76,8 @@ describe('DataAggregator', () => {
       apiKeys,
       apiRequestTimeout,
       baseLogger,
+      certificateManagerJsonUrl: '',
+      certificateManagerRefreshIntervalMs: 1000,
       currencyPair,
       devMode,
       maxSourceWeightShare,
@@ -210,6 +223,7 @@ describe('DataAggregator', () => {
           apiRequestTimeout,
           baseCurrency: expectedBaseCurrency,
           baseLogger: expect.anything(),
+          certificateManager: certManager,
           metricCollector: expect.anything(),
           quoteCurrency: expectedQuoteCurrency,
         }
@@ -355,6 +369,7 @@ describe('DataAggregator', () => {
         )
       }
       const allPrices = await dataAggregator.fetchAllPrices()
+      expect(mockCertManager.refreshIfOutdated).toHaveBeenCalledTimes(1)
       expect(allPrices.length).toBe(dataAggregator.priceSources.length)
       // Ensure each fetchWeightedPrice was called once.
       for (const spy of priceSourceSpies) {
@@ -391,6 +406,7 @@ describe('DataAggregator', () => {
         )
       })
       const allPrices = await dataAggregator.fetchAllPrices()
+      expect(mockCertManager.refreshIfOutdated).toHaveBeenCalledTimes(1)
       expect(allPrices.length).toBe(1)
       // Ensure each fetchWeightedPrice was called.
       for (const spy of priceSourceSpies) {
