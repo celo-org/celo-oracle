@@ -65,6 +65,29 @@ describe('CoinbaseAdapter', () => {
     })
   })
 
+  describe('using the non-standard symbol for EUROC', () => {
+    let coinbaseAdapter2: CoinbaseAdapter
+    const config2: ExchangeAdapterConfig = {
+      baseCurrency: ExternalCurrency.EUROC,
+      baseLogger,
+      quoteCurrency: ExternalCurrency.USD,
+    }
+
+    let fetchFromApiSpy: jest.SpyInstance
+    beforeEach(() => {
+      coinbaseAdapter2 = new CoinbaseAdapter(config2)
+      fetchFromApiSpy = jest.spyOn(coinbaseAdapter2, 'fetchFromApi')
+    })
+    it('uses the right symbols when fetching the ticker', async () => {
+      fetchFromApiSpy.mockReturnValue(Promise.resolve(mockTickerJson))
+      await coinbaseAdapter2.fetchTicker()
+      expect(fetchFromApiSpy).toHaveBeenCalledWith(
+        ExchangeDataType.TICKER,
+        'products/EURC-USD/ticker'
+      )
+    })
+  })
+
   describe('parseTicker', () => {
     it('handles a response that matches the documentation', () => {
       const ticker = coinbaseAdapter.parseTicker(mockTickerJson)
