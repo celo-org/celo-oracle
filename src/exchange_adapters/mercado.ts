@@ -7,7 +7,7 @@ export class MercadoAdapter extends BaseExchangeAdapter implements ExchangeAdapt
   readonly _exchangeName = Exchange.MERCADO
   // Google Trust Services LLC CA - validity not after: 9/29/27, 7:00:42 PM EST
   readonly _certFingerprint256 =
-    '97:D4:20:03:E1:32:55:29:46:09:7F:20:EF:95:5F:5B:1C:D5:70:AA:43:72:D7:80:03:3A:65:EF:BE:69:75:8D'
+    '1D:FC:16:05:FB:AD:35:8D:8B:C8:44:F7:6D:15:20:3F:AC:9C:A5:C1:A7:9F:D4:85:7F:FA:F2:86:4F:BE:BF:96'
 
   private static readonly tokenSymbolMap = MercadoAdapter.standardTokenSymbolMap
 
