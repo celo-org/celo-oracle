@@ -12,8 +12,8 @@ dependencies:
     specifier: 8.0.0
     version: 8.0.0
   '@celo/utils':
-    specifier: 6.0.0
-    version: 6.0.0
+    specifier: 6.0.1
+    version: 6.0.1
   '@celo/wallet-hsm-aws':
     specifier: 5.2.0
     version: 5.2.0(web3@1.10.4)
@@ -626,10 +626,6 @@ packages:
     resolution: {integrity: sha512-rPjHQxHbWaKQU3MX6hE3A3xRkBFBphjFvfCs4t+19dqPPys6Q+cneHmRWGBX4NLiBh5BLZcNZjQoMf2jxRLMpg==}
     dev: false
 
-  /@celo/base@6.0.0:
-    resolution: {integrity: sha512-z29p7glyh69R4tKSbZuomEvnAihmzgQKxmGoqt/4S6zSx6uOjTILUlhqlcDl2Wbkd+V0h85ft14nui2HXY2Lsg==}
-    dev: false
-
   /@celo/base@6.0.1:
     resolution: {integrity: sha512-pjZkKfPpX4k2WldPCM8uzHG1MpMs2NmVXu+2CCnrBVmRxYoupWraxKIsVFUtopfts8Ohtx2A+HJKXqie2+Fovg==}
     dev: false
@@ -693,23 +689,6 @@ packages:
     transitivePeerDependencies:
       - typescript
     dev: true
-
-  /@celo/utils@6.0.0:
-    resolution: {integrity: sha512-0jveALnE5WvasJcSAlBB0XnuzhqbKTj51b0+CkWg6aU0eCA0cQEzW4kQVt/X+Wo8d9S18ardmIVkwzrKToBdEA==}
-    dependencies:
-      '@celo/base': 6.0.0
-      '@ethereumjs/util': 8.0.5
-      '@types/elliptic': 6.4.18
-      '@types/node': 18.19.24
-      bignumber.js: 9.1.2
-      elliptic: 6.5.5
-      ethereum-cryptography: 1.2.0
-      fp-ts: 2.1.1
-      io-ts: 2.0.1(fp-ts@2.1.1)
-      rlp: 2.2.7
-      web3-eth-abi: 1.10.0
-      web3-utils: 1.10.0
-    dev: false
 
   /@celo/utils@6.0.1:
     resolution: {integrity: sha512-X9iK4R4USSgHG87PxpLGHqgKL33bKtBiKZGgPwx4gMM7X+nwpB6Ify/YO1/I+mt9+NN9epPb8/kmYYoWOPYShw==}
@@ -5656,14 +5635,6 @@ packages:
       - supports-color
     dev: false
 
-  /web3-eth-abi@1.10.0:
-    resolution: {integrity: sha512-cwS+qRBWpJ43aI9L3JS88QYPfFcSJJ3XapxOQ4j40v6mk7ATpA8CVK1vGTzpihNlOfMVRBkR95oAj7oL6aiDOg==}
-    engines: {node: '>=8.0.0'}
-    dependencies:
-      '@ethersproject/abi': 5.7.0
-      web3-utils: 1.10.0
-    dev: false
-
   /web3-eth-abi@1.10.4:
     resolution: {integrity: sha512-cZ0q65eJIkd/jyOlQPDjr8X4fU6CRL1eWgdLwbWEpo++MPU/2P4PFk5ZLAdye9T5Sdp+MomePPJ/gHjLMj2VfQ==}
     engines: {node: '>=8.0.0'}
@@ -5824,19 +5795,6 @@ packages:
     transitivePeerDependencies:
       - encoding
       - supports-color
-    dev: false
-
-  /web3-utils@1.10.0:
-    resolution: {integrity: sha512-kSaCM0uMcZTNUSmn5vMEhlo02RObGNRRCkdX0V9UTAU0+lrvn0HSaudyCo6CQzuXUsnuY2ERJGCGPfeWmv19Rg==}
-    engines: {node: '>=8.0.0'}
-    dependencies:
-      bn.js: 5.2.1
-      ethereum-bloom-filters: 1.0.10
-      ethereumjs-util: 7.1.5
-      ethjs-unit: 0.1.6
-      number-to-bn: 1.7.0
-      randombytes: 2.1.0
-      utf8: 3.0.0
     dev: false
 
   /web3-utils@1.10.4:
