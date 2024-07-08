@@ -27,7 +27,7 @@ export class AlphavantageAdapter extends BaseExchangeAdapter implements Exchange
   readonly _exchangeName: Exchange = Exchange.ALPHAVANTAGE
   // WE1 Expires: Tuesday, 20. February 2029 at 16:00:00 Eastern
   readonly _certFingerprint256 =
-  '1D:FC:16:05:FB:AD:35:8D:8B:C8:44:F7:6D:15:20:3F:AC:9C:A5:C1:A7:9F:D4:85:7F:FA:F2:86:4F:BE:BF:96'
+    '1D:FC:16:05:FB:AD:35:8D:8B:C8:44:F7:6D:15:20:3F:AC:9C:A5:C1:A7:9F:D4:85:7F:FA:F2:86:4F:BE:BF:96'
 
   protected generatePairSymbol(): string {
     const base = AlphavantageAdapter.standardTokenSymbolMap.get(this.config.baseCurrency)
