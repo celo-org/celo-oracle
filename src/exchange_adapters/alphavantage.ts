@@ -25,9 +25,9 @@ interface Response {
 export class AlphavantageAdapter extends BaseExchangeAdapter implements ExchangeAdapter {
   baseApiUrl = 'https://www.alphavantage.co'
   readonly _exchangeName: Exchange = Exchange.ALPHAVANTAGE
-  // E1 - validity not after: 15/09/2025, 13:00:00 GMT-3
+  // WE1 Expires: Tuesday, 20. February 2029 at 16:00:00 Eastern
   readonly _certFingerprint256 =
-    '46:49:4E:30:37:90:59:DF:18:BE:52:12:43:05:E6:06:FC:59:07:0E:5B:21:07:6C:E1:13:95:4B:60:51:7C:DA'
+  '1D:FC:16:05:FB:AD:35:8D:8B:C8:44:F7:6D:15:20:3F:AC:9C:A5:C1:A7:9F:D4:85:7F:FA:F2:86:4F:BE:BF:96'
 
   protected generatePairSymbol(): string {
     const base = AlphavantageAdapter.standardTokenSymbolMap.get(this.config.baseCurrency)
