@@ -5,9 +5,6 @@ import { Exchange } from '../utils'
 export class BinanceAdapter extends BaseExchangeAdapter implements ExchangeAdapter {
   baseApiUrl = 'https://data-api.binance.vision/api/v3'
   readonly _exchangeName: Exchange = Exchange.BINANCE
-  // GeoTrust RSA CA 2018 - validity not after: 06/11/2027, 09:23:45 GMT-3
-  _certFingerprint256 =
-    'BF:8A:69:02:7B:CC:8D:2D:42:A6:E6:D2:5B:DD:48:73:F6:A3:4B:8F:90:ED:F0:7E:86:C5:D6:91:6D:A0:B9:33'
 
   private static readonly tokenSymbolMap = BinanceAdapter.standardTokenSymbolMap
 

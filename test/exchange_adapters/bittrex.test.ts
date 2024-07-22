@@ -5,6 +5,7 @@ import { BittrexAdapter } from '../../src/exchange_adapters/bittrex'
 import { CeloContract } from '@celo/contractkit'
 import { ExchangeAdapterConfig } from '../../src/exchange_adapters/base'
 import { baseLogger } from '../../src/default_config'
+import { MockSSLFingerprintService } from '../services/mock_ssl_fingerprint_service'
 
 describe('BittrexAdapter', () => {
   let bittrexAdapter: BittrexAdapter
@@ -12,6 +13,7 @@ describe('BittrexAdapter', () => {
     baseCurrency: CeloContract.GoldToken,
     baseLogger,
     quoteCurrency: ExternalCurrency.USD,
+    sslFingerprintService: new MockSSLFingerprintService()
   }
   beforeEach(() => {
     bittrexAdapter = new BittrexAdapter(config)

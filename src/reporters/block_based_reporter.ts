@@ -142,7 +142,6 @@ export class BlockBasedReporter extends BaseReporter {
 
   start(): void {
     this.requireInitialized()
-
     this.setupProviderAndSubscriptions()
   }
 
@@ -151,6 +150,7 @@ export class BlockBasedReporter extends BaseReporter {
     this._blockHeaderSubscription
       ?.unsubscribe()
       .catch((error: Error) => onError(error, this.blockHeaderSubscriptionErrorWrapper))
+    this.provider.disconnect()
   }
 
   /**

@@ -60,6 +60,7 @@ export enum EnvVar {
   TARGET_MAX_HEARTBEAT_PERIOD_MS = 'TARGET_MAX_HEARTBEAT_PERIOD_MS',
   TRANSACTION_RETRY_GAS_PRICE_MULTIPLIER = 'TRANSACTION_RETRY_GAS_PRICE_MULTIPLIER',
   TRANSACTION_RETRY_LIMIT = 'TRANSACTION_RETRY_LIMIT',
+  SSL_REGISTRY_ADDRESS = 'SSL_REGISTRY_ADDRESS',
   UNUSED_ORACLE_ADDRESSES = 'UNUSED_ORACLE_ADDRESSES',
   WALLET_TYPE = 'WALLET_TYPE',
   WS_RPC_PROVIDER_URL = 'WS_RPC_PROVIDER_URL',
@@ -493,6 +494,18 @@ const envVarHandlingMap = new Map<EnvVar, EnvVarHandling>([
       parseFn: (unparsed: string) => unparsed.toUpperCase() as ReportStrategy,
       validationFns: [
         (value: ReportStrategy) => envVarValidations.isInSet(value, Object.values(ReportStrategy)),
+      ],
+    },
+  ],
+  [
+    EnvVar.SSL_REGISTRY_ADDRESS,
+    {
+      validationFns: [
+        (value: string): void => {
+          if (!isValidAddress(value)) {
+            throw Error('must be a valid address')
+          }
+        },
       ],
     },
   ],
