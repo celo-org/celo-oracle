@@ -5,6 +5,7 @@ import { CeloContract } from '@celo/contractkit'
 import { ExchangeAdapterConfig } from '../../src/exchange_adapters/base'
 import { KuCoinAdapter } from '../../src/exchange_adapters/kucoin'
 import { baseLogger } from '../../src/default_config'
+import { MockSSLFingerprintService } from '../services/mock_ssl_fingerprint_service'
 
 describe('KuCoin adapter', () => {
   let kucoinAdapter: KuCoinAdapter
@@ -13,6 +14,7 @@ describe('KuCoin adapter', () => {
     baseCurrency: CeloContract.GoldToken,
     baseLogger,
     quoteCurrency: ExternalCurrency.USDT,
+    sslFingerprintService: new MockSSLFingerprintService()
   }
 
   beforeEach(() => {

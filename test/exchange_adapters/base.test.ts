@@ -5,6 +5,7 @@ import { ExchangeApiRequestError, MetricCollector } from '../../src/metric_colle
 import { CeloContract } from '@celo/contractkit'
 import { baseLogger } from '../../src/default_config'
 import fetch from 'node-fetch'
+import { MockSSLFingerprintService } from '../services/mock_ssl_fingerprint_service'
 
 jest.mock('@celo/contractkit')
 jest.mock('node-fetch')
@@ -33,6 +34,7 @@ export class MockAdapter extends BaseExchangeAdapter {
 describe('BaseExchangeAdapter', () => {
   let adapter: BaseExchangeAdapter
   let metricCollector: MetricCollector
+  let sslFingerprintService = new MockSSLFingerprintService()
   const mockTickerEndpoint = '/ticker/CELO-USD'
 
   beforeEach(() => {
@@ -42,6 +44,7 @@ describe('BaseExchangeAdapter', () => {
       baseLogger,
       quoteCurrency: ExternalCurrency.USD,
       metricCollector,
+      sslFingerprintService
     })
   })
 
@@ -133,7 +136,7 @@ describe('BaseExchangeAdapter', () => {
         await expect(async () =>
           adapter.fetchFromApi(ExchangeDataType.TICKER, mockTickerEndpoint)
         ).rejects.toThrowError(
-          'Failed to parse JSON response: FetchError: invalid json response body at  reason: Unexpected token \'<\', "<html>blah"... is not valid JSON'
+          'Failed to parse JSON response: FetchError: invalid json response body at  reason: Unexpected token < in JSON at position 0'
         )
         expect(metricCollector.exchangeApiRequestError).toBeCalledWith(
           ...metricArgs,

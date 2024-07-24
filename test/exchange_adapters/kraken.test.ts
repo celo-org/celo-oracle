@@ -3,6 +3,7 @@ import { ExchangeAdapterConfig } from '../../src/exchange_adapters/base'
 import { baseLogger } from '../../src/default_config'
 import { Exchange, ExternalCurrency } from '../../src/utils'
 import BigNumber from 'bignumber.js'
+import { MockSSLFingerprintService } from '../services/mock_ssl_fingerprint_service'
 
 describe('kraken adapter', () => {
   let krakenAdapter: KrakenAdapter
@@ -11,6 +12,7 @@ describe('kraken adapter', () => {
     baseCurrency: ExternalCurrency.USDC,
     baseLogger,
     quoteCurrency: ExternalCurrency.USD,
+    sslFingerprintService: new MockSSLFingerprintService()
   }
 
   beforeEach(() => {

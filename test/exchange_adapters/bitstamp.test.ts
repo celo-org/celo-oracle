@@ -4,6 +4,7 @@ import BigNumber from 'bignumber.js'
 import { BitstampAdapter } from '../../src/exchange_adapters/bitstamp'
 import { ExchangeAdapterConfig } from '../../src/exchange_adapters/base'
 import { baseLogger } from '../../src/default_config'
+import { MockSSLFingerprintService } from '../services/mock_ssl_fingerprint_service'
 
 describe('Bitstamp adapter', () => {
   let bitstampAdapter: BitstampAdapter
@@ -12,6 +13,7 @@ describe('Bitstamp adapter', () => {
     baseCurrency: ExternalCurrency.USDC,
     baseLogger,
     quoteCurrency: ExternalCurrency.USD,
+    sslFingerprintService: new MockSSLFingerprintService()
   }
 
   beforeEach(() => {

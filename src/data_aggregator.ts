@@ -42,6 +42,7 @@ import { OracleApplicationConfig } from './app'
 import { WhitebitAdapter } from './exchange_adapters/whitebit'
 import { XigniteAdapter } from './exchange_adapters/xignite'
 import { strict as assert } from 'assert'
+import { ISSLFingerprintService } from './services/SSLFingerprintService'
 
 function adapterFromExchangeName(name: Exchange, config: ExchangeAdapterConfig): ExchangeAdapter {
   switch (name) {
@@ -162,6 +163,10 @@ export interface DataAggregatorConfig {
    * The minimum aggregate volume across all exchanges to report
    */
   minAggregatedVolume: BigNumber
+  /**
+   * SSL Fingerprint service for querying SSL fingerprints
+   */
+  sslFingerprintService: ISSLFingerprintService
 }
 
 /**
@@ -188,6 +193,7 @@ export class DataAggregator {
       apiRequestTimeout: this.config.apiRequestTimeout,
       baseLogger: this.config.baseLogger,
       metricCollector: this.config.metricCollector,
+      sslFingerprintService: this.config.sslFingerprintService,
     }
     const adapterFactory: AdapterFactory = (
       exchange: Exchange,

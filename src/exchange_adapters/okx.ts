@@ -5,9 +5,6 @@ import { Exchange } from '../utils'
 export class OKXAdapter extends BaseExchangeAdapter implements ExchangeAdapter {
   baseApiUrl = 'https://www.okx.com/api/v5'
   readonly _exchangeName = Exchange.OKX
-  // Cloudflare Inc ECC CA-3 - validity not after: 31/12/2024, 19:59:59 GMT-4
-  readonly _certFingerprint256 =
-    '3A:BB:E6:3D:AF:75:6C:50:16:B6:B8:5F:52:01:5F:D8:E8:AC:BE:27:7C:50:87:B1:27:A6:05:63:A8:41:ED:8A'
 
   private static readonly tokenSymbolMap = OKXAdapter.standardTokenSymbolMap
 

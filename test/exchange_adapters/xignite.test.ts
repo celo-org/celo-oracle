@@ -4,6 +4,7 @@ import BigNumber from 'bignumber.js'
 import { ExchangeAdapterConfig } from '../../src/exchange_adapters/base'
 import { XigniteAdapter } from '../../src/exchange_adapters/xignite'
 import { baseLogger } from '../../src/default_config'
+import { MockSSLFingerprintService } from '../services/mock_ssl_fingerprint_service'
 
 describe('Xignite adapter', () => {
   let adapter: XigniteAdapter
@@ -12,6 +13,7 @@ describe('Xignite adapter', () => {
     baseCurrency: ExternalCurrency.EUR,
     baseLogger,
     quoteCurrency: ExternalCurrency.XOF,
+    sslFingerprintService: new MockSSLFingerprintService()
   }
 
   beforeEach(() => {

@@ -4,6 +4,7 @@ import { AlphavantageAdapter } from '../../src/exchange_adapters/alphavantage'
 import BigNumber from 'bignumber.js'
 import { ExchangeAdapterConfig } from '../../src/exchange_adapters/base'
 import { baseLogger } from '../../src/default_config'
+import { MockSSLFingerprintService } from '../services/mock_ssl_fingerprint_service'
 
 describe('Alphavantage adapter', () => {
   let adapter: AlphavantageAdapter
@@ -12,6 +13,7 @@ describe('Alphavantage adapter', () => {
     baseCurrency: ExternalCurrency.XOF,
     baseLogger,
     quoteCurrency: ExternalCurrency.EUR,
+    sslFingerprintService: new MockSSLFingerprintService()
   }
 
   beforeEach(() => {

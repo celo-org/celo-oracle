@@ -4,6 +4,7 @@ import BigNumber from 'bignumber.js'
 import { ExchangeAdapterConfig } from '../../src/exchange_adapters/base'
 import { GeminiAdapter } from '../../src/exchange_adapters/gemini'
 import { baseLogger } from '../../src/default_config'
+import { MockSSLFingerprintService } from '../services/mock_ssl_fingerprint_service'
 
 describe('GeminiAdapter', () => {
   let geminiAdapter: GeminiAdapter
@@ -11,6 +12,7 @@ describe('GeminiAdapter', () => {
     baseCurrency: ExternalCurrency.BTC,
     baseLogger,
     quoteCurrency: ExternalCurrency.USD,
+    sslFingerprintService: new MockSSLFingerprintService()
   }
   beforeEach(() => {
     geminiAdapter = new GeminiAdapter(config)
