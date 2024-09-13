@@ -5,7 +5,7 @@ import { Exchange } from '../utils'
 export class OKXAdapter extends BaseExchangeAdapter implements ExchangeAdapter {
   baseApiUrl = 'https://www.okx.com/api/v5'
   readonly _exchangeName = Exchange.OKX
-  
+
   readonly _certFingerprint256 =
     '5F:1A:2A:BA:2B:4A:7B:AA:35:0D:A2:C9:3B:A1:40:AC:F4:83:38:1F:1E:87:A9:93:60:5A:CA:0C:F8:14:34:DD'
 
