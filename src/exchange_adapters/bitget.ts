@@ -8,7 +8,7 @@ export class BitgetAdapter extends BaseExchangeAdapter {
   readonly _exchangeName = Exchange.BITGET
   // E6 - validity not after: 12/03/2027, 18:59:59 GMT-5
   readonly _certFingerprint256 =
-    '76:E9:E2:88:AA:FC:0E:37:F4:39:0C:BF:94:6A:AD:99:7D:5C:1C:90:1B:3C:E5:13:D3:D8:FA:DB:AB:E2:AB:85'
+    '44:22:E9:63:EE:53:CD:58:CC:9F:85:CD:40:BF:5F:FE:C0:09:5F:DF:1A:15:45:35:66:1C:1C:06:BC:AD:C6:9B'
 
   async fetchTicker(): Promise<Ticker> {
     return this.parseTicker(
