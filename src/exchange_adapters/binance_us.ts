@@ -7,5 +7,5 @@ export class BinanceUSAdapter extends BinanceAdapter implements ExchangeAdapter 
   readonly _exchangeName = Exchange.BINANCEUS
   // GeoTrust TLS RSA CA G1 - validity not after: 02/11/2027, 09:23:37 GMT-3
   _certFingerprint256 =
-    'C0:6E:30:7F:7C:FC:1D:32:FA:72:A4:C0:33:C8:7B:90:01:9A:F2:16:F0:77:5D:64:97:8A:2E:CA:6C:8A:23:0E'
+    '21:F8:8F:E6:6E:A2:D5:4E:39:E0:47:18:56:1B:D3:BC:60:08:EB:22:DA:E9:2A:99:67:B8:97:76:3A:63:6B:3D'
 }
