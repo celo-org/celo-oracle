@@ -7,7 +7,7 @@ export class BitsoAdapter extends BaseExchangeAdapter implements ExchangeAdapter
   readonly _exchangeName = Exchange.BITSO
   // Internet Security Research Group - validity not after: 9/15/25, 11:00:00 AM EST
   readonly _certFingerprint256 =
-    '5D:FD:B3:CF:31:B2:6F:23:D8:7C:09:F3:A0:CE:F6:42:F6:40:69:A9:FB:7C:FE:29:27:0B:B5:DC:0F:1E:16:BB'
+        '76:E9:E2:88:AA:FC:0E:37:F4:39:0C:BF:94:6A:AD:99:7D:5C:1C:90:1B:3C:E5:13:D3:D8:FA:DB:AB:E2:AB:85'
 
   private static readonly tokenSymbolMap = BitsoAdapter.standardTokenSymbolMap
 
