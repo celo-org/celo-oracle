@@ -7,7 +7,7 @@ export class OKXAdapter extends BaseExchangeAdapter implements ExchangeAdapter {
   readonly _exchangeName = Exchange.OKX
 
   readonly _certFingerprint256 =
-    '5F:1A:2A:BA:2B:4A:7B:AA:35:0D:A2:C9:3B:A1:40:AC:F4:83:38:1F:1E:87:A9:93:60:5A:CA:0C:F8:14:34:DD'
+    '73:8D:5A:C5:72:43:A1:85:7D:F6:DE:37:5E:D4:3B:AF:16:EC:EF:D7:97:DE:D1:A6:98:6B:87:55:D2:EE:00:4E'
 
   private static readonly tokenSymbolMap = OKXAdapter.standardTokenSymbolMap
 
