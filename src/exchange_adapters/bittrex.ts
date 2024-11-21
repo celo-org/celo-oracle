@@ -7,7 +7,7 @@ export class BittrexAdapter extends BaseExchangeAdapter {
   readonly _exchangeName = Exchange.BITTREX
   // Google Trust Services LLC - validity not after: 30/09/2027, 03:00:42 EEST
   readonly _certFingerprint256 =
-    '16:37:4D:25:0F:40:9A:75:C3:99:05:C3:3E:9F:FF:7D:6D:2C:5E:88:37:79:58:BC:51:7C:97:44:16:96:F4:E0'
+    '1D:FC:16:05:FB:AD:35:8D:8B:C8:44:F7:6D:15:20:3F:AC:9C:A5:C1:A7:9F:D4:85:7F:FA:F2:86:4F:BE:BF:96'
 
   private static readonly tokenSymbolMap = BittrexAdapter.standardTokenSymbolMap
 
