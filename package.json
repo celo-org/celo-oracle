@@ -53,5 +53,5 @@
     "tslint-microsoft-contrib": "^6.2.0",
     "typescript": "5.4.2"
   },
-  "packageManager": "pnpm@8.15.3"
+  "packageManager": "pnpm@8.15.9"
 }
