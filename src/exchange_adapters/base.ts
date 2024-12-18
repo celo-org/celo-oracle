@@ -242,7 +242,7 @@ export abstract class BaseExchangeAdapter {
         agent: this.httpsAgent,
         follow: 20, // redirect limit
         // max body size in bytes - usually < 10 KB, except for Binance exchangeInfo endpoint which is ~1.4MB
-        size: megabytesToBytes(8),
+        size: megabytesToBytes(16),
         timeout: this.config.apiRequestTimeout, // resets on redirect
       })
     } catch (err) {

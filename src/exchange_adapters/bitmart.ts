@@ -23,46 +23,46 @@ export class BitMartAdapter extends BaseExchangeAdapter implements ExchangeAdapt
   async fetchTicker(): Promise<Ticker> {
     const tickerJson = await this.fetchFromApi(
       ExchangeDataType.TICKER,
-      `spot/v1/ticker_detail?symbol=${this.pairSymbol}`
+      `spot/quotation/v3/ticker?symbol=${this.pairSymbol}`
     )
     return this.parseTicker(tickerJson)
   }
 
   /**
    *
-   * @param json parsed response from bitmart's ticker endpoint
+   * @param json parsed response from bitmart's V3 ticker endpoint
+   * https://api-cloud.bitmart.com/spot/quotation/v3/ticker?symbol=BTC_USDT
    * {
-   * "message":"OK",
-   * "code":1000,
-   * "trace":"0f0e93db0eaf472886fbac3dc691c22f.59.16892370225147127",
-   * "data":{
-   *    "symbol":"EUROC_USDC",
-   *    "last_price":"1.10774487",
-   *    "quote_volume_24h":"91116.51006870",
-   *    "base_volume_24h":"82563.0",
-   *    "high_24h":"1.10872025",
-   *    "low_24h":"1.09666702",
-   *    "open_24h":"1.09737308",
-   *    "close_24h":"1.10774487",
-   *    "best_ask":"1.11144303",
-   *    "best_ask_size":"58.2",
-   *    "best_bid":"1.10795347",
-   *    "best_bid_size":"50.3",
-   *    "fluctuation":"+0.0095",
-   *    "timestamp":1689236985709,
-   *    "url":"https://www.bitmart.com/trade?symbol=EUROC_USDC"}
+   *  "code": 1000,
+   *  "trace":"886fb6ae-456b-4654-b4e0-1231",
+   *  "message": "success",
+   *  "data": {
+   *    "symbol": "BTC_USDT",
+   *    "last": "30000.00",
+   *    "v_24h": "582.08066",
+   *    "qv_24h": "4793098.48",
+   *    "open_24h": "28596.30",
+   *    "high_24h": "31012.44",
+   *    "low_24h": "12.44",
+   *    "fluctuation": "0.04909",
+   *    "bid_px": "30000",
+   *    "bid_sz": "1",
+   *    "ask_px": "31012.44",
+   *    "ask_sz": "69994.75267",
+   *    "ts": "1691671061919"
+   *   }
    * }
    * @returns Ticker object
    */
   parseTicker(json: any): Ticker {
     const ticker = {
       ...this.priceObjectMetadata,
-      ask: this.safeBigNumberParse(json.data.best_ask)!,
-      baseVolume: this.safeBigNumberParse(json.data.base_volume_24h)!,
-      bid: this.safeBigNumberParse(json.data.best_bid)!,
-      lastPrice: this.safeBigNumberParse(json.data.last_price)!,
-      quoteVolume: this.safeBigNumberParse(json.data.quote_volume_24h)!,
-      timestamp: this.safeBigNumberParse(json.data.timestamp)?.toNumber()!,
+      ask: this.safeBigNumberParse(json.data.ask_px)!,
+      baseVolume: this.safeBigNumberParse(json.data.v_24h)!,
+      bid: this.safeBigNumberParse(json.data.bid_px)!,
+      lastPrice: this.safeBigNumberParse(json.data.last)!,
+      quoteVolume: this.safeBigNumberParse(json.data.qv_24h)!,
+      timestamp: this.safeBigNumberParse(json.data.ts)?.toNumber()!,
     }
     this.verifyTicker(ticker)
     return ticker
