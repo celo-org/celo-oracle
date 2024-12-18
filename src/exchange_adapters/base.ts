@@ -72,7 +72,7 @@ export interface ExchangeAdapterConfig {
   /** The currency to get the price of */
   baseCurrency: Currency
   /**
-   * An object implementing the ISSLFingerprintService 
+   * An object implementing the ISSLFingerprintService
    * which can be used for querying SSL Fingerprints from our on-chain registry
    */
   sslFingerprintService: ISSLFingerprintService

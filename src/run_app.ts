@@ -77,7 +77,7 @@ export const blockBasedReporterConfigEnvVars: EnvVarMap<BlockBasedReporterConfig
 
 export const sslFingerprintServiceConfigEnvVars: EnvVarMap<SSLFingerprintServiceConfigSubset> = {
   sslRegistryAddress: EnvVar.SSL_REGISTRY_ADDRESS,
-  wsRpcProviderUrl: EnvVar.WS_RPC_PROVIDER_URL
+  wsRpcProviderUrl: EnvVar.WS_RPC_PROVIDER_URL,
 }
 
 export function getComponentConfig<T>(defaultConfig: T, envVarMap: EnvVarMap<T>): T {
@@ -133,7 +133,7 @@ export function getApplicationConfig(): OracleApplicationConfig {
     ...baseConfig,
     dataAggregatorConfig,
     reporterConfig,
-    sslFingerprintServiceConfig
+    sslFingerprintServiceConfig,
   }
 }
 

@@ -11,7 +11,7 @@ describe('NovaDaxAdapter', () => {
     baseCurrency: ExternalCurrency.BTC,
     baseLogger,
     quoteCurrency: ExternalCurrency.USD,
-    sslFingerprintService: new MockSSLFingerprintService()
+    sslFingerprintService: new MockSSLFingerprintService(),
   }
   beforeEach(() => {
     novadaxAdapter = new NovaDaxAdapter(config)

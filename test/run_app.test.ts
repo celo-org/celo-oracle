@@ -183,7 +183,7 @@ describe('run_app', () => {
         },
         sslFingerprintServiceConfig: {
           ...defaultApplicationConfig.sslFingerprintServiceConfig,
-          wsRpcProviderUrl: 'ws://bar.foo'
+          wsRpcProviderUrl: 'ws://bar.foo',
         },
         currencyPair: OracleCurrencyPair.CELOBTC,
         walletType: WalletType.AZURE_HSM,

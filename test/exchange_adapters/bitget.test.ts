@@ -12,7 +12,7 @@ describe('BitgetAdapter', () => {
     baseCurrency: ExternalCurrency.BTC,
     baseLogger,
     quoteCurrency: ExternalCurrency.BRL,
-    sslFingerprintService: new MockSSLFingerprintService()
+    sslFingerprintService: new MockSSLFingerprintService(),
   }
   beforeEach(() => {
     bitgetAdapter = new BitgetAdapter(config)

@@ -13,7 +13,7 @@ describe('OKCoinAdapter', () => {
     baseCurrency: CeloContract.GoldToken,
     baseLogger,
     quoteCurrency: ExternalCurrency.USD,
-    sslFingerprintService: new MockSSLFingerprintService()
+    sslFingerprintService: new MockSSLFingerprintService(),
   }
   beforeEach(() => {
     okcoinAdapter = new OKCoinAdapter(config)

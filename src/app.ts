@@ -20,12 +20,19 @@ import { AzureHSMWallet } from '@celo/wallet-hsm-azure'
 import Logger from 'bunyan'
 import { ReportTarget } from '@celo/contractkit/lib/wrappers/SortedOracles'
 import fs from 'fs'
-import { SSLFingerprintService, SSLFingerprintServiceConfig } from './services/SSLFingerprintService'
+import {
+  SSLFingerprintService,
+  SSLFingerprintServiceConfig,
+} from './services/SSLFingerprintService'
 
 /**
  * Omit the fields that are passed in by the Application
  */
-type DataAggregatorConfigToOmit = 'metricCollector' | 'currencyPair' | 'apiKeys' | 'sslFingerprintService'
+type DataAggregatorConfigToOmit =
+  | 'metricCollector'
+  | 'currencyPair'
+  | 'apiKeys'
+  | 'sslFingerprintService'
 export type DataAggregatorConfigSubset = Omit<DataAggregatorConfig, DataAggregatorConfigToOmit>
 type ReporterConfigToOmit =
   | 'dataAggregator'
@@ -49,9 +56,11 @@ export type TransactionManagerConfig = Pick<
 > & {
   logger?: Logger
 }
-type SSLFingerprintConfigToOmit = "baseLogger" | "metricCollector" | "kit" | "web3"
-export type SSLFingerprintServiceConfigSubset = Omit<SSLFingerprintServiceConfig, SSLFingerprintConfigToOmit>
-
+type SSLFingerprintConfigToOmit = 'baseLogger' | 'metricCollector' | 'kit' | 'web3'
+export type SSLFingerprintServiceConfigSubset = Omit<
+  SSLFingerprintServiceConfig,
+  SSLFingerprintConfigToOmit
+>
 
 /**
  * This specifies configurations to the OracleApplication
@@ -171,7 +180,7 @@ export class OracleApplication {
       apiKeys: this.config.apiKeys,
       currencyPair: this.config.currencyPair,
       metricCollector: this.metricCollector,
-      sslFingerprintService: this._sslFingerprintService
+      sslFingerprintService: this._sslFingerprintService,
     })
     this.logger = this.config.baseLogger.child({ context: 'app' })
     this.logger.info(
@@ -181,7 +190,6 @@ export class OracleApplication {
       'Created app'
     )
     this.initialized = false
-
   }
 
   async init() {

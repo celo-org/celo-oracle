@@ -37,7 +37,7 @@ describe('Reporter', () => {
   let reporter: BlockBasedReporter
   let metricCollector: MetricCollector
   let defaultConfig: BlockBasedReporterConfig
-  let sslFingerprintService = new MockSSLFingerprintService()
+  const sslFingerprintService = new MockSSLFingerprintService()
 
   let sortedOraclesMock: SortedOraclesWrapper
   const oracleWhitelist: string[] = [
@@ -86,7 +86,7 @@ describe('Reporter', () => {
       ...defaultDataAggregatorConfig,
       apiKeys: {},
       currencyPair: OracleCurrencyPair.CELOUSD,
-      sslFingerprintService
+      sslFingerprintService,
     }
     dataAggregator = new DataAggregator(dataAggregatorCfg)
     jest.spyOn(dataAggregator, 'currentPrice').mockImplementation(currentPriceFn)

@@ -13,7 +13,7 @@ describe('Alphavantage adapter', () => {
     baseCurrency: ExternalCurrency.XOF,
     baseLogger,
     quoteCurrency: ExternalCurrency.EUR,
-    sslFingerprintService: new MockSSLFingerprintService()
+    sslFingerprintService: new MockSSLFingerprintService(),
   }
 
   beforeEach(() => {

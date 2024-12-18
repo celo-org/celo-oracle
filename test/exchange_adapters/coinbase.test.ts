@@ -13,7 +13,7 @@ describe('CoinbaseAdapter', () => {
     baseCurrency: CeloContract.GoldToken,
     baseLogger,
     quoteCurrency: ExternalCurrency.USD,
-    sslFingerprintService: new MockSSLFingerprintService()
+    sslFingerprintService: new MockSSLFingerprintService(),
   }
   beforeEach(() => {
     coinbaseAdapter = new CoinbaseAdapter(config)
@@ -73,7 +73,7 @@ describe('CoinbaseAdapter', () => {
       baseCurrency: ExternalCurrency.EUROC,
       baseLogger,
       quoteCurrency: ExternalCurrency.USD,
-      sslFingerprintService: new MockSSLFingerprintService()
+      sslFingerprintService: new MockSSLFingerprintService(),
     }
 
     let fetchFromApiSpy: jest.SpyInstance

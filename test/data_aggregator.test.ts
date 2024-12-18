@@ -33,7 +33,7 @@ describe('DataAggregator', () => {
   const aggregationWindowDuration = minutesToMs(6)
   const apiRequestTimeout = secondsToMs(5)
   const metricCollector = new MetricCollector(baseLogger)
-  const sslFingerprintService = new MockSSLFingerprintService();
+  const sslFingerprintService = new MockSSLFingerprintService()
 
   const apiKeys: Partial<Record<Exchange, string>> = {
     BINANCE: 'mockBinanceApiKey',
@@ -76,7 +76,7 @@ describe('DataAggregator', () => {
       minPriceSourceCount,
       minAggregatedVolume,
       priceSourceConfigs,
-      sslFingerprintService
+      sslFingerprintService,
     })
   }
 
@@ -215,7 +215,7 @@ describe('DataAggregator', () => {
           baseLogger: expect.anything(),
           metricCollector: expect.anything(),
           quoteCurrency: expectedQuoteCurrency,
-          sslFingerprintService: expect.anything()
+          sslFingerprintService: expect.anything(),
         }
 
         describe('when a subset of adapters are specified', () => {

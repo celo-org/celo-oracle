@@ -26,7 +26,7 @@ export const baseLogger = Logger.createLogger({
 
 export const defaultSSLFingerprintServiceConfig: SSLFingerprintServiceConfigSubset = {
   wsRpcProviderUrl: 'ws://localhost:8546',
-  sslRegistryAddress: "0x72d96b39d207c231a3b803f569f05118514673ac"
+  sslRegistryAddress: '0x72d96b39d207c231a3b803f569f05118514673ac',
 }
 
 export const defaultDataAggregatorConfig: DataAggregatorConfigSubset = {

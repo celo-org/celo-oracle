@@ -12,7 +12,7 @@ describe('GeminiAdapter', () => {
     baseCurrency: ExternalCurrency.BTC,
     baseLogger,
     quoteCurrency: ExternalCurrency.USD,
-    sslFingerprintService: new MockSSLFingerprintService()
+    sslFingerprintService: new MockSSLFingerprintService(),
   }
   beforeEach(() => {
     geminiAdapter = new GeminiAdapter(config)

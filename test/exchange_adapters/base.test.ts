@@ -34,7 +34,7 @@ export class MockAdapter extends BaseExchangeAdapter {
 describe('BaseExchangeAdapter', () => {
   let adapter: BaseExchangeAdapter
   let metricCollector: MetricCollector
-  let sslFingerprintService = new MockSSLFingerprintService()
+  const sslFingerprintService = new MockSSLFingerprintService()
   const mockTickerEndpoint = '/ticker/CELO-USD'
 
   beforeEach(() => {
@@ -44,7 +44,7 @@ describe('BaseExchangeAdapter', () => {
       baseLogger,
       quoteCurrency: ExternalCurrency.USD,
       metricCollector,
-      sslFingerprintService
+      sslFingerprintService,
     })
   })
 

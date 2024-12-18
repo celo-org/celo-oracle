@@ -12,7 +12,7 @@ describe('kraken adapter', () => {
     baseCurrency: ExternalCurrency.USDC,
     baseLogger,
     quoteCurrency: ExternalCurrency.USD,
-    sslFingerprintService: new MockSSLFingerprintService()
+    sslFingerprintService: new MockSSLFingerprintService(),
   }
 
   beforeEach(() => {

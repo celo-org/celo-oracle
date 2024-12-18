@@ -129,8 +129,8 @@ describe('OracleApplication', () => {
     reportTargetOverride: undefined,
     sslFingerprintServiceConfig: {
       wsRpcProviderUrl,
-      sslRegistryAddress: mockSSLRegistry
-    }
+      sslRegistryAddress: mockSSLRegistry,
+    },
   }
 
   let oracleApplication: OracleApplication
@@ -156,7 +156,6 @@ describe('OracleApplication', () => {
       metricCollector: oracleApplication.metricCollector,
       baseLogger,
     })
-
   })
 
   describe('init()', () => {

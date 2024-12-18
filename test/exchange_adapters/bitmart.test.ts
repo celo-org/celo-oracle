@@ -13,7 +13,7 @@ describe('BitMart adapter', () => {
     baseCurrency: ExternalCurrency.EUROC,
     baseLogger,
     quoteCurrency: ExternalCurrency.USDC,
-    sslFingerprintService: new MockSSLFingerprintService()
+    sslFingerprintService: new MockSSLFingerprintService(),
   }
 
   beforeEach(() => {

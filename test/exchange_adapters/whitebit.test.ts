@@ -55,7 +55,7 @@ describe('Whitebit adapter', () => {
     baseCurrency: ExternalCurrency.USDC,
     baseLogger,
     quoteCurrency: ExternalCurrency.USDT,
-    sslFingerprintService: new MockSSLFingerprintService()
+    sslFingerprintService: new MockSSLFingerprintService(),
   }
   beforeEach(() => {
     whitebitAdapter = new WhitebitAdapter(config)

@@ -13,7 +13,7 @@ describe('Xignite adapter', () => {
     baseCurrency: ExternalCurrency.EUR,
     baseLogger,
     quoteCurrency: ExternalCurrency.XOF,
-    sslFingerprintService: new MockSSLFingerprintService()
+    sslFingerprintService: new MockSSLFingerprintService(),
   }
 
   beforeEach(() => {

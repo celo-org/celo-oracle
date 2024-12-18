@@ -59,7 +59,7 @@ describe('BaseReporter', () => {
       ...defaultDataAggregatorConfig,
       apiKeys: {},
       currencyPair: utils.OracleCurrencyPair.CELOUSD,
-      sslFingerprintService
+      sslFingerprintService,
     }
     dataAggregator = new DataAggregator(dataAggregatorCfg)
     jest.spyOn(dataAggregator, 'currentPrice').mockImplementation(currentPriceFn)
