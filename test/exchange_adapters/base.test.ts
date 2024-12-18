@@ -131,12 +131,12 @@ describe('BaseExchangeAdapter', () => {
       it('throws if the json cannot be parsed', async () => {
         // @ts-ignore - mockReturnValue is added by jest and is not in the fetch type signature
         fetch.mockReturnValue(
-          Promise.resolve(new Response('<html>blah blah not json</html>', { status: 200 }))
+          Promise.resolve(new Response('not json', { status: 200 }))
         )
         await expect(async () =>
           adapter.fetchFromApi(ExchangeDataType.TICKER, mockTickerEndpoint)
         ).rejects.toThrowError(
-          'Failed to parse JSON response: FetchError: invalid json response body at  reason: Unexpected token < in JSON at position 0'
+          'Failed to parse JSON response: FetchError: invalid json response body at  reason: Unexpected token \'o\', "not json"'
         )
         expect(metricCollector.exchangeApiRequestError).toBeCalledWith(
           ...metricArgs,
