@@ -1,3 +1,4 @@
+/* tslint:disable:no-string-literal */
 import { MetricCollector } from '../../src/metric_collector'
 import {
   SSLFingerprintService,
