@@ -130,9 +130,7 @@ describe('BaseExchangeAdapter', () => {
 
       it('throws if the json cannot be parsed', async () => {
         // @ts-ignore - mockReturnValue is added by jest and is not in the fetch type signature
-        fetch.mockReturnValue(
-          Promise.resolve(new Response('not json', { status: 200 }))
-        )
+        fetch.mockReturnValue(Promise.resolve(new Response('not json', { status: 200 })))
         await expect(async () =>
           adapter.fetchFromApi(ExchangeDataType.TICKER, mockTickerEndpoint)
         ).rejects.toThrowError(
