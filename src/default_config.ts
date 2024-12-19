@@ -11,6 +11,7 @@ import {
   BlockBasedReporterConfigSubset,
   DataAggregatorConfigSubset,
   OracleApplicationConfig,
+  SSLFingerprintServiceConfigSubset,
 } from './app'
 
 import BigNumber from 'bignumber.js'
@@ -22,6 +23,11 @@ export const baseLogger = Logger.createLogger({
   level: 'debug',
   src: true,
 })
+
+export const defaultSSLFingerprintServiceConfig: SSLFingerprintServiceConfigSubset = {
+  wsRpcProviderUrl: 'ws://localhost:8546',
+  sslRegistryAddress: '0x72d96b39d207c231a3b803f569f05118514673ac',
+}
 
 export const defaultDataAggregatorConfig: DataAggregatorConfigSubset = {
   aggregationMethod: AggregationMethod.MIDPRICES,
@@ -72,6 +78,7 @@ export const defaultApplicationConfig: OracleApplicationConfig = {
   reporterConfig: defaultBlockBasedReporterConfig,
   reportStrategy: ReportStrategy.BLOCK_BASED,
   reportTargetOverride: undefined,
+  sslFingerprintServiceConfig: defaultSSLFingerprintServiceConfig,
   walletType: WalletType.PRIVATE_KEY,
   wsRpcProviderUrl: 'ws://localhost:8546',
   devMode: false,

@@ -4,6 +4,7 @@ import { baseLogger } from '../../src/default_config'
 import { ExchangeAdapterConfig } from '../../src/exchange_adapters/base'
 import { BinanceAdapter } from '../../src/exchange_adapters/binance'
 import { Exchange, ExternalCurrency } from '../../src/utils'
+import { MockSSLFingerprintService } from '../services/mock_ssl_fingerprint_service'
 
 describe('BinanceAdapter', () => {
   let binanceAdapter: BinanceAdapter
@@ -11,6 +12,7 @@ describe('BinanceAdapter', () => {
     baseCurrency: CeloContract.GoldToken,
     baseLogger,
     quoteCurrency: ExternalCurrency.BTC,
+    sslFingerprintService: new MockSSLFingerprintService(),
   }
   beforeEach(() => {
     binanceAdapter = new BinanceAdapter(config)

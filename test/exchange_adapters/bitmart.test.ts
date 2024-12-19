@@ -4,6 +4,7 @@ import BigNumber from 'bignumber.js'
 import { BitMartAdapter } from '../../src/exchange_adapters/bitmart'
 import { ExchangeAdapterConfig } from '../../src/exchange_adapters/base'
 import { baseLogger } from '../../src/default_config'
+import { MockSSLFingerprintService } from '../services/mock_ssl_fingerprint_service'
 
 describe('BitMart adapter', () => {
   let bitmartAdapter: BitMartAdapter
@@ -12,6 +13,7 @@ describe('BitMart adapter', () => {
     baseCurrency: ExternalCurrency.EUROC,
     baseLogger,
     quoteCurrency: ExternalCurrency.USDC,
+    sslFingerprintService: new MockSSLFingerprintService(),
   }
 
   beforeEach(() => {

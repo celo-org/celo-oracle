@@ -3,6 +3,7 @@ import { baseLogger } from '../../src/default_config'
 import { ExchangeAdapterConfig } from '../../src/exchange_adapters/base'
 import { NovaDaxAdapter } from '../../src/exchange_adapters/novadax'
 import { Exchange, ExternalCurrency } from '../../src/utils'
+import { MockSSLFingerprintService } from '../services/mock_ssl_fingerprint_service'
 
 describe('NovaDaxAdapter', () => {
   let novadaxAdapter: NovaDaxAdapter
@@ -10,6 +11,7 @@ describe('NovaDaxAdapter', () => {
     baseCurrency: ExternalCurrency.BTC,
     baseLogger,
     quoteCurrency: ExternalCurrency.USD,
+    sslFingerprintService: new MockSSLFingerprintService(),
   }
   beforeEach(() => {
     novadaxAdapter = new NovaDaxAdapter(config)

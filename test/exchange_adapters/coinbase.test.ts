@@ -5,6 +5,7 @@ import BigNumber from 'bignumber.js'
 import { CeloContract } from '@celo/contractkit'
 import { CoinbaseAdapter } from '../../src/exchange_adapters/coinbase'
 import { baseLogger } from '../../src/default_config'
+import { MockSSLFingerprintService } from '../services/mock_ssl_fingerprint_service'
 
 describe('CoinbaseAdapter', () => {
   let coinbaseAdapter: CoinbaseAdapter
@@ -12,6 +13,7 @@ describe('CoinbaseAdapter', () => {
     baseCurrency: CeloContract.GoldToken,
     baseLogger,
     quoteCurrency: ExternalCurrency.USD,
+    sslFingerprintService: new MockSSLFingerprintService(),
   }
   beforeEach(() => {
     coinbaseAdapter = new CoinbaseAdapter(config)
@@ -71,6 +73,7 @@ describe('CoinbaseAdapter', () => {
       baseCurrency: ExternalCurrency.EUROC,
       baseLogger,
       quoteCurrency: ExternalCurrency.USD,
+      sslFingerprintService: new MockSSLFingerprintService(),
     }
 
     let fetchFromApiSpy: jest.SpyInstance

@@ -5,6 +5,7 @@ import { CeloContract } from '@celo/contractkit'
 import { ExchangeAdapterConfig } from '../../src/exchange_adapters/base'
 import { OKXAdapter } from '../../src/exchange_adapters/okx'
 import { baseLogger } from '../../src/default_config'
+import { MockSSLFingerprintService } from '../services/mock_ssl_fingerprint_service'
 
 describe('OKXAdapter', () => {
   let okxAdapter: OKXAdapter
@@ -12,6 +13,7 @@ describe('OKXAdapter', () => {
     baseCurrency: CeloContract.GoldToken,
     baseLogger,
     quoteCurrency: ExternalCurrency.USDT,
+    sslFingerprintService: new MockSSLFingerprintService(),
   }
   beforeEach(() => {
     okxAdapter = new OKXAdapter(config)

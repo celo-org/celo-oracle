@@ -4,11 +4,7 @@ import { Exchange } from '../utils'
 
 export class BitgetAdapter extends BaseExchangeAdapter {
   baseApiUrl = 'https://api.bitget.com/api'
-
   readonly _exchangeName = Exchange.BITGET
-  // E6 - validity not after: 12/03/2027, 18:59:59 GMT-5
-  readonly _certFingerprint256 =
-    '44:22:E9:63:EE:53:CD:58:CC:9F:85:CD:40:BF:5F:FE:C0:09:5F:DF:1A:15:45:35:66:1C:1C:06:BC:AD:C6:9B'
 
   async fetchTicker(): Promise<Ticker> {
     return this.parseTicker(

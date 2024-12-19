@@ -5,9 +5,6 @@ import { Exchange } from '../utils'
 export class BittrexAdapter extends BaseExchangeAdapter {
   baseApiUrl = 'https://api.bittrex.com/v3'
   readonly _exchangeName = Exchange.BITTREX
-  // Google Trust Services LLC - validity not after: 30/09/2027, 03:00:42 EEST
-  readonly _certFingerprint256 =
-    '1D:FC:16:05:FB:AD:35:8D:8B:C8:44:F7:6D:15:20:3F:AC:9C:A5:C1:A7:9F:D4:85:7F:FA:F2:86:4F:BE:BF:96'
 
   private static readonly tokenSymbolMap = BittrexAdapter.standardTokenSymbolMap
 

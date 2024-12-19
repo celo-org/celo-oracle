@@ -7,9 +7,6 @@ import { strict as assert } from 'assert'
 export class CurrencyApiAdapter extends BaseExchangeAdapter implements ExchangeAdapter {
   baseApiUrl = 'https://currencyapi.net/api/v1'
   readonly _exchangeName: Exchange = Exchange.CURRENCYAPI
-  // E1 - validity not after: 15/09/2025, 13:00:00 GMT-3
-  readonly _certFingerprint256 =
-    '1D:FC:16:05:FB:AD:35:8D:8B:C8:44:F7:6D:15:20:3F:AC:9C:A5:C1:A7:9F:D4:85:7F:FA:F2:86:4F:BE:BF:96'
 
   protected generatePairSymbol(): string {
     const base = CurrencyApiAdapter.standardTokenSymbolMap.get(this.config.baseCurrency)

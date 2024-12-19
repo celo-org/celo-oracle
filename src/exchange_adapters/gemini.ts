@@ -4,11 +4,7 @@ import { Exchange } from '../utils'
 
 export class GeminiAdapter extends BaseExchangeAdapter {
   baseApiUrl = 'https://api.gemini.com/v1/'
-
   readonly _exchangeName = Exchange.GEMINI
-  // Amazon RSA 2048 M02 - validity not after: 23/08/2030, 19:25:30 GMT-3
-  readonly _certFingerprint256 =
-    'B0:F3:30:A3:1A:0C:50:98:7E:1C:3A:7B:B0:2C:2D:DA:68:29:91:D3:16:5B:51:7B:D4:4F:BA:4A:60:20:BD:94'
 
   async fetchTicker(): Promise<Ticker> {
     return this.parseTicker(
