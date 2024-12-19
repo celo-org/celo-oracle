@@ -127,7 +127,7 @@ export abstract class BaseExchangeAdapter {
    * Each exchange adapter should have its own mapping specific to the exchange
    * API that it is collecting data from. If there are no relevant deviations from
    * this standard mapping, this can be used directly.
-   * If there are deviations, this can be used as a ba se, and the nonstandard
+   * If there are deviations, this can be used as a base, and the nonstandard
    * symbols can be passed in as overrides.
    *
    * for example, do this inside of an ExchangeAdapter class definition:

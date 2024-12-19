@@ -4,7 +4,7 @@ import { Currency, Exchange, ExternalCurrency } from '../utils'
 import { CeloContract } from '@celo/contractkit'
 
 export class CoinbaseAdapter extends BaseExchangeAdapter implements ExchangeAdapter {
-  baseApiUrl = 'https://api.pro.coinbase.com'
+  baseApiUrl = 'https://api.exchange.coinbase.com'
   readonly _exchangeName = Exchange.COINBASE
 
   /**
