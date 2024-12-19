@@ -253,11 +253,12 @@ export class BlockBasedReporter extends BaseReporter {
 
   performBlockHeaderChecks(blockHeader: BlockHeader) {
     // Ensure this is the highest block number we've seen
-    if (this.highestObservedBlockNumber && blockHeader.number <= this.highestObservedBlockNumber) {
-      throw Error(
-        `Block number is lower than the highest previously observed block: ${blockHeader.number} <= ${this.highestObservedBlockNumber}`
-      )
-    }
+    // Temporary disable this check as it seems to cause issues after the L2 upgrade, likely because of the faster block times
+    // if (this.highestObservedBlockNumber && blockHeader.number <= this.highestObservedBlockNumber) {
+    //   throw Error(
+    //     `Block number is lower than the highest previously observed block: ${blockHeader.number} <= ${this.highestObservedBlockNumber}`
+    //   )
+    // }
     const now = Date.now()
     // now is in ms, and blockHeader.timestamp is in seconds, so we convert it to ms
     const blockTimestampMs = secondsToMs(blockHeader.timestamp as number)

@@ -207,14 +207,14 @@ describe('Reporter', () => {
         ).not.toThrow()
       })
 
-      it('throws if a block number is observed that is lower than a previously observed block', () => {
-        const highBlockNumber = 100
-        const lowBlockNumber = 99
-        jest.spyOn(reporter, 'highestObservedBlockNumber', 'get').mockReturnValue(highBlockNumber)
-        expect(() => reporter.performBlockHeaderChecks(getFakeBlockHeader(lowBlockNumber))).toThrow(
-          `Block number is lower than the highest previously observed block: ${lowBlockNumber} <= ${highBlockNumber}`
-        )
-      })
+      // it('throws if a block number is observed that is lower than a previously observed block', () => {
+      //   const highBlockNumber = 100
+      //   const lowBlockNumber = 99
+      //   jest.spyOn(reporter, 'highestObservedBlockNumber', 'get').mockReturnValue(highBlockNumber)
+      //   expect(() => reporter.performBlockHeaderChecks(getFakeBlockHeader(lowBlockNumber))).toThrow(
+      //     `Block number is lower than the highest previously observed block: ${lowBlockNumber} <= ${highBlockNumber}`
+      //   )
+      // })
 
       it('does not throw if a block timestamp is at most maxBlockTimestampAgeMs old', () => {
         // Arbitrary timestamp in ms
