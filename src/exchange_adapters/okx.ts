@@ -6,9 +6,6 @@ export class OKXAdapter extends BaseExchangeAdapter implements ExchangeAdapter {
   baseApiUrl = 'https://www.okx.com/api/v5'
   readonly _exchangeName = Exchange.OKX
 
-  readonly _certFingerprint256 =
-    '73:8D:5A:C5:72:43:A1:85:7D:F6:DE:37:5E:D4:3B:AF:16:EC:EF:D7:97:DE:D1:A6:98:6B:87:55:D2:EE:00:4E'
-
   private static readonly tokenSymbolMap = OKXAdapter.standardTokenSymbolMap
 
   protected generatePairSymbol(): string {

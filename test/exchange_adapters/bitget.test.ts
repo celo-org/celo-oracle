@@ -4,6 +4,7 @@ import BigNumber from 'bignumber.js'
 import { BitgetAdapter } from '../../src/exchange_adapters/bitget'
 import { ExchangeAdapterConfig } from '../../src/exchange_adapters/base'
 import { baseLogger } from '../../src/default_config'
+import { MockSSLFingerprintService } from '../services/mock_ssl_fingerprint_service'
 
 describe('BitgetAdapter', () => {
   let bitgetAdapter: BitgetAdapter
@@ -11,6 +12,7 @@ describe('BitgetAdapter', () => {
     baseCurrency: ExternalCurrency.BTC,
     baseLogger,
     quoteCurrency: ExternalCurrency.BRL,
+    sslFingerprintService: new MockSSLFingerprintService(),
   }
   beforeEach(() => {
     bitgetAdapter = new BitgetAdapter(config)

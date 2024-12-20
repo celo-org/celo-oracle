@@ -19,6 +19,7 @@ import { MetricCollector } from '../src/metric_collector'
 import { OKCoinAdapter } from '../src/exchange_adapters/okcoin'
 import { WeightedPrice } from '../src/price_source'
 import { baseLogger } from '../src/default_config'
+import { MockSSLFingerprintService } from './services/mock_ssl_fingerprint_service'
 
 jest.mock('../src/metric_collector')
 
@@ -32,6 +33,7 @@ describe('DataAggregator', () => {
   const aggregationWindowDuration = minutesToMs(6)
   const apiRequestTimeout = secondsToMs(5)
   const metricCollector = new MetricCollector(baseLogger)
+  const sslFingerprintService = new MockSSLFingerprintService()
 
   const apiKeys: Partial<Record<Exchange, string>> = {
     BINANCE: 'mockBinanceApiKey',
@@ -74,6 +76,7 @@ describe('DataAggregator', () => {
       minPriceSourceCount,
       minAggregatedVolume,
       priceSourceConfigs,
+      sslFingerprintService,
     })
   }
 
@@ -212,6 +215,7 @@ describe('DataAggregator', () => {
           baseLogger: expect.anything(),
           metricCollector: expect.anything(),
           quoteCurrency: expectedQuoteCurrency,
+          sslFingerprintService: expect.anything(),
         }
 
         describe('when a subset of adapters are specified', () => {

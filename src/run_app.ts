@@ -4,6 +4,7 @@ import {
   DataAggregatorConfigSubset,
   OracleApplication,
   OracleApplicationConfig,
+  SSLFingerprintServiceConfigSubset,
 } from './app'
 import { EnvVar, fetchParseValidateEnvVar } from './envvar_utils'
 import {
@@ -11,6 +12,7 @@ import {
   defaultApplicationConfig,
   defaultBlockBasedReporterConfig,
   defaultDataAggregatorConfig,
+  defaultSSLFingerprintServiceConfig,
 } from './default_config'
 
 import { ReportStrategy } from './utils'
@@ -73,6 +75,11 @@ export const blockBasedReporterConfigEnvVars: EnvVarMap<BlockBasedReporterConfig
   targetMaxHeartbeatPeriodMs: EnvVar.TARGET_MAX_HEARTBEAT_PERIOD_MS,
 }
 
+export const sslFingerprintServiceConfigEnvVars: EnvVarMap<SSLFingerprintServiceConfigSubset> = {
+  sslRegistryAddress: EnvVar.SSL_REGISTRY_ADDRESS,
+  wsRpcProviderUrl: EnvVar.WS_RPC_PROVIDER_URL,
+}
+
 export function getComponentConfig<T>(defaultConfig: T, envVarMap: EnvVarMap<T>): T {
   const overrides: { [key: string]: any } = {}
   const invalidEnvVars = []
@@ -118,10 +125,15 @@ export function getApplicationConfig(): OracleApplicationConfig {
     default:
       throw Error(`Invalid report strategy: ${baseConfig.reportStrategy}`)
   }
+  const sslFingerprintServiceConfig = getComponentConfig(
+    defaultSSLFingerprintServiceConfig,
+    sslFingerprintServiceConfigEnvVars
+  )
   return {
     ...baseConfig,
     dataAggregatorConfig,
     reporterConfig,
+    sslFingerprintServiceConfig,
   }
 }
 

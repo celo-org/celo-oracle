@@ -4,6 +4,7 @@ import { ExchangeAdapterConfig, ExchangeDataType } from '../../src/exchange_adap
 import BigNumber from 'bignumber.js'
 import { WhitebitAdapter } from '../../src/exchange_adapters/whitebit'
 import { baseLogger } from '../../src/default_config'
+import { MockSSLFingerprintService } from '../services/mock_ssl_fingerprint_service'
 
 // Mock data
 const validMockTickerJson = {
@@ -54,6 +55,7 @@ describe('Whitebit adapter', () => {
     baseCurrency: ExternalCurrency.USDC,
     baseLogger,
     quoteCurrency: ExternalCurrency.USDT,
+    sslFingerprintService: new MockSSLFingerprintService(),
   }
   beforeEach(() => {
     whitebitAdapter = new WhitebitAdapter(config)

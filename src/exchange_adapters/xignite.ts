@@ -7,9 +7,6 @@ import { strict as assert } from 'assert'
 export class XigniteAdapter extends BaseExchangeAdapter implements ExchangeAdapter {
   baseApiUrl = 'https://globalcurrencies.xignite.com/xGlobalCurrencies.json'
   readonly _exchangeName: Exchange = Exchange.XIGNITE
-  // Amazon RSA 2048 M02 - validity not after: 23/08/2030, 19:25:30 GMT-3
-  readonly _certFingerprint256 =
-    'BF:8A:69:02:7B:CC:8D:2D:42:A6:E6:D2:5B:DD:48:73:F6:A3:4B:8F:90:ED:F0:7E:86:C5:D6:91:6D:A0:B9:33'
 
   protected generatePairSymbol(): string {
     const base = XigniteAdapter.standardTokenSymbolMap.get(this.config.baseCurrency)

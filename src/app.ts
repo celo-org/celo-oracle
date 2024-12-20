@@ -20,11 +20,19 @@ import { AzureHSMWallet } from '@celo/wallet-hsm-azure'
 import Logger from 'bunyan'
 import { ReportTarget } from '@celo/contractkit/lib/wrappers/SortedOracles'
 import fs from 'fs'
+import {
+  SSLFingerprintService,
+  SSLFingerprintServiceConfig,
+} from './services/SSLFingerprintService'
 
 /**
  * Omit the fields that are passed in by the Application
  */
-type DataAggregatorConfigToOmit = 'metricCollector' | 'currencyPair' | 'apiKeys'
+type DataAggregatorConfigToOmit =
+  | 'metricCollector'
+  | 'currencyPair'
+  | 'apiKeys'
+  | 'sslFingerprintService'
 export type DataAggregatorConfigSubset = Omit<DataAggregatorConfig, DataAggregatorConfigToOmit>
 type ReporterConfigToOmit =
   | 'dataAggregator'
@@ -48,6 +56,11 @@ export type TransactionManagerConfig = Pick<
 > & {
   logger?: Logger
 }
+type SSLFingerprintConfigToOmit = 'baseLogger' | 'metricCollector' | 'kit' | 'web3'
+export type SSLFingerprintServiceConfigSubset = Omit<
+  SSLFingerprintServiceConfig,
+  SSLFingerprintConfigToOmit
+>
 
 /**
  * This specifies configurations to the OracleApplication
@@ -122,6 +135,10 @@ export interface OracleApplicationConfig {
   reportStrategy: ReportStrategy
   /* To override the default identifier when reporting to chain */
   reportTargetOverride: ReportTarget | undefined
+  /**
+   * Configuration for the SSLFingerprintService
+   */
+  sslFingerprintServiceConfig: SSLFingerprintServiceConfigSubset
   /** The type of wallet to use for signing transaction */
   walletType: WalletType
   /** The websocket URL of a web3 provider to listen to events through with block-based reporting */
@@ -135,6 +152,8 @@ export class OracleApplication {
 
   private _dataAggregator: DataAggregator
   private _reporter: BaseReporter | undefined
+
+  private _sslFingerprintService: SSLFingerprintService
 
   private readonly logger: Logger
   readonly metricCollector: MetricCollector | undefined
@@ -151,11 +170,17 @@ export class OracleApplication {
       this.metricCollector = new MetricCollector(this.config.baseLogger)
       this.metricCollector.startServer(prometheusPort!)
     }
+    this._sslFingerprintService = new SSLFingerprintService({
+      ...config.sslFingerprintServiceConfig,
+      baseLogger: config.baseLogger,
+      metricCollector: this.metricCollector,
+    })
     this._dataAggregator = new DataAggregator({
       ...config.dataAggregatorConfig,
       apiKeys: this.config.apiKeys,
       currencyPair: this.config.currencyPair,
       metricCollector: this.metricCollector,
+      sslFingerprintService: this._sslFingerprintService,
     })
     this.logger = this.config.baseLogger.child({ context: 'app' })
     this.logger.info(
@@ -288,6 +313,7 @@ export class OracleApplication {
     }
 
     await this._reporter.init()
+    await this._sslFingerprintService.init()
 
     this.initialized = true
     this.logger.info('App initialized successfuly')

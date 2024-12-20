@@ -21,6 +21,7 @@ import { CeloContract } from '@celo/contractkit'
 import { DataAggregator } from '../src/data_aggregator'
 import { MetricCollector } from '../src/metric_collector'
 import { baseLogger } from '../src/default_config'
+import { SSLFingerprintService } from '../src/services/SSLFingerprintService'
 
 jest.mock('@celo/contractkit')
 jest.mock('@celo/wallet-hsm-azure')
@@ -30,12 +31,14 @@ const mockPrivateKeyPath = '/foo/bar/barfoo'
 // Randomly generated private key and addresss
 // const mockPrivateKey = '7482878ff61eee0d53caad3246eabe69cb2a17204df0276986bfc77b1b32acad'
 const mockOracleAccount = '0x086bb25bFCD323f82a7d1c95E4Cf3807B8831270'
+const mockSSLRegistry = '0x44eb0D1C26779F762f26e8CC1522BbDA874f978B'
 
 const mockAzureKeyVaultName = 'mockAzureKeyVault'
 
 jest.mock('../src/data_aggregator')
 jest.mock('../src/reporters/base')
 jest.mock('../src/reporters/block_based_reporter')
+jest.mock('../src/services/SSLFingerprintService.ts')
 
 describe('OracleApplication', () => {
   const address = mockOracleAccount
@@ -124,6 +127,10 @@ describe('OracleApplication', () => {
     walletType,
     wsRpcProviderUrl,
     reportTargetOverride: undefined,
+    sslFingerprintServiceConfig: {
+      wsRpcProviderUrl,
+      sslRegistryAddress: mockSSLRegistry,
+    },
   }
 
   let oracleApplication: OracleApplication
@@ -138,6 +145,16 @@ describe('OracleApplication', () => {
       apiKeys,
       currencyPair: 'CELOUSD',
       metricCollector: oracleApplication.metricCollector,
+      sslFingerprintService: expect.any(SSLFingerprintService),
+    })
+  })
+
+  it('set up a ssl fingerpring service with the appropriate, passed-through config', () => {
+    expect(SSLFingerprintService).toHaveBeenCalledWith({
+      wsRpcProviderUrl,
+      sslRegistryAddress: mockSSLRegistry,
+      metricCollector: oracleApplication.metricCollector,
+      baseLogger,
     })
   })
 

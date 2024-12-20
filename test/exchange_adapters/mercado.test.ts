@@ -4,6 +4,7 @@ import BigNumber from 'bignumber.js'
 import { ExchangeAdapterConfig } from '../../src/exchange_adapters/base'
 import { MercadoAdapter } from '../../src/exchange_adapters/mercado'
 import { baseLogger } from '../../src/default_config'
+import { MockSSLFingerprintService } from '../services/mock_ssl_fingerprint_service'
 
 describe(' adapter', () => {
   let mercadoAdapter: MercadoAdapter
@@ -12,6 +13,7 @@ describe(' adapter', () => {
     baseCurrency: ExternalCurrency.USDC,
     baseLogger,
     quoteCurrency: ExternalCurrency.USD,
+    sslFingerprintService: new MockSSLFingerprintService(),
   }
 
   beforeEach(() => {

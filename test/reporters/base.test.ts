@@ -7,8 +7,9 @@ import { ReportTarget, SortedOraclesWrapper } from '@celo/contractkit/lib/wrappe
 import { baseLogger, defaultDataAggregatorConfig } from '../../src/default_config'
 
 import BigNumber from 'bignumber.js'
-import { DataAggregator } from '../../src/data_aggregator'
+import { DataAggregator, DataAggregatorConfig } from '../../src/data_aggregator'
 import { GasPriceMinimumWrapper } from '@celo/contractkit/lib/wrappers/GasPriceMinimum'
+import { MockSSLFingerprintService } from '../services/mock_ssl_fingerprint_service'
 
 const { ReportStrategy } = utils
 
@@ -42,6 +43,7 @@ describe('BaseReporter', () => {
   let reporter: BaseReporter
   let metricCollector: MetricCollector
   let defaultConfig: BaseReporterConfig
+  const sslFingerprintService = new MockSSLFingerprintService()
 
   async function createAndInitializeReporter(config: BaseReporterConfig): Promise<void> {
     metricCollector = new MetricCollector(baseLogger)
@@ -53,10 +55,11 @@ describe('BaseReporter', () => {
   }
 
   beforeEach(async () => {
-    const dataAggregatorCfg = {
+    const dataAggregatorCfg: DataAggregatorConfig = {
       ...defaultDataAggregatorConfig,
       apiKeys: {},
       currencyPair: utils.OracleCurrencyPair.CELOUSD,
+      sslFingerprintService,
     }
     dataAggregator = new DataAggregator(dataAggregatorCfg)
     jest.spyOn(dataAggregator, 'currentPrice').mockImplementation(currentPriceFn)

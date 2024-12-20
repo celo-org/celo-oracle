@@ -4,6 +4,7 @@ import BigNumber from 'bignumber.js'
 import { CurrencyApiAdapter } from '../../src/exchange_adapters/currencyapi'
 import { ExchangeAdapterConfig } from '../../src/exchange_adapters/base'
 import { baseLogger } from '../../src/default_config'
+import { MockSSLFingerprintService } from '../services/mock_ssl_fingerprint_service'
 
 describe('CurrencyApi adapter', () => {
   let adapter: CurrencyApiAdapter
@@ -12,6 +13,7 @@ describe('CurrencyApi adapter', () => {
     baseCurrency: ExternalCurrency.EUR,
     baseLogger,
     quoteCurrency: ExternalCurrency.XOF,
+    sslFingerprintService: new MockSSLFingerprintService(),
   }
 
   beforeEach(() => {

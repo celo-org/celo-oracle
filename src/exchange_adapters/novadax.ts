@@ -5,9 +5,6 @@ import { Exchange } from '../utils'
 export class NovaDaxAdapter extends BaseExchangeAdapter implements ExchangeAdapter {
   baseApiUrl = 'https://api.novadax.com/v1/market'
   readonly _exchangeName = Exchange.NOVADAX
-  // GTS CA 1P5 - validity not after: 29/09/2027, 21:00:42 GMT-3
-  readonly _certFingerprint256 =
-    '1D:FC:16:05:FB:AD:35:8D:8B:C8:44:F7:6D:15:20:3F:AC:9C:A5:C1:A7:9F:D4:85:7F:FA:F2:86:4F:BE:BF:96'
 
   private static readonly tokenSymbolMap = NovaDaxAdapter.standardTokenSymbolMap
 

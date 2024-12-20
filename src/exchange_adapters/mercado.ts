@@ -5,9 +5,6 @@ import { Exchange } from '../utils'
 export class MercadoAdapter extends BaseExchangeAdapter implements ExchangeAdapter {
   baseApiUrl = 'https://api.mercadobitcoin.net/api/v4'
   readonly _exchangeName = Exchange.MERCADO
-  // Google Trust Services LLC CA - validity not after: 9/29/27, 7:00:42 PM EST
-  readonly _certFingerprint256 =
-    '1D:FC:16:05:FB:AD:35:8D:8B:C8:44:F7:6D:15:20:3F:AC:9C:A5:C1:A7:9F:D4:85:7F:FA:F2:86:4F:BE:BF:96'
 
   private static readonly tokenSymbolMap = MercadoAdapter.standardTokenSymbolMap
 

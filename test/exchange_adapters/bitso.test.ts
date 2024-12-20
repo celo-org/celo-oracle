@@ -3,6 +3,7 @@ import { baseLogger } from '../../src/default_config'
 import { ExchangeAdapterConfig } from '../../src/exchange_adapters/base'
 import { BitsoAdapter } from '../../src/exchange_adapters/bitso'
 import { Exchange, ExternalCurrency } from '../../src/utils'
+import { MockSSLFingerprintService } from '../services/mock_ssl_fingerprint_service'
 
 describe('BitsoAdapter', () => {
   let bitsoAdapter: BitsoAdapter
@@ -10,6 +11,7 @@ describe('BitsoAdapter', () => {
     baseCurrency: ExternalCurrency.BTC,
     baseLogger,
     quoteCurrency: ExternalCurrency.USD,
+    sslFingerprintService: new MockSSLFingerprintService(),
   }
   beforeEach(() => {
     bitsoAdapter = new BitsoAdapter(config)

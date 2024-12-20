@@ -7,6 +7,7 @@ import { CeloContract } from '@celo/contractkit'
 import Logger from 'bunyan'
 import https from 'https'
 import tls from 'tls'
+import { ISSLFingerprintService } from '../services/SSLFingerprintService'
 
 export enum DataType {
   TICKER = 'Ticker',
@@ -71,6 +72,11 @@ export interface ExchangeAdapterConfig {
   /** The currency to get the price of */
   baseCurrency: Currency
   /**
+   * An object implementing the ISSLFingerprintService
+   * which can be used for querying SSL Fingerprints from our on-chain registry
+   */
+  sslFingerprintService: ISSLFingerprintService
+  /**
    * A base instance of the logger that can be extended for a particular context
    */
   baseLogger: Logger
@@ -109,7 +115,7 @@ export abstract class BaseExchangeAdapter {
    * A Root Certificate generally has the longest valid period, but won't help
    * if an intermediate issuer has been compromised.
    */
-  abstract readonly _certFingerprint256?: string
+  readonly sslFingerprintService: ISSLFingerprintService
   abstract readonly _exchangeName: Exchange
 
   /**
@@ -162,6 +168,7 @@ export abstract class BaseExchangeAdapter {
       exchange: this.exchangeName,
     })
     this.httpsAgent = this.setupHttpsAgent()
+    this.sslFingerprintService = config.sslFingerprintService
   }
 
   /**
@@ -351,9 +358,11 @@ export abstract class BaseExchangeAdapter {
 
         let currentCert: tls.PeerCertificate | undefined = cert
 
-        if (this._certFingerprint256) {
+        const _certFingerprint256 = this.sslFingerprintService.getFingerprint(this.exchangeName)
+
+        if (_certFingerprint256) {
           while (currentCert) {
-            if (this._certFingerprint256 === currentCert.fingerprint256) {
+            if (_certFingerprint256 === currentCert.fingerprint256) {
               // Warn if within a 30 days of expiry (30 * 24 * 60 * 60 + 1000)
               const expirationDate = Date.parse(cert.valid_to)
               if (expirationDate - Date.now() < 2592000000) {

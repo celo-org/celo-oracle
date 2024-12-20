@@ -5,6 +5,7 @@ import { ExchangeApiRequestError, MetricCollector } from '../../src/metric_colle
 import { CeloContract } from '@celo/contractkit'
 import { baseLogger } from '../../src/default_config'
 import fetch from 'node-fetch'
+import { MockSSLFingerprintService } from '../services/mock_ssl_fingerprint_service'
 
 jest.mock('@celo/contractkit')
 jest.mock('node-fetch')
@@ -33,6 +34,7 @@ export class MockAdapter extends BaseExchangeAdapter {
 describe('BaseExchangeAdapter', () => {
   let adapter: BaseExchangeAdapter
   let metricCollector: MetricCollector
+  const sslFingerprintService = new MockSSLFingerprintService()
   const mockTickerEndpoint = '/ticker/CELO-USD'
 
   beforeEach(() => {
@@ -42,6 +44,7 @@ describe('BaseExchangeAdapter', () => {
       baseLogger,
       quoteCurrency: ExternalCurrency.USD,
       metricCollector,
+      sslFingerprintService,
     })
   })
 
@@ -127,13 +130,11 @@ describe('BaseExchangeAdapter', () => {
 
       it('throws if the json cannot be parsed', async () => {
         // @ts-ignore - mockReturnValue is added by jest and is not in the fetch type signature
-        fetch.mockReturnValue(
-          Promise.resolve(new Response('<html>blah blah not json</html>', { status: 200 }))
-        )
+        fetch.mockReturnValue(Promise.resolve(new Response('not json', { status: 200 })))
         await expect(async () =>
           adapter.fetchFromApi(ExchangeDataType.TICKER, mockTickerEndpoint)
         ).rejects.toThrowError(
-          'Failed to parse JSON response: FetchError: invalid json response body at  reason: Unexpected token \'<\', "<html>blah"... is not valid JSON'
+          'Failed to parse JSON response: FetchError: invalid json response body at  reason: Unexpected token \'o\', "not json"'
         )
         expect(metricCollector.exchangeApiRequestError).toBeCalledWith(
           ...metricArgs,
