@@ -15,8 +15,8 @@ importers:
         specifier: 8.0.0
         version: 8.0.0(bufferutil@4.0.8)(utf-8-validate@5.0.10)
       '@celo/utils':
-        specifier: 6.0.0
-        version: 6.0.0
+        specifier: 6.0.1
+        version: 6.0.1
       '@celo/wallet-hsm-aws':
         specifier: 5.2.0
         version: 5.2.0(bufferutil@4.0.8)(utf-8-validate@5.0.10)(web3@1.10.4(bufferutil@4.0.8)(utf-8-validate@5.0.10))
@@ -362,9 +362,6 @@ packages:
 
   '@celo/typescript@0.0.2':
     resolution: {integrity: sha512-cEx24Y4UkmjKhdiuoispVNeQDcsRYJjScDKxNDI7d8YjiYdTM+ZuyFuXugbw9WRS4h2E7n8rEAkOlm/QH6+xzw==}
-
-  '@celo/utils@6.0.0':
-    resolution: {integrity: sha512-0jveALnE5WvasJcSAlBB0XnuzhqbKTj51b0+CkWg6aU0eCA0cQEzW4kQVt/X+Wo8d9S18ardmIVkwzrKToBdEA==}
 
   '@celo/utils@6.0.1':
     resolution: {integrity: sha512-X9iK4R4USSgHG87PxpLGHqgKL33bKtBiKZGgPwx4gMM7X+nwpB6Ify/YO1/I+mt9+NN9epPb8/kmYYoWOPYShw==}
@@ -2922,10 +2919,6 @@ packages:
     resolution: {integrity: sha512-B6elffYm81MYZDTrat7aEhnhdtVE3lDBUZft16Z8awYMZYJDbnykEbJVS+l3mnA7AQTnSDr/1MjWofGDLBJPww==}
     engines: {node: '>=8.0.0'}
 
-  web3-eth-abi@1.10.0:
-    resolution: {integrity: sha512-cwS+qRBWpJ43aI9L3JS88QYPfFcSJJ3XapxOQ4j40v6mk7ATpA8CVK1vGTzpihNlOfMVRBkR95oAj7oL6aiDOg==}
-    engines: {node: '>=8.0.0'}
-
   web3-eth-abi@1.10.4:
     resolution: {integrity: sha512-cZ0q65eJIkd/jyOlQPDjr8X4fU6CRL1eWgdLwbWEpo++MPU/2P4PFk5ZLAdye9T5Sdp+MomePPJ/gHjLMj2VfQ==}
     engines: {node: '>=8.0.0'}
@@ -2972,10 +2965,6 @@ packages:
 
   web3-shh@1.10.4:
     resolution: {integrity: sha512-cOH6iFFM71lCNwSQrC3niqDXagMqrdfFW85hC9PFUrAr3PUrIem8TNstTc3xna2bwZeWG6OBy99xSIhBvyIACw==}
-    engines: {node: '>=8.0.0'}
-
-  web3-utils@1.10.0:
-    resolution: {integrity: sha512-kSaCM0uMcZTNUSmn5vMEhlo02RObGNRRCkdX0V9UTAU0+lrvn0HSaudyCo6CQzuXUsnuY2ERJGCGPfeWmv19Rg==}
     engines: {node: '>=8.0.0'}
 
   web3-utils@1.10.4:
@@ -3463,21 +3452,6 @@ snapshots:
       tslint-microsoft-contrib: 6.2.0(tslint@5.20.1(typescript@5.4.2))(typescript@5.4.2)
     transitivePeerDependencies:
       - typescript
-
-  '@celo/utils@6.0.0':
-    dependencies:
-      '@celo/base': 6.1.0
-      '@ethereumjs/util': 8.0.5
-      '@types/elliptic': 6.4.18
-      '@types/node': 18.19.68
-      bignumber.js: 9.1.2
-      elliptic: 6.6.1
-      ethereum-cryptography: 1.2.0
-      fp-ts: 2.1.1
-      io-ts: 2.0.1(fp-ts@2.1.1)
-      rlp: 2.2.7
-      web3-eth-abi: 1.10.0
-      web3-utils: 1.10.0
 
   '@celo/utils@6.0.1':
     dependencies:
@@ -4104,7 +4078,7 @@ snapshots:
 
   '@types/keyv@3.1.4':
     dependencies:
-      '@types/node': 12.20.55
+      '@types/node': 22.10.2
 
   '@types/mathjs@6.0.12':
     dependencies:
@@ -4131,7 +4105,7 @@ snapshots:
 
   '@types/pbkdf2@3.1.2':
     dependencies:
-      '@types/node': 18.19.68
+      '@types/node': 22.10.2
 
   '@types/pvutils@1.0.4': {}
 
@@ -6697,11 +6671,6 @@ snapshots:
       - encoding
       - supports-color
 
-  web3-eth-abi@1.10.0:
-    dependencies:
-      '@ethersproject/abi': 5.7.0
-      web3-utils: 1.10.0
-
   web3-eth-abi@1.10.4:
     dependencies:
       '@ethersproject/abi': 5.7.0
@@ -6826,16 +6795,6 @@ snapshots:
     transitivePeerDependencies:
       - encoding
       - supports-color
-
-  web3-utils@1.10.0:
-    dependencies:
-      bn.js: 5.2.1
-      ethereum-bloom-filters: 1.2.0
-      ethereumjs-util: 7.1.5
-      ethjs-unit: 0.1.6
-      number-to-bn: 1.7.0
-      randombytes: 2.1.0
-      utf8: 3.0.0
 
   web3-utils@1.10.4:
     dependencies:
