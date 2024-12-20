@@ -258,7 +258,9 @@ export class BlockBasedReporter extends BaseReporter {
       // throw Error(
       //   `Block number is lower than the highest previously observed block: ${blockHeader.number} <= ${this.highestObservedBlockNumber}`
       // )
-      this.logger.warn(`New Block number (${blockHeader.number}) is lower than the highest previously observed block (${this.highestObservedBlockNumber})`)
+      this.logger.warn(
+        `New Block number (${blockHeader.number}) is lower than the highest previously observed block (${this.highestObservedBlockNumber})`
+      )
     }
     const now = Date.now()
     // now is in ms, and blockHeader.timestamp is in seconds, so we convert it to ms
