@@ -7,7 +7,7 @@
 # docker push oracletest.azurecr.io/test/oracle:$COMMIT_SHA
 
 # First stage, builder to install devDependencies to build TypeScript
-FROM node:20.11 as BUILDER
+FROM node:20.18 as BUILDER
 
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
@@ -32,7 +32,7 @@ COPY src src
 RUN pnpm run build
 
 # Second stage, create slimmed down production-ready image
-FROM node:20.11
+FROM node:20.18
 ARG COMMIT_SHA
 ENV NODE_ENV production
 RUN corepack enable
