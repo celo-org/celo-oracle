@@ -20,7 +20,7 @@
   },
   "dependencies": {
     "@celo/connect": "5.3.0",
-    "@celo/contractkit": "8.0.0",
+    "@celo/contractkit": "8.3.1",
     "@celo/utils": "6.0.0",
     "@celo/wallet-hsm-aws": "5.2.0",
     "@celo/wallet-hsm-azure": "5.2.0",
