@@ -57,7 +57,7 @@ export const defaultBaseReporterConfig: BaseReporterConfigSubset = {
 
 export const defaultBlockBasedReporterConfig: BlockBasedReporterConfigSubset = {
   ...defaultBaseReporterConfig,
-  expectedBlockTimeMs: secondsToMs(5),
+  expectedBlockTimeMs: secondsToMs(1),
   maxBlockTimestampAgeMs: secondsToMs(30),
   minReportPriceChangeThreshold: new BigNumber(0.005), // 0.5%
   targetMaxHeartbeatPeriodMs: minutesToMs(4.5),
