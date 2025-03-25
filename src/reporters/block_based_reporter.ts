@@ -300,9 +300,7 @@ export class BlockBasedReporter extends BaseReporter {
 
     const targetMaxHeartbeatPeriodMs =
       this.config.targetMaxHeartbeatPeriodMs ?? this.reportExpiryTimeMs
-    const expectedBlocksPerExpiryPeriod = Math.floor(
-      targetMaxHeartbeatPeriodMs / blockTimeMs
-    )
+    const expectedBlocksPerExpiryPeriod = Math.floor(targetMaxHeartbeatPeriodMs / blockTimeMs)
     const fullCyclesPerExpiryPeriod = Math.floor(
       expectedBlocksPerExpiryPeriod / this.totalOracleCount
     )
