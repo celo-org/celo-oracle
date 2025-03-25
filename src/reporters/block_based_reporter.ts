@@ -295,10 +295,13 @@ export class BlockBasedReporter extends BaseReporter {
   }
 
   private isHeartbeatCycle(blockNumber: number): boolean {
+    const L2_TRANSITION_BLOCK = 31056500
+    const blockTimeMs = blockNumber > L2_TRANSITION_BLOCK ? 1 : 5
+
     const targetMaxHeartbeatPeriodMs =
       this.config.targetMaxHeartbeatPeriodMs ?? this.reportExpiryTimeMs
     const expectedBlocksPerExpiryPeriod = Math.floor(
-      targetMaxHeartbeatPeriodMs / this.config.expectedBlockTimeMs
+      targetMaxHeartbeatPeriodMs / blockTimeMs
     )
     const fullCyclesPerExpiryPeriod = Math.floor(
       expectedBlocksPerExpiryPeriod / this.totalOracleCount
