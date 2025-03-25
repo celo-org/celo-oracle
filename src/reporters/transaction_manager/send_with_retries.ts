@@ -14,23 +14,18 @@ export default async function sendWithRetries(
 ): Promise<TransactionReceipt> {
   let lastCaughtError = null
 
-    try {
-      return await send(
-        logger,
-        tx,
-        config.oracleAccount,
-        metricAction
-      )
-    } catch (err: any) {
-      lastCaughtError = err
-      onError(err, {
-        context: Context.TRANSACTION_MANAGER,
-        logger: config.logger,
-        logMsg: 'Unable to send transaction',
-        metricCollector: config.metricCollector,
-        swallowError: true,
-      })
-    }
+  try {
+    return await send(logger, tx, config.oracleAccount, metricAction)
+  } catch (err: any) {
+    lastCaughtError = err
+    onError(err, {
+      context: Context.TRANSACTION_MANAGER,
+      logger: config.logger,
+      logMsg: 'Unable to send transaction',
+      metricCollector: config.metricCollector,
+      swallowError: true,
+    })
+  }
 
   throw lastCaughtError
 }
