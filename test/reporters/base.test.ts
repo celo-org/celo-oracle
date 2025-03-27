@@ -426,13 +426,7 @@ describe('BaseReporter', () => {
           // transaction information
           expect(metricCollector!.reportTransaction).toBeCalled()
           // duration of various async actions
-          const durationActions = [
-            'getSortedOracles',
-            'report',
-            'send',
-            'waitReceipt',
-            'total',
-          ]
+          const durationActions = ['getSortedOracles', 'report', 'send', 'waitReceipt', 'total']
           for (const durationAction of durationActions) {
             expect(metricCollector!.reportDuration).toBeCalledWith(
               durationAction,

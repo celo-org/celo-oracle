@@ -238,10 +238,7 @@ export class MetricCollector {
   /**
    * Sets relevant gauges following a successful report transaction
    */
-  expiryTransaction(
-    currencyPair: string,
-    transactionReceipt: TransactionReceipt
-  ) {
+  expiryTransaction(currencyPair: string, transactionReceipt: TransactionReceipt) {
     this.transaction('expiry', currencyPair, transactionReceipt)
   }
 
@@ -326,11 +323,7 @@ export class MetricCollector {
   /**
    * Sets relevant gauges and counters following a successful transaction
    */
-  private transaction(
-    type: string,
-    currencyPair: string,
-    transactionReceipt: TransactionReceipt
-  ) {
+  private transaction(type: string, currencyPair: string, transactionReceipt: TransactionReceipt) {
     this.transactionBlockNumberGauge.set({ type, currencyPair }, transactionReceipt.blockNumber)
     this.transactionSuccessCountCounter.inc({ type, currencyPair })
   }
