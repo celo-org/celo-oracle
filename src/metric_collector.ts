@@ -2,7 +2,7 @@ import { BigNumber } from 'bignumber.js'
 import Logger from 'bunyan'
 import express, { Response } from 'express'
 import { collectDefaultMetrics, Counter, Gauge, Histogram, register } from 'prom-client'
-import { Transaction, TransactionReceipt } from 'web3-core'
+import { TransactionReceipt } from 'web3-core'
 import { Ticker } from './exchange_adapters/base'
 import { Exchange, msToSeconds, RequiredKeysOfType } from './utils'
 import { WeightedPrice } from './price_source'
@@ -69,9 +69,6 @@ export class MetricCollector {
   private priceSourceGauge: Gauge<string>
 
   private transactionBlockNumberGauge: Gauge<string>
-  private transactionGasGauge: Gauge<string>
-  private transactionGasPriceGauge: Gauge<string>
-  private transactionGasUsedGauge: Gauge<string>
   private transactionSuccessCountCounter: Counter<string>
 
   private websocketProviderSetupCounter: Counter<string>
@@ -164,24 +161,6 @@ export class MetricCollector {
       labelNames: ['type', 'currencyPair'],
     })
 
-    this.transactionGasGauge = new Gauge({
-      name: 'oracle_transaction_gas',
-      help: 'Gauge of the gas provided for the most recent transaction defined by type',
-      labelNames: ['type', 'currencyPair'],
-    })
-
-    this.transactionGasPriceGauge = new Gauge({
-      name: 'oracle_transaction_gas_price',
-      help: 'Gauge of the gas price for the most recent transaction defined by type',
-      labelNames: ['type', 'currencyPair'],
-    })
-
-    this.transactionGasUsedGauge = new Gauge({
-      name: 'oracle_transaction_gas_used',
-      help: 'Gauge of amount of gas used for the most recent transaction defined by type',
-      labelNames: ['type', 'currencyPair'],
-    })
-
     this.transactionSuccessCountCounter = new Counter({
       name: 'oracle_transaction_success_count',
       help:
@@ -261,10 +240,9 @@ export class MetricCollector {
    */
   expiryTransaction(
     currencyPair: string,
-    transaction: Transaction,
     transactionReceipt: TransactionReceipt
   ) {
-    this.transaction('expiry', currencyPair, transaction, transactionReceipt)
+    this.transaction('expiry', currencyPair, transactionReceipt)
   }
 
   /**
@@ -279,12 +257,11 @@ export class MetricCollector {
    */
   reportTransaction(
     currencyPair: string,
-    transaction: Transaction,
     transactionReceipt: TransactionReceipt,
     reportedValue: BigNumber,
     trigger: ReportTrigger
   ) {
-    this.transaction('report', currencyPair, transaction, transactionReceipt)
+    this.transaction('report', currencyPair, transactionReceipt)
     this.reportValueGauge.set({ currencyPair }, reportedValue.toNumber())
     this.reportCountCounter.inc({ currencyPair, trigger })
   }
@@ -352,13 +329,9 @@ export class MetricCollector {
   private transaction(
     type: string,
     currencyPair: string,
-    transaction: Transaction,
     transactionReceipt: TransactionReceipt
   ) {
     this.transactionBlockNumberGauge.set({ type, currencyPair }, transactionReceipt.blockNumber)
-    this.transactionGasGauge.set({ type, currencyPair }, transaction.gas)
-    this.transactionGasPriceGauge.set({ type, currencyPair }, parseInt(transaction.gasPrice, 10))
-    this.transactionGasUsedGauge.set({ type, currencyPair }, transactionReceipt.gasUsed)
     this.transactionSuccessCountCounter.inc({ type, currencyPair })
   }
 

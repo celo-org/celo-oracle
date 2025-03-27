@@ -432,7 +432,6 @@ describe('BaseReporter', () => {
             'send',
             'waitReceipt',
             'total',
-            'getTransaction',
           ]
           for (const durationAction of durationActions) {
             expect(metricCollector!.reportDuration).toBeCalledWith(
@@ -479,7 +478,6 @@ describe('BaseReporter', () => {
           'removeExpiredReports',
           'send',
           'waitReceipt',
-          'getTransaction',
         ]
         for (const durationAction of durationActions) {
           expect(metricCollector!.expiryDuration).toBeCalledWith(

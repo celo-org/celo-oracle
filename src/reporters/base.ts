@@ -196,13 +196,8 @@ export abstract class BaseReporter {
     // another RPC call. If we add gas estimation and gasPrice into the oracle
     // client in the future, we may be able to prevent this additional RPC.
     if (this.config.metricCollector) {
-      const txInfo = await this.doAsyncReportAction(
-        () => this.config.kit.web3.eth.getTransaction(receipt.transactionHash),
-        'getTransaction'
-      )
       this.config.metricCollector.reportTransaction(
         this.config.currencyPair,
-        txInfo,
         receipt,
         price,
         trigger
@@ -269,14 +264,7 @@ export abstract class BaseReporter {
         'Successfully expired report'
       )
       if (this.config.metricCollector) {
-        // This is only meant for metric collection purposes.
-        // There's no straightforward way to get tx details from contractkit without
-        // another RPC call.
-        const txInfo = await this.doAsyncExpiryAction(
-          () => this.config.kit.web3.eth.getTransaction(receipt.transactionHash),
-          'getTransaction'
-        )
-        this.config.metricCollector.expiryTransaction(this.config.currencyPair, txInfo, receipt)
+        this.config.metricCollector.expiryTransaction(this.config.currencyPair, receipt)
       }
     } else {
       this.logger.info('No expired reports')
