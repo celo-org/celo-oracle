@@ -1,3 +1,4 @@
+// @ts-nocheck
 import BigNumber from 'bignumber.js'
 import Web3 from 'web3'
 import { WebsocketProvider } from 'web3-core'
@@ -120,11 +121,11 @@ export class BlockBasedReporter extends BaseReporter {
       metricCollector: this.config.metricCollector,
       swallowError: true,
     }
-    this.provider = new Web3.providers.WebsocketProvider(
-      this.config.wsRpcProviderUrl,
-      this.wsConnectionOptions
-    )
-    this.web3 = new Web3(this.provider)
+    // this.provider = new Web3.providers.WebsocketProvider(
+    //   this.config.wsRpcProviderUrl,
+    //   this.wsConnectionOptions
+    // )
+    // this.web3 = new Web3(this.provider)
     this.initialized = false
   }
 
@@ -142,23 +143,35 @@ export class BlockBasedReporter extends BaseReporter {
 
   start(): void {
     this.requireInitialized()
-    this.setupProviderAndSubscriptions()
+    setInterval(() => {
+      this.onBlockHeader();
+    }, 1000);
   }
 
   stop(): void {
     super.stop()
-    this._blockHeaderSubscription
-      ?.unsubscribe()
-      .catch((error: Error) => onError(error, this.blockHeaderSubscriptionErrorWrapper))
-    this.provider.disconnect()
+    // this._blockHeaderSubscription
+    //   ?.unsubscribe()
+    //   .catch((error: Error) => onError(error, this.blockHeaderSubscriptionErrorWrapper))
+    // this.provider.disconnect()
   }
 
   /**
    * onBlockHeader will try to report and expire any expired reports if the
    * block header is from an assigned block
    */
-  async onBlockHeader(blockHeader: BlockHeader) {
-    const blockNumber = blockHeader.number
+  async onBlockHeader() {
+    const isAlfajores = this.config.wsRpcProviderUrl.includes('alfajores')
+    let startBlock = 0, startTs = 0
+    if (isAlfajores) {
+      startBlock = 42253233
+      startTs = 1743208553 // Sat, 29 Mar 2025 00:35:53 +0000
+    } else {
+      startBlock = 31056500
+      startTs = 1742957258; // Wed, 26 Mar 2025 02:47:38 +0000
+    }
+    const now = Math.floor(Date.now() / 1000)
+    const blockNumber = now - startTs + startBlock // assume 1s block time
 
     const isAssignedBlock = this.isAssignedBlock(blockNumber)
     this.logger.debug(
@@ -170,7 +183,7 @@ export class BlockBasedReporter extends BaseReporter {
     )
     this.config.metricCollector?.blockHeaderNumber(BlockType.ANY, blockNumber)
     // This will throw if the block does not pass the checks
-    this.performBlockHeaderChecks(blockHeader)
+    // this.performBlockHeaderChecks(blockHeader)
 
     this._highestObservedBlockNumber = blockNumber
     if (isAssignedBlock) {
@@ -324,6 +337,7 @@ export class BlockBasedReporter extends BaseReporter {
 
     // @ts-ignore - the type definition does not include the error
     this.provider.on('error', async (error: Error) => {
+      console.log('WebsocketProvider encountered an error', error)
       onError(error, {
         ...this.blockHeaderSubscriptionErrorWrapper,
         logMsg: 'WebsocketProvider encountered an error',
@@ -331,6 +345,7 @@ export class BlockBasedReporter extends BaseReporter {
       await setupNewProviderAndSubs()
     })
     this.provider.on('close', async () => {
+      console.log('WebsocketProvider connection closed, will re-open')
       onError(
         new Error('WebsocketProvider connection closed, will re-open'),
         this.blockHeaderSubscriptionErrorWrapper

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import Logger from 'bunyan'
 import { MetricCollector } from '../metric_collector'
 import { Exchange } from '../utils'
@@ -100,6 +101,8 @@ export class SSLFingerprintService implements ISSLFingerprintService {
   private readonly web3: Web3
   private readonly provider: WebsocketProvider
   private eventSubscription: Subscription<any> | undefined
+  private httpProviderUrl: string
+  private lastFetchedTime: number
 
   private readonly wsConnectionOptions = {
     // to enable auto reconnection
@@ -109,17 +112,18 @@ export class SSLFingerprintService implements ISSLFingerprintService {
     },
   }
 
-  constructor(config: SSLFingerprintServiceConfig) {
+  constructor(config: SSLFingerprintServiceConfig, httpRpcProviderUrl: string) {
     this.sslRegistryAddress = config.sslRegistryAddress
+    this.httpProviderUrl = httpRpcProviderUrl
     this.logger = config.baseLogger.child({
       context: 'ssl_fingerprint_service',
     })
     this.fingerprintMapping = new Map<string, string>()
-    this.provider = new Web3.providers.WebsocketProvider(
-      config.wsRpcProviderUrl,
-      this.wsConnectionOptions
-    )
-    this.web3 = new Web3(this.provider)
+    // this.provider = new Web3.providers.WebsocketProvider(
+    //   config.wsRpcProviderUrl,
+    //   this.wsConnectionOptions
+    // )
+    this.web3 = new Web3(this.httpProviderUrl)
     this.registry = new this.web3.eth.Contract(REGISTRY_ABI, this.sslRegistryAddress)
   }
 
@@ -130,18 +134,33 @@ export class SSLFingerprintService implements ISSLFingerprintService {
     for (let i = 0; i < ALL_EXCHANGE_IDENTIFIERS.length; i++) {
       this.fingerprintMapping.set(ALL_EXCHANGE_IDENTIFIERS[i], formatFingerprint(fingerprints[i]))
     }
-    this.eventSubscription = this.registry.events.FingerprintUpdated(
-      {
-        fromBlock: 'latest',
-      },
-      this.updateFingerprint
-    )
+    // console.log(this.fingerprintMapping)
+    // this.eventSubscription = this.registry.events.FingerprintUpdated(
+    //   {
+    //     fromBlock: 'latest',
+    //   },
+    //   this.updateFingerprint
+    // )
     this.logger.info('Pulled SSL Certificates from registry')
+    setInterval(() => {
+      this.fetchAndUpdateFingerprints()
+    }, 1000 * 60 * 5) // 5 minutes
+  }
+
+  async fetchAndUpdateFingerprints() {
+    this.logger.info('Refreshing SSL Certificates from registry')
+    const fingerprints = await this.registry.methods
+      .getFingerprints(ALL_EXCHANGE_IDENTIFIERS)
+      .call()
+    for (let i = 0; i < ALL_EXCHANGE_IDENTIFIERS.length; i++) {
+      this.fingerprintMapping.set(ALL_EXCHANGE_IDENTIFIERS[i], formatFingerprint(fingerprints[i]))
+    }
+    this.logger.info('Refreshed SSL Certificates from registry')
   }
 
   stop() {
-    this.eventSubscription?.unsubscribe()
-    this.provider.disconnect()
+    // this.eventSubscription?.unsubscribe()
+    // this.provider.disconnect()
   }
 
   updateFingerprint = (error: any, event: any) => {

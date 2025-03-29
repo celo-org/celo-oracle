@@ -174,7 +174,7 @@ export class OracleApplication {
       ...config.sslFingerprintServiceConfig,
       baseLogger: config.baseLogger,
       metricCollector: this.metricCollector,
-    })
+    }, config.httpRpcProviderUrl)
     this._dataAggregator = new DataAggregator({
       ...config.dataAggregatorConfig,
       apiKeys: this.config.apiKeys,
