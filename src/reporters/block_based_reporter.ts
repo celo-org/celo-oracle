@@ -9,6 +9,7 @@ import {
   doAsyncFnWithErrorContext,
   ErrorWrapper,
   isOutsideTolerance,
+  minutesToMs,
   onError,
   ReportStrategy,
   secondsToMs,
@@ -191,7 +192,7 @@ export class BlockBasedReporter extends BaseReporter {
         {
           blockNumber,
         },
-        'Observed assigned block, attempting report and expiry'
+        'Observed assigned block, attempting report'
       )
       this.config.metricCollector?.blockHeaderNumber(BlockType.ASSIGNED, blockNumber)
 
@@ -214,15 +215,21 @@ export class BlockBasedReporter extends BaseReporter {
         metricCollector: this.config.metricCollector,
         swallowError: true, // ensure that if there is an error, we don't throw here
       })
+
+
       // 2. Expire
-      await doAsyncFnWithErrorContext({
-        fn: this.expire.bind(this),
-        context: Context.EXPIRY,
-        logger: this.logger,
-        logMsg: 'Error expiring',
-        metricCollector: this.config.metricCollector,
-        swallowError: true, // ensure that if there is an error, we don't throw here
-      })
+      // Only attempt to expire once every 2.5 minutes
+      if (this.lastExpiryAttemptTimeMs === undefined || Date.now() - this.lastExpiryAttemptTimeMs > minutesToMs(2.5)) {
+        this.logger.info('Attempting to expire old reports')
+        await doAsyncFnWithErrorContext({
+          fn: this.expire.bind(this),
+          context: Context.EXPIRY,
+          logger: this.logger,
+          logMsg: 'Error expiring',
+          metricCollector: this.config.metricCollector,
+          swallowError: true, // ensure that if there is an error, we don't throw here
+        })
+      }
     }
   }
 
@@ -297,19 +304,11 @@ export class BlockBasedReporter extends BaseReporter {
   }
 
   private isHeartbeatCycle(blockNumber: number): boolean {
-    const L2_TRANSITION_BLOCK = 31056500
-    const blockTimeMs = blockNumber > L2_TRANSITION_BLOCK ? 1 : 5
+    if (this._lastReportedTimeMs === undefined) {
+      return false
+    }
 
-    const targetMaxHeartbeatPeriodMs =
-      this.config.targetMaxHeartbeatPeriodMs ?? this.reportExpiryTimeMs
-    const expectedBlocksPerExpiryPeriod = Math.floor(targetMaxHeartbeatPeriodMs / blockTimeMs)
-    const fullCyclesPerExpiryPeriod = Math.floor(
-      expectedBlocksPerExpiryPeriod / this.totalOracleCount
-    )
-    const heartbeatCycleInExpiryPeriod = this.oracleIndex % fullCyclesPerExpiryPeriod
-    const cycleInExpiryPeriod =
-      Math.floor(blockNumber / this.totalOracleCount) % fullCyclesPerExpiryPeriod
-    return cycleInExpiryPeriod === heartbeatCycleInExpiryPeriod
+    return Date.now() - this._lastReportedTimeMs > minutesToMs(4)
   }
 
   private setupProviderAndSubscriptions(): void {

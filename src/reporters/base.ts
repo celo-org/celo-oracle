@@ -123,6 +123,7 @@ export abstract class BaseReporter {
 
   protected _lastReportedPrice: BigNumber | undefined
   protected _lastReportedTimeMs: number | undefined
+  protected _lastExpiryAttemptTimeMs: number | undefined
 
   protected _oracleIndex: number | undefined
   protected _totalOracleCount: number | undefined
@@ -172,6 +173,8 @@ export abstract class BaseReporter {
       'Reporting price'
     )
     if (this.config.devMode) {
+      this._lastReportedPrice = price
+      this._lastReportedTimeMs = Date.now()
       this.logger.info(
         {
           price,
@@ -249,6 +252,7 @@ export abstract class BaseReporter {
    * Error handling (logs + metric reporting) are left to the caller.
    */
   async expire() {
+    this._lastExpiryAttemptTimeMs = Date.now()
     this.logger.info('Checking for expired reports')
     if (this.config.devMode) {
       this.logger.info('Mock call, did not expire reports because of devMode')
@@ -491,6 +495,10 @@ export abstract class BaseReporter {
 
   get lastReportedTimeMs(): number | undefined {
     return this._lastReportedTimeMs
+  }
+
+  get lastExpiryAttemptTimeMs(): number | undefined {
+    return this._lastExpiryAttemptTimeMs
   }
 
   get oracleIndex(): number {

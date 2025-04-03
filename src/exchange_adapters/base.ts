@@ -363,14 +363,6 @@ export abstract class BaseExchangeAdapter {
         if (_certFingerprint256) {
           while (currentCert) {
             if (_certFingerprint256 === currentCert.fingerprint256) {
-              // Warn if within a 30 days of expiry (30 * 24 * 60 * 60 + 1000)
-              const expirationDate = Date.parse(cert.valid_to)
-              if (expirationDate - Date.now() < 2592000000) {
-                this.logger.warn(
-                  `Certificate with fingerprint ${currentCert.fingerprint256} expires in < 1 month`
-                )
-              }
-
               return
             } else {
               // @ts-ignore TS doesn't believe issuerCertificate exists on PeerCertificate
