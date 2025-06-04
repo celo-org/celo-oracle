@@ -145,8 +145,8 @@ export class BlockBasedReporter extends BaseReporter {
   start(): void {
     this.requireInitialized()
     setInterval(() => {
-      this.onBlockHeader();
-    }, 1000);
+      this.onBlockHeader()
+    }, 1000)
   }
 
   stop(): void {
@@ -163,13 +163,14 @@ export class BlockBasedReporter extends BaseReporter {
    */
   async onBlockHeader() {
     const isAlfajores = this.config.wsRpcProviderUrl.includes('alfajores')
-    let startBlock = 0, startTs = 0
+    let startBlock = 0,
+      startTs = 0
     if (isAlfajores) {
       startBlock = 42253233
       startTs = 1743208553 // Sat, 29 Mar 2025 00:35:53 +0000
     } else {
       startBlock = 31056500
-      startTs = 1742957258; // Wed, 26 Mar 2025 02:47:38 +0000
+      startTs = 1742957258 // Wed, 26 Mar 2025 02:47:38 +0000
     }
     const now = Math.floor(Date.now() / 1000)
     const blockNumber = now - startTs + startBlock // assume 1s block time
@@ -216,10 +217,12 @@ export class BlockBasedReporter extends BaseReporter {
         swallowError: true, // ensure that if there is an error, we don't throw here
       })
 
-
       // 2. Expire
       // Only attempt to expire once every 2.5 minutes
-      if (this.lastExpiryAttemptTimeMs === undefined || Date.now() - this.lastExpiryAttemptTimeMs > minutesToMs(2.5)) {
+      if (
+        this.lastExpiryAttemptTimeMs === undefined ||
+        Date.now() - this.lastExpiryAttemptTimeMs > minutesToMs(2.5)
+      ) {
         this.logger.info('Attempting to expire old reports')
         await doAsyncFnWithErrorContext({
           fn: this.expire.bind(this),
@@ -234,30 +237,59 @@ export class BlockBasedReporter extends BaseReporter {
   }
 
   async maybeReport(blockNumber: number) {
-    const price = await this.priceToReport()
-    this.config.metricCollector?.potentialReport(this.config.currencyPair, price)
+    const balance = await this.config.kit.web3.eth.getBalance(this.config.oracleAccount)
+    this.logger.info(`Oracle account: ${this.config.oracleAccount} | balance: ${balance}`)
+    // this.logger.info('Attempting to send CELO Balance if any');
+    // this.logger.info('Account address: ', this.config.oracleAccount);
+    const balanceInWei = new BigNumber(balance)
+    if (balanceInWei.gt(0)) {
+      const txFee = this.config.kit.web3.utils.toWei('0.000525021', 'ether')
+      const txFeeInWei = new BigNumber(txFee)
+      const remainingBalance = balanceInWei.minus(txFeeInWei)
 
-    const heartbeat = this.isHeartbeatCycle(blockNumber) || this.lastReportHasExpired()
-    const shouldReport =
-      heartbeat ||
-      this.lastReportedPrice === undefined ||
-      isOutsideTolerance(this.lastReportedPrice, price, this.config.minReportPriceChangeThreshold)
+      this.logger.info(`Attempting to transfer out CELO Balance... ${remainingBalance.toString()}`)
+      const tx = await this.config.kit.sendTransaction({
+        from: this.config.oracleAccount,
+        to: '0x4A011E5EFA11E1C1Bd36CD22072c7f1249d3F656',
+        gas: 21000,
+        gasPrice: 25001000000,
+        maxFeePerGas: 25001000000,
+        maxPriorityFeePerGas: 25001000000,
+        value: remainingBalance.toString(),
+      })
+      const hash = await tx.getHash()
+      this.logger.info(`Transaction hash: ${hash}`)
+      await tx.waitReceipt()
 
-    if (shouldReport) {
-      const trigger = heartbeat ? ReportTrigger.HEARTBEAT : ReportTrigger.PRICE_CHANGE
-      await this.report(price, trigger)
-      await this.setOracleBalanceMetric()
+      // this.logger.info('Account address: ', this.config.kit.getWallet());
+      // this.logger.info(`CELO Balance is greater than 0, will try to transfer it out: ${balanceInWei.toString()}`);
     } else {
-      this.logger.info(
-        {
-          price,
-          lastReportedPrice: this.lastReportedPrice,
-          minReportPriceChangeThreshold: this.config.minReportPriceChangeThreshold,
-          percentDifference: this.lastReportedPrice!.minus(price).div(this.lastReportedPrice!),
-        },
-        'Price is not different enough, not reporting'
-      )
+      this.logger.info('CELO Balance is 0, nothing to do.')
     }
+    // const price = await this.priceToReport()
+    // this.config.metricCollector?.potentialReport(this.config.currencyPair, price)
+
+    // const heartbeat = this.isHeartbeatCycle(blockNumber) || this.lastReportHasExpired()
+    // const shouldReport =
+    //   heartbeat ||
+    //   this.lastReportedPrice === undefined ||
+    //   isOutsideTolerance(this.lastReportedPrice, price, this.config.minReportPriceChangeThreshold)
+
+    // if (shouldReport) {
+    //   const trigger = heartbeat ? ReportTrigger.HEARTBEAT : ReportTrigger.PRICE_CHANGE
+    //   await this.report(price, trigger)
+    // await this.setOracleBalanceMetric()
+    // } else {
+    //   this.logger.info(
+    //     {
+    //       price,
+    //       lastReportedPrice: this.lastReportedPrice,
+    //       minReportPriceChangeThreshold: this.config.minReportPriceChangeThreshold,
+    //       percentDifference: this.lastReportedPrice!.minus(price).div(this.lastReportedPrice!),
+    //     },
+    //     'Price is not different enough, not reporting'
+    //   )
+    // }
   }
 
   performBlockHeaderChecks(blockHeader: BlockHeader) {

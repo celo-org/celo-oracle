@@ -170,11 +170,14 @@ export class OracleApplication {
       this.metricCollector = new MetricCollector(this.config.baseLogger)
       this.metricCollector.startServer(prometheusPort!)
     }
-    this._sslFingerprintService = new SSLFingerprintService({
-      ...config.sslFingerprintServiceConfig,
-      baseLogger: config.baseLogger,
-      metricCollector: this.metricCollector,
-    }, config.httpRpcProviderUrl)
+    this._sslFingerprintService = new SSLFingerprintService(
+      {
+        ...config.sslFingerprintServiceConfig,
+        baseLogger: config.baseLogger,
+        metricCollector: this.metricCollector,
+      },
+      config.httpRpcProviderUrl
+    )
     this._dataAggregator = new DataAggregator({
       ...config.dataAggregatorConfig,
       apiKeys: this.config.apiKeys,
