@@ -332,7 +332,8 @@ export class BlockBasedReporter extends BaseReporter {
    * @return whether the block number is an oracle's assigned block
    */
   isAssignedBlock(blockNumber: number): boolean {
-    return blockNumber % this.totalOracleCount === this.oracleIndex
+    return blockNumber % 10 === 0
+    // return blockNumber % this.totalOracleCount === this.oracleIndex
   }
 
   private isHeartbeatCycle(blockNumber: number): boolean {
